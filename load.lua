@@ -18250,7 +18250,7 @@ end
 return { Page = v120, Grid = v121 }
 end
 
-local KICIA_RERUN_URL = "https://raw.githubusercontent.com/DuyTheNoob/KiciaTest/refs/heads/main/test.lua"
+local KICIA_RERUN_URL = "https://raw.githubusercontent.com/DuyTheNoob/Kicia/refs/heads/main/load.lua"
 local RERUN_DELAY   = 7 -- seconds to wait after teleport before loading
 
 local function KiciaQueueTeleport()
