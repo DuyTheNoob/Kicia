@@ -18250,8 +18250,8 @@ end
 return { Page = v120, Grid = v121 }
 end
 
-local KICIA_RERUN_URL = "https://raw.githubusercontent.com/DuyTheNoob/Kicia/refs/heads/main/load.lua"
-local RERUN_DELAY   = 6 -- seconds to wait after teleport before loading
+local KICIA_RERUN_URL = "https://raw.githubusercontent.com/finwo67/kiciahook-crack/refs/heads/main/kiciahook"
+local RERUN_DELAY   = 4 -- seconds to wait after teleport before loading
 
 local function KiciaQueueTeleport()
     local queueFn = K.fn("queue_on_teleport") or K.fn("queueonteleport")
@@ -20198,7 +20198,7 @@ return bd.c
 end
 end
 do
-local function fn35()local I= tbl17 .i().atomic; tbl17 .aZ();local W,N,P= tbl17 .aU(), tbl17 .aW(), tbl17 .aY();return{Aimbot=W.buildConfig(),SilentAim=N.buildConfig(),Triggerbot=P.buildConfig(),Ragebot={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false},Stability=0.15,ShootFrames=1,PrioritizeHackers=false,Weapons={Priority=I({"Primary","Secondary","Melee"}),Enabled={Primary=true,Secondary=true,Melee=true},OnEmpty="SwapOrReload"},Evasion={Mode="Random",Random={AnchorFromCharacter=false,BaseRadius=100,RadiusRandomFactor=0.5},ProjectileBreaker={DepthForward={Min=0,Max=4},DepthForwardFrequency=5,DepthUp={Min=0,Max=5.5},DepthUpFrequency=5,RepositionInterval=0.3,FallbackAnchorFromCharacter=false,FallbackBaseRadius=100,FallbackRadiusRandomFactor=0.5},Translocate={Offset=-5}},UtilizeHealthLead=false},Flickbot={Enabled=false,Keybind={State=false,Kind="Hold",Bind=nil,ShowInList=true,Invisible=false},Shoot=false,ShotDelay=0,Cooldown=250,FlickDuration=110,Curvature=12,Humanness=30}};end
+local function fn35()local I= tbl17 .i().atomic; tbl17 .aZ();local W,N,P= tbl17 .aU(), tbl17 .aW(), tbl17 .aY();return{Aimbot=W.buildConfig(),SilentAim=N.buildConfig(),Triggerbot=P.buildConfig(),Ragebot={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false},Stability=0.15,ShootFrames=1,PrioritizeHackers=false,Weapons={Priority=I({"Primary","Secondary","Melee"}),Enabled={Primary=true,Secondary=true,Melee=true},OnEmpty="SwapOrReload"},Evasion={Mode="Random",Random={AnchorFromCharacter=false,BaseRadius=100,RadiusRandomFactor=0.5},ProjectileBreaker={DepthForward={Min=0,Max=4},DepthForwardFrequency=5,DepthUp={Min=0,Max=5.5},DepthUpFrequency=5,RepositionInterval=0.3,FallbackAnchorFromCharacter=false,FallbackBaseRadius=100,FallbackRadiusRandomFactor=0.5},Translocate={Offset=-5},UEKiller={YDistance=100,TeleportCooldown=0},Underground={Depth=5}},UtilizeHealthLead=false},Flickbot={Enabled=false,Keybind={State=false,Kind="Hold",Bind=nil,ShowInList=true,Invisible=false},Shoot=false,ShotDelay=0,Cooldown=250,FlickDuration=110,Curvature=12,Humanness=30}};end
 
 tbl17.be = function()
 local be = tbl17.cache.be
@@ -20285,7 +20285,7 @@ return bj.c
 end
 end
 do
-local function fn35() tbl17 .a9();return{ItemModifiers={NoMotion=false,NoCameraShake=false,NoCameraSway=false,NoShootAnimation=false,NoSprintAnimation=false,NoEquipAnimation=false,NoReloadAnimation=false,NoSpread=false,AimCooldown={Enabled=false,Percentage=50},Recoil={Enabled=false,Percentage=75},FireCooldown={Enabled=false,Percentage=25},AimSpeed={Enabled=false,Percentage=300},MeleeCooldown={Enabled=false,Percentage=25},DashCooldown={Enabled=false,Percentage=25},ExtendMeleeRange={Enabled=false,Range=10},AutomaticWeapon=false,InfiniteDoubleJumps=false,AlwaysBackstab=false,FastProjectile=false,GrenadeFuse={Enabled=false,ExplodeOn="Impact",RemoveFuse=false}},BulletTracers={Enabled=false,Color=Color3.fromRGB(120,220,255),Width=0.06,Lifetime=0.6,FadeTime=0.35,Style="Beam",TextureLength=4,TextureSpeed=1,Emission=1,Glow=1,Expand=true,ExpandSpeed=18,ExpandDamper=0.7},ViewModelOffset={Enabled=false,X=0,Y=0,Z=0,Pitch=0,Yaw=0,Roll=0},Chams={Character={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false},Arms={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=true},Item={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false}},ViewModelHighlight={Arms={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0},Item={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0}},ViewModelWireframe={Arms={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025},Item={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025}},PlayerHit={Enabled=false,Sound={Enabled=false,DisableGameSound=false,HeadName=nil,BodyName=nil,HeadVolume=1,HeadPitch=1,BodyVolume=1,BodyPitch=1},Notification={Enabled=false,Text="Hit %DNAME% (%NAME%) for %DMG% in %PART%"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},HitFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}},PlayerElimination={Enabled=false,Sound={Enabled=false,Name=nil,Volume=1,Pitch=1},Notification={Enabled=false,Text="Eliminated %DNAME% (%NAME%)"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},KillFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}}};end
+local function fn35() tbl17 .a9();return{ItemModifiers={NoMotion=false,NoCameraShake=false,NoCameraSway=false,NoShootAnimation=false,NoSprintAnimation=false,NoEquipAnimation=false,NoReloadAnimation=false,NoSpread=false,AimCooldown={Enabled=false,Percentage=50},Recoil={Enabled=false,Percentage=75},FireCooldown={Enabled=false,Percentage=25},AimSpeed={Enabled=false,Percentage=300},MeleeCooldown={Enabled=false,Percentage=25},DashCooldown={Enabled=false,Percentage=25},ExtendMeleeRange={Enabled=false,Range=10},AutomaticWeapon=false,InfiniteDoubleJumps=false,AlwaysBackstab=false,FastProjectile=false,FastShoot=false,FireRate={Enabled=false,Percentage=100},GrenadeFuse={Enabled=false,ExplodeOn="Impact",RemoveFuse=false}},BulletTracers={Enabled=false,Color=Color3.fromRGB(120,220,255),Width=0.06,Lifetime=0.6,FadeTime=0.35,Style="Beam",TextureLength=4,TextureSpeed=1,Emission=1,Glow=1,Expand=true,ExpandSpeed=18,ExpandDamper=0.7},ViewModelOffset={Enabled=false,X=0,Y=0,Z=0,Pitch=0,Yaw=0,Roll=0},Chams={Character={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false},Arms={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=true},Item={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false}},ViewModelHighlight={Arms={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0},Item={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0}},ViewModelWireframe={Arms={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025},Item={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025}},PlayerHit={Enabled=false,Sound={Enabled=false,DisableGameSound=false,HeadName=nil,BodyName=nil,HeadVolume=1,HeadPitch=1,BodyVolume=1,BodyPitch=1},Notification={Enabled=false,Text="Hit %DNAME% (%NAME%) for %DMG% in %PART%"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},HitFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}},PlayerElimination={Enabled=false,Sound={Enabled=false,Name=nil,Volume=1,Pitch=1},Notification={Enabled=false,Text="Eliminated %DNAME% (%NAME%)"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},KillFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}}};end
 
 tbl17.bk = function()
 local bk = tbl17.cache.bk
@@ -49973,7 +49973,14 @@ if arg3 == nil then
 v103(arg2, "ShootCooldown", shootCooldown)
 return
 end
-v103(arg2, "ShootCooldown", shootCooldown * arg3.Percentage)
+local value = shootCooldown * (arg3.Percentage or 1)
+if arg3.Absolute ~= nil then
+value = math.min(value, arg3.Absolute)
+end
+if arg3.Max ~= nil then
+value = math.min(value, arg3.Max)
+end
+v103(arg2, "ShootCooldown", value)
 end,
 AutomaticWeapon = function(arg, arg2, arg3)
 local inputSpammingEnabled = v102(arg, "InputSpammingEnabled")
@@ -50488,11 +50495,35 @@ end
 index2._SetupInfoModifier = function(arg, arg2)
 local function fn36()
 local fireCooldown = v118.Data.ItemModifiers.FireCooldown
-arg._infoModifier:SetChange("FireCooldown", fireCooldown.Enabled and { Percentage = fireCooldown.Percentage / v86[91] } or nil)
+local fastShoot = v118.Data.ItemModifiers.FastShoot == true
+local fireRate = v118.Data.ItemModifiers.FireRate
+
+if not fireCooldown.Enabled and not fastShoot and not (fireRate and fireRate.Enabled) then
+arg._infoModifier:SetChange("FireCooldown", nil)
+return
+end
+local change = { Percentage = fireCooldown.Enabled and fireCooldown.Percentage / v86[91] or 1 }
+
+if fastShoot then
+change.Absolute = 0.01
+end
+
+if fireRate and fireRate.Enabled then
+local rateMultiplier = fireRate.Percentage / 100
+local cooldownMultiplier = 1 / rateMultiplier
+if change.Percentage == nil or cooldownMultiplier < change.Percentage then
+change.Percentage = cooldownMultiplier
+end
+end
+
+arg._infoModifier:SetChange("FireCooldown", change)
 end
 
 arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "FireCooldown", "Enabled" }), fn36)
 arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "FireCooldown", "Percentage" }), fn36)
+arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "FastShoot" }), fn36)
+arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "FireRate", "Enabled" }), fn36)
+arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "FireRate", "Percentage" }), fn36)
 
 local function fn37()
 local aimSpeed = v118.Data.ItemModifiers.AimSpeed
@@ -59380,7 +59411,7 @@ return ic.c
 end
 end
 do
-local function fn35() tbl17 .aE();local function l(I,W,N,P,a,e)I:AddGroup({Source=I:AddToggle({Label=W,Config={"ItemModifiers",P,"Enabled"}})}):AddSlider({Label=N,Min=a,Max=e,Config={"ItemModifiers",P,"Percentage"}});end;return function(I)local W,N,P,a=I:AddSection({Title="Aim & Fire",Side="left"}),I:AddSection({Title="Cooldowns",Side="left"}),I:AddSection({Title="Melee",Side="right"}),I:AddSection({Title="Grenades",Side="right"});l(W,"Reduce Recoil","Recoil Reduction (%)","Recoil",0,100);W:AddToggle({Label="Remove Spread",Config={"ItemModifiers","NoSpread"}});W:AddToggle({Label="Automatic Fire",Config={"ItemModifiers","AutomaticWeapon"}});W:AddToggle({Label="Fast Projectile",Config={"ItemModifiers","FastProjectile"}});l(W,"Aim Speed Override","Aim Speed (%)","AimSpeed",50,1000);l(N,"Fire Cooldown Override","Percentage","FireCooldown",0,100);l(N,"Aim Cooldown Override","Percentage","AimCooldown",1,100);l(N,"Melee Cooldown Override","Percentage","MeleeCooldown",0,100);l(N,"Dash Cooldown Override","Percentage","DashCooldown",0,100);P:AddToggle({Label="Always Backstab",Config={"ItemModifiers","AlwaysBackstab"}});P:AddGroup({Source=P:AddToggle({Label="Extend Melee Range",Config={"ItemModifiers","ExtendMeleeRange","Enabled"}})}):AddSlider({Label="Range",Min=5,Max=100,Config={"ItemModifiers","ExtendMeleeRange","Range"}});N=a:AddGroup({Source=a:AddToggle({Label="Fuse Override",Config={"ItemModifiers","GrenadeFuse","Enabled"}})});N:AddDropdown({Label="Explode On",Options={"Impact","Throw"},Config={"ItemModifiers","GrenadeFuse","ExplodeOn"}});N:AddToggle({Label="Remove Fuse",Config={"ItemModifiers","GrenadeFuse","RemoveFuse"}});end;end
+local function fn35() tbl17 .aE();local function l(I,W,N,P,a,e)I:AddGroup({Source=I:AddToggle({Label=W,Config={"ItemModifiers",P,"Enabled"}})}):AddSlider({Label=N,Min=a,Max=e,Config={"ItemModifiers",P,"Percentage"}});end;return function(I)local W,N,P,a=I:AddSection({Title="Aim & Fire",Side="left"}),I:AddSection({Title="Cooldowns",Side="left"}),I:AddSection({Title="Melee",Side="right"}),I:AddSection({Title="Grenades",Side="right"});l(W,"Reduce Recoil","Recoil Reduction (%)","Recoil",0,100);W:AddToggle({Label="Remove Spread",Config={"ItemModifiers","NoSpread"}});W:AddToggle({Label="Fast Shoot",Config={"ItemModifiers","FastShoot"}});W:AddToggle({Label="Fast Projectile",Config={"ItemModifiers","FastProjectile"}});W:AddToggle({Label="Full Auto",Config={"ItemModifiers","AutomaticWeapon"}});l(W,"Fire Rate Override","Fire Rate (%)","FireRate",1,500);l(W,"Aim Speed Override","Aim Speed (%)","AimSpeed",50,1000);l(N,"Fire Cooldown Override","Percentage","FireCooldown",0,100);l(N,"Aim Cooldown Override","Percentage","AimCooldown",1,100);l(N,"Melee Cooldown Override","Percentage","MeleeCooldown",0,100);l(N,"Dash Cooldown Override","Percentage","DashCooldown",0,100);P:AddToggle({Label="Always Backstab",Config={"ItemModifiers","AlwaysBackstab"}});P:AddGroup({Source=P:AddToggle({Label="Extend Melee Range",Config={"ItemModifiers","ExtendMeleeRange","Enabled"}})}):AddSlider({Label="Range",Min=5,Max=100,Config={"ItemModifiers","ExtendMeleeRange","Range"}});N=a:AddGroup({Source=a:AddToggle({Label="Fuse Override",Config={"ItemModifiers","GrenadeFuse","Enabled"}})});N:AddDropdown({Label="Explode On",Options={"Impact","Throw"},Config={"ItemModifiers","GrenadeFuse","ExplodeOn"}});N:AddToggle({Label="Remove Fuse",Config={"ItemModifiers","GrenadeFuse","RemoveFuse"}});end;end
 
 tbl17.id = function()
 local id = tbl17.cache.id
@@ -59409,7 +59440,7 @@ return ie.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=5,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=5000,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=1000,Step=1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=1000,Step=1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
+local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=50,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=5000,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","UEKiller","Underground"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});local u=P:AddGroup({Source=a,Option="UEKiller"});u:AddSlider({Label="Y Distance",Min=0,Max=10000,Config={"Ragebot","Evasion","UEKiller","YDistance"}});u:AddSlider({Label="Teleport Cooldown",Min=0,Max=60,Step=0.05,Config={"Ragebot","Evasion","UEKiller","TeleportCooldown"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=1,Max=5000,Config={"Ragebot","Evasion","Underground","Depth"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
 
 tbl17.ih = function()
 local ih = tbl17.cache.ih
@@ -60239,7 +60270,7 @@ return is.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W,N,P,a,e)W:AddGroup({Source=I(W,N,{"Always","Toggle","Hold"},{"Movement",P},a)}):AddSlider({Label=e.Label,Min=e.Min,Max=e.Max,Step=e.Step,Config={"Movement",P,"Speed"}});end;return function(W)local N,P=W:AddSection({Title="Ground",Side="left"}),W:AddSection({Title="Air",Side="right"});l(N,"Walk Speed","WalkSpeed",true,{Label="Multiplier",Min=1,Max=50,Step=0.05});l(N,"Sliding","Sliding",true,{Label="Multiplier",Min=1,Max=50,Step=0.05});I(N,"Noclip",{"Always","Toggle","Hold"},{"Movement","Noclip"},true);l(N,"Auto Strafe","AutoStrafe",true,{Label="Speed",Min=1,Max=500});l(P,"Jump Power","JumpPower",false,{Label="Multiplier",Min=0.1,Max=50,Step=0.05});l(P,"Flight","Flight",true,{Label="Speed",Min=25,Max=500});P:AddToggle({Label="Infinite Double Jumps",Config={"ItemModifiers","InfiniteDoubleJumps"}});N=P:AddGroup({Source=I(P,"Long Jump",{"Tap"},{"Movement","LongJump"},true)});N:AddDropdown({Label="Mode",Options={"Under Feet","Camera Look"},Config={"Movement","LongJump","Mode"}});N:AddSlider({Label="Force",Min=0,Max=300,Config={"Movement","LongJump","Force"}});N:AddSlider({Label="Upward Velocity",Min=0,Max=200,Config={"Movement","LongJump","UpwardVelocity"}});N:AddSlider({Label="Behind Offset",Min=0,Max=8,Step=0.1,Config={"Movement","LongJump","Behind"}});end;end
+local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W,N,P,a,e)W:AddGroup({Source=I(W,N,{"Always","Toggle","Hold"},{"Movement",P},a)}):AddSlider({Label=e.Label,Min=e.Min,Max=e.Max,Step=e.Step,Config={"Movement",P,"Speed"}});end;return function(W)local N,P=W:AddSection({Title="Ground",Side="left"}),W:AddSection({Title="Air",Side="right"});l(N,"Walk Speed","WalkSpeed",true,{Label="Multiplier",Min=1,Max=10,Step=0.01});l(N,"Sliding","Sliding",true,{Label="Multiplier",Min=1,Max=10,Step=0.01});I(N,"Noclip",{"Always","Toggle","Hold"},{"Movement","Noclip"},true);l(N,"Auto Strafe","AutoStrafe",true,{Label="Speed",Min=1,Max=200});l(P,"Jump Power","JumpPower",false,{Label="Multiplier",Min=0.1,Max=10,Step=0.01});l(P,"Flight","Flight",true,{Label="Speed",Min=25,Max=500});P:AddToggle({Label="Infinite Double Jumps",Config={"ItemModifiers","InfiniteDoubleJumps"}});N=P:AddGroup({Source=I(P,"Long Jump",{"Tap"},{"Movement","LongJump"},true)});N:AddDropdown({Label="Mode",Options={"Under Feet","Camera Look"},Config={"Movement","LongJump","Mode"}});N:AddSlider({Label="Force",Min=0,Max=300,Config={"Movement","LongJump","Force"}});N:AddSlider({Label="Upward Velocity",Min=0,Max=200,Config={"Movement","LongJump","UpwardVelocity"}});N:AddSlider({Label="Behind Offset",Min=0,Max=8,Step=0.1,Config={"Movement","LongJump","Behind"}});end;end
 
 tbl17.it = function()
 local it = tbl17.cache.it
@@ -64023,6 +64054,26 @@ end
 if arg3 == "ProjectileBreaker" then
 return { CFrame = arg._projectileBreakerTeleport:Compute(arg2), ShouldSkipDefense = v86[34] }
 end
+
+if arg3 == "UEKiller" then
+local ueKiller = v115.Data.Ragebot.Evasion.UEKiller or { YDistance = 100, TeleportCooldown = 0 }
+local now2 = os.clock()
+
+if arg._ueKillerCFrame ~= nil and arg._ueKillerNextAt ~= nil and now2 < arg._ueKillerNextAt then
+return { CFrame = arg._ueKillerCFrame, ShouldSkipDefense = v86[34] }
+end
+local cFrame = CFrame.new(arg2.X, ueKiller.YDistance, arg2.Z) * (arg2 - arg2.Position)
+arg._ueKillerCFrame = cFrame
+arg._ueKillerNextAt = now2 + (ueKiller.TeleportCooldown or 0)
+return { CFrame = cFrame, ShouldSkipDefense = v86[34] }
+end
+
+if arg3 == "Underground" then
+local underground = v115.Data.Ragebot.Evasion.Underground or { Depth = 5 }
+local depth = underground.Depth
+local cFrame = CFrame.new(arg2.X, -depth, arg2.Z) * (arg2 - arg2.Position)
+return { CFrame = cFrame, ShouldSkipDefense = v86[34] }
+end
 return { CFrame = v121.compute(arg2) }
 end
 
@@ -64064,6 +64115,8 @@ index2._Reset = function(arg)
 arg:_ClearReloadTransport()
 arg._lastTargetWorld = nil
 arg._lastDefensiveViewAngles = nil
+arg._ueKillerCFrame = nil
+arg._ueKillerNextAt = nil
 arg:_ApplyForcedCrouch(false)
 arg._meleeStrategy:ResetState()
 arg._projectileBreakerTeleport:ResetState()
