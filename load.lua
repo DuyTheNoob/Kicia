@@ -37713,7 +37713,7 @@ end
 return ef.c
 end
 end
-do
+do -- eg
 local function fn35()
 local v115 = tbl17.cK()
 tbl17.d8()
@@ -37785,7 +37785,7 @@ end
 return eg.c
 end
 end
-do
+do -- eh
 local function fn35()
 tbl17.dR()
 local v115 = tbl17.a()
@@ -37859,6 +37859,7 @@ return setmetatable(tbl19, index2)
 end
 return nil
 
+-- (anti-tamper freeze trap removed)
 end
 
 local function fn39(arg, arg2)
@@ -38013,7 +38014,7 @@ end
 return eh.c
 end
 end
-do
+do -- ei
 local function fn35()
 local v115 = tbl17.a()
 local v116 = tbl17.b3()
@@ -38111,7 +38112,7 @@ end
 return ei.c
 end
 end
-do
+do -- ej
 local function fn35()
 tbl17.dR()
 tbl17.ad()
@@ -38281,7 +38282,7 @@ end
 return ej.c
 end
 end
-do
+do -- ek
 local function fn35()
 tbl17.aL()
 local v115 = tbl17.dT()
@@ -38579,7 +38580,7 @@ end
 return ek.c
 end
 end
-do
+do -- el
 local function fn35()
 tbl17.aL()
 local item = tbl17.dY().Item
@@ -38776,7 +38777,7 @@ end
 return el.c
 end
 end
-do
+do -- em
 local function fn35()
 local v115 = tbl17.aR()
 local cosmeticLibrary = tbl17.aS().CosmeticLibrary
@@ -39015,7 +39016,7 @@ end
 return em.c
 end
 end
-do
+do -- en
 local function fn35()
 local fighterController = tbl17.aS().FighterController
 local v115 = tbl17.dV()
@@ -39103,7 +39104,7 @@ end
 return en.c
 end
 end
-do
+do -- eo
 local function fn35()
 tbl17.ad()
 local v115 = tbl17.a()
@@ -39247,7 +39248,7 @@ end
 return eo.c
 end
 end
-do
+do -- ep
 local function fn35()
 local v115 = tbl17.a()
 local v116 = tbl17.en()
@@ -39333,7 +39334,7 @@ end
 return ep.c
 end
 end
-do
+do -- eq
 local function fn35()
 local v115 = tbl17.a()
 local v116 = tbl17.en()
@@ -39407,7 +39408,7 @@ end
 return eq.c
 end
 end
-do
+do -- er
 local function fn35()
 tbl17.ad()
 local v115 = tbl17.a()
@@ -39450,6 +39451,7 @@ elseif arg:IsA("Decal") or arg:IsA("Texture") then
 if true then
 arg.Transparency = 1
 else
+-- (anti-tamper freeze trap removed)
 end
 elseif arg:IsA("ParticleEmitter") or arg:IsA("Trail") or arg:IsA("Beam") then
 arg.Enabled = v86[153]
@@ -39569,7 +39571,7 @@ end
 return er.c
 end
 end
-do
+do -- es
 local function fn35()
 tbl17.ad()
 local v115 = tbl17.eo()
@@ -39628,7 +39630,7 @@ end
 return es.c
 end
 end
-do
+do -- et
 local function fn35()
 tbl17.dB()
 tbl17.cF()
@@ -39824,7 +39826,7 @@ end
 return et.c
 end
 end
-do
+do -- eu
 local function fn35()
 tbl17.aN()
 local v115 = tbl17.a()
@@ -40023,7 +40025,7 @@ end
 return eu.c
 end
 end
-do
+do -- ev
 local function fn35()
 local v115 = tbl17.dV()
 tbl17.ea()
@@ -40089,7 +40091,7 @@ end
 return ev.c
 end
 end
-do
+do -- ew
 local function fn35()
 tbl17.aO()
 local v115 = tbl17.a()
@@ -40177,13 +40179,43 @@ return
 end
 v103(arg2, "Info", arg4)
 setmetatable(arg2, v125)
-local v126 = debug.getstack(2, v86[63])
-
-if type(v126) ~= "table" then
-v126 = debug.getstack(v86[56], 2)
+-- Season 4 fix: the stack slot that held the item table is now a number, so `v126[1]` threw
+-- "attempt to index number with number" inside the game's ReplicatedController. Look for the view model
+-- defensively (old slot shapes first, then a scan of the caller frames) and never throw into game code.
+local function viewModelFrom(v)
+if type(v) ~= "table" then return nil end
+local first = v[1]
+if type(first) == "table" then
+local vm = v102(first, "ViewModel")
+if type(vm) == "table" and type(vm[v116.encode("Data")]) == "table" then return vm end
 end
-
-local viewModel = v102(v126[1], "ViewModel")
+local vm = v102(v, "ViewModel")
+if type(vm) == "table" and type(vm[v116.encode("Data")]) == "table" then return vm end
+return nil
+end
+local viewModel = nil
+do
+local okA, slotA = v107(debug.getstack, 2, v86[63])
+if okA then viewModel = viewModelFrom(slotA) end
+if viewModel == nil then
+local okB, slotB = v107(debug.getstack, v86[56], 2)
+if okB then viewModel = viewModelFrom(slotB) end
+end
+if viewModel == nil then
+for level = 1, 6 do
+local okS, stack = v107(debug.getstack, level)
+if okS and type(stack) == "table" then
+for _, v in pairs(stack) do
+viewModel = viewModelFrom(v)
+if viewModel ~= nil then break end
+end
+end
+if viewModel ~= nil then break end
+end
+end
+end
+if viewModel == nil then return end
+local okBody, errBody = v107(function()
 local player = v102(v102(arg2, "ClientFighter"), "Player")
 local name = v102(arg2, "Name")
 
@@ -40223,6 +40255,11 @@ end
 
 if v129 ~= nil then
 v128[v116.encode("Charm")] = v129
+end
+end)
+if not okBody and not arg._warnedBody then
+arg._warnedBody = true
+warn("[Kicia] ViewModel hook skipped: " .. tostring(errBody))
 end
 end,
 }
@@ -40289,7 +40326,7 @@ end
 return ew.c
 end
 end
-do
+do -- ex
 local function fn35()
 local v115 = tbl17.cK()
 
@@ -40316,7 +40353,7 @@ end
 return ex.c
 end
 end
-do
+do -- ey
 local function fn35()
 tbl17.aO()
 local v115 = tbl17.k()
@@ -40446,7 +40483,7 @@ end
 return ey.c
 end
 end
-do
+do -- ez
 local function fn35()
 tbl17.aO()
 local v115 = tbl17.g().new()
@@ -40471,7 +40508,7 @@ end
 return ez.c
 end
 end
-do
+do -- eA
 local function fn35()
 tbl17.aO()
 local v115 = tbl17.k()
@@ -40669,7 +40706,7 @@ end
 return ea.c
 end
 end
-do
+do -- eB
 local function fn35()
 tbl17.dB()
 local v115 = tbl17.dV()
@@ -40732,6 +40769,7 @@ tbl18:_ReloadEquippedSeasonCharms()
 return
 end
 
+-- (anti-tamper freeze trap removed)
 end)
 
 return tbl18
@@ -40882,7 +40920,7 @@ end
 return eb.c
 end
 end
-do
+do -- eC
 local function fn35()
 tbl17.dB()
 tbl17.aL()
@@ -41136,7 +41174,7 @@ end
 return ec.c
 end
 end
-do
+do -- eD
 local function fn35()
 return table.freeze({ Unlocker = 0, SkinChanger = 100 })
 end
@@ -41152,7 +41190,7 @@ end
 return ed.c
 end
 end
-do
+do -- eE
 local function fn35()
 local v115 = tbl17.a()
 tbl17.dU()
@@ -41418,7 +41456,7 @@ end
 return ee.c
 end
 end
-do
+do -- eF
 local function fn35()
 tbl17.dR()
 tbl17.d5()
@@ -41481,7 +41519,7 @@ end
 return ef.c
 end
 end
-do
+do -- eG
 local function fn35()
 tbl17.aL()
 local v115 = tbl17.a()
@@ -41527,6 +41565,7 @@ return v115.err("EmoteEquipWheel", "prototype_lookup", "EquipEmote.__index not f
 end
 return nil
 
+-- (anti-tamper freeze trap removed)
 end
 
 index2._Revert = function(arg)
@@ -41558,7 +41597,7 @@ end
 return eg.c
 end
 end
-do
+do -- eH
 local function fn35()
 tbl17.aL()
 local equipmentState = v102(tbl17.aS().Equipment, "EquipmentState")
@@ -41591,7 +41630,7 @@ end
 return eh.c
 end
 end
-do
+do -- eI
 local function fn35()
 local v115 = tbl17.ay()
 local equipment = tbl17.aS().Equipment
@@ -41616,7 +41655,7 @@ end
 return ei.c
 end
 end
-do
+do -- eJ
 local function fn35()
 tbl17.aL()
 tbl17.dR()
@@ -41697,7 +41736,7 @@ end
 return ej.c
 end
 end
-do
+do -- eK
 local function fn35()
 local v115 = tbl17.g()
 local v116 = tbl17.eI()
@@ -41751,7 +41790,7 @@ end
 return ek.c
 end
 end
-do
+do -- eL
 local function fn35()
 local v115 = tbl17.a()
 local v116 = tbl17.g()
@@ -41845,7 +41884,7 @@ end
 return el.c
 end
 end
-do
+do -- eM
 local function fn35()
 local v115 = tbl17.a()
 local v116 = tbl17.dP()
@@ -41926,7 +41965,7 @@ end
 return em.c
 end
 end
-do
+do -- eN
 local function fn35()
 tbl17.aL()
 local v115 = tbl17.a()
@@ -42021,7 +42060,7 @@ end
 return en.c
 end
 end
-do
+do -- eO
 local function fn35()
 tbl17.aL()
 tbl17.dR()
@@ -42166,7 +42205,7 @@ end
 return eo.c
 end
 end
-do
+do -- eP
 local function fn35()
 tbl17.dR()
 tbl17.dZ()
@@ -42236,7 +42275,7 @@ end
 return ep.c
 end
 end
-do
+do -- eQ
 local function fn35()
 tbl17.dR()
 tbl17.ad()
@@ -42317,7 +42356,7 @@ end
 return eq.c
 end
 end
-do
+do -- eR
 local function fn35()
 local tbl18 = {}
 local tbl19 = {}
@@ -42405,7 +42444,7 @@ end
 return er.c
 end
 end
-do
+do -- eS
 local function fn35()
 local v115 = tbl17.eR()
 local bxor = v115.bxor
@@ -42446,7 +42485,7 @@ end
 return es.c
 end
 end
-do
+do -- eT
 local function fn35()
 tbl17.aL()
 local tbl18 = { Skins = {}, Wraps = {}, Charms = {}, Finishers = {}, Emotes = {}, Images = {} }
@@ -42504,7 +42543,7 @@ end
 return et.c
 end
 end
-do
+do -- eU
 local function fn35()
 local v115 = tbl17.dV()
 local v116 = tbl17.eS()
@@ -42567,7 +42606,7 @@ end
 return eu.c
 end
 end
-do
+do -- eV
 local function fn35()
 tbl17.d_()
 tbl17.ad()
@@ -42986,7 +43025,7 @@ end
 return ev.c
 end
 end
-do
+do -- e_
 local function fn35()
 local v115 = tbl17.bG()
 tbl17.d_()
@@ -43126,7 +43165,7 @@ end
 return e.c
 end
 end
-do
+do -- e0
 local function fn35()
 tbl17.dB()
 tbl17.aL()
@@ -43431,6 +43470,7 @@ return tbl18
 end
 return nil
 
+-- (anti-tamper freeze trap removed)
 end
 
 index2.SetRuntimeEnabled = function(arg, runtimeEnabled)
@@ -43523,7 +43563,7 @@ end
 return e0.c
 end
 end
-do
+do -- e1
 local function fn35()
 tbl17.aL()
 return { "None", "Unique", "Common", "Rare", "Legendary", "Mythical", "Unobtainable" }
@@ -43541,7 +43581,7 @@ end
 return e1.c
 end
 end
-do
+do -- e2
 local function fn35()
 local v115 = tbl17.f()
 tbl17.e0()
@@ -43672,7 +43712,7 @@ end
 return e2.c
 end
 end
-do
+do -- e3
 local function fn35()
 local v115 = tbl17.f()
 tbl17.aL()
@@ -44059,7 +44099,7 @@ end
 return e3.c
 end
 end
-do
+do -- e4
 local function fn35()
 tbl17.cX()
 local v115 = tbl17.g()
@@ -44153,7 +44193,7 @@ end
 return e4.c
 end
 end
-do
+do -- e5
 local function fn35()
 local function fn36(arg)
 return arg:match("^%s*(.-)%s*$") or ""
@@ -44171,6 +44211,13 @@ end
 local v115 = fn36(arg)
 if v115 == "" then
 return nil
+end
+local _q = v115:match('^"(.-)"$')
+if _q ~= nil then
+v115 = fn36(_q)
+if v115 == "" then
+return nil
+end
 end
 local match = v115:match("^(%d+)$")
 if match ~= nil then
@@ -44203,7 +44250,7 @@ end
 return e5.c
 end
 end
-do
+do -- e7
 local function fn35()
 local v115 = tbl17.e5()
 local str7 = tbl17.eS().str
@@ -44221,16 +44268,12 @@ local function fn37(arg)
 if getcustomasset == nil then
 return v117.err("CustomAssets", "loadAssetFromFile", "missing 'getcustomasset'")
 end
-local v119, v120 = v107(isfile, arg)
-if not v119 or not v120 then
-return v117.err("CustomAssets", "loadAssetFromFile", string.format("path '%s' does not contain a file", tostring(arg)))
-end
 local v121, v122 = v107(getcustomasset, arg)
-if not v121 then
-local v123 = tostring
-return v117.err("CustomAssets", "loadAssetFromFile", string.format("getcustom asset threw an error when loading '%s': %s", tostring(arg), v123(v122)))
-end
+if v121 then
 return v117.ok(v122)
+end
+local v123 = tostring
+return v117.err("CustomAssets", "loadAssetFromFile", string.format("could not load '%s' (%s). Tip: copy the image into your executor workspace folder and enter just the file name.", tostring(arg), v123(v122)))
 end
 
 local function fn38(arg)
@@ -44282,7 +44325,7 @@ setmetatable(tbl18, index2)
 return tbl18
 end
 
-index2.GetAsync = function(arg, arg2)
+index2.GetAsync = function(arg, arg2, arg3)
 local resolved = arg._resolved
 local v119 = resolved[arg2]
 if v119 ~= nil then
@@ -44290,6 +44333,12 @@ return v119 ~= false and v116.resolve(v119) or v116.reject()
 end
 local v120 = v115.classify(arg2)
 if v120 == "Asset" then
+if arg3 == "image" then
+local _id = tostring(arg2):match("(%d+)")
+local _url = _id and ("rbxthumb://type=Asset&id=" .. _id .. "&w=420&h=420") or arg2
+resolved[arg2] = _url
+return v116.resolve(_url)
+end
 resolved[arg2] = arg2
 return v116.resolve(arg2)
 end
@@ -44341,7 +44390,7 @@ end
 return e7.c
 end
 end
-do
+do -- e8
 local function fn35()
 tbl17.e6()
 return {}
@@ -44358,7 +44407,7 @@ end
 return e8.c
 end
 end
-do
+do -- e9
 local function fn35()
 local v115 = tbl17.e5()
 tbl17.e6()
@@ -44499,7 +44548,7 @@ end
 if v124 == nil then
 return v120.reject()
 end
-return arg._customAssets:GetAsync(v124)
+return arg._customAssets:GetAsync(v124, "image")
 end
 
 index2.Preload = function(arg, image)
@@ -60653,7 +60702,7 @@ return ie.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=50,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=5000,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","Underground","UEKiller","Void"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=5,Max=14,Step=1,Config={"Ragebot","Evasion","Underground","Depth"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Y Distance",Min=100,Max=10000000,Step=100,Config={"Ragebot","Evasion","UEKiller","YDistance"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Teleport Cooldown",Min=0,Max=1,Step=0.05,Config={"Ragebot","Evasion","UEKiller","Cooldown"}});local v=P:AddGroup({Source=a,Option="Void"});local s=v:AddToggle({Label="Void Spam",Tooltip="Keep cycling between the void and surfacing to attack.",Config={"Ragebot","VoidEvasion","VoidSpam"}});local g=v:AddGroup({Source=s});g:AddSlider({Label="Hide",Tooltip="How long it stays in the void for.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Hide"}});g:AddSlider({Label="Attack",Tooltip="How long each attack window lasts.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Attack"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
+local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=5,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=50,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","Underground","UEKiller","Void"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=5,Max=14,Step=1,Config={"Ragebot","Evasion","Underground","Depth"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Y Distance",Min=100,Max=10000000,Step=100,Config={"Ragebot","Evasion","UEKiller","YDistance"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Teleport Cooldown",Min=0,Max=1,Step=0.05,Config={"Ragebot","Evasion","UEKiller","Cooldown"}});local v=P:AddGroup({Source=a,Option="Void"});local s=v:AddToggle({Label="Void Spam",Tooltip="Keep cycling between the void and surfacing to attack.",Config={"Ragebot","VoidEvasion","VoidSpam"}});local g=v:AddGroup({Source=s});g:AddSlider({Label="Hide",Tooltip="How long it stays in the void for.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Hide"}});g:AddSlider({Label="Attack",Tooltip="How long each attack window lasts.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Attack"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
 
 tbl17.ih = function()
 local ih = tbl17.cache.ih
