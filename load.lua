@@ -1258,15 +1258,22 @@ tbl17.iQ = function(app)
                 part.Parent = model
                 return part
             end
-            local yellow = Color3.fromRGB(245, 205, 48)
-            local blue = Color3.fromRGB(0, 85, 255)
-            local green = Color3.fromRGB(75, 151, 75)
-            build("Torso", Vector3.new(2, 2, 1), blue, Vector3.new(0, 3, 0))
-            build("Head", Vector3.new(1.25, 1.25, 1.25), yellow, Vector3.new(0, 4.625, 0))
-            build("Left Arm", Vector3.new(0.75, 1.9, 0.75), yellow, Vector3.new(-1.375, 3, 0))
-            build("Right Arm", Vector3.new(0.75, 1.9, 0.75), yellow, Vector3.new(1.375, 3, 0))
-            build("Left Leg", Vector3.new(0.9, 2, 0.9), green, Vector3.new(-0.5, 1, 0))
-            build("Right Leg", Vector3.new(0.9, 2, 0.9), green, Vector3.new(0.5, 1, 0))
+            local skin = Color3.fromRGB(163, 162, 165)
+            local black = Color3.fromRGB(21, 21, 24)
+            local denim = Color3.fromRGB(52, 71, 102)
+            local shoe = Color3.fromRGB(118, 38, 38)
+            build("Torso", Vector3.new(2, 2, 1), black, Vector3.new(0, 3, 0))
+            build("Head", Vector3.new(1.25, 1.25, 1.25), skin, Vector3.new(0, 4.625, 0))
+            build("Left Arm", Vector3.new(0.75, 1.55, 0.75), black, Vector3.new(-1.375, 3.225, 0))
+            build("Right Arm", Vector3.new(0.75, 1.55, 0.75), black, Vector3.new(1.375, 3.225, 0))
+            build("Left Hand", Vector3.new(0.75, 0.35, 0.75), skin, Vector3.new(-1.375, 2.275, 0))
+            build("Right Hand", Vector3.new(0.75, 0.35, 0.75), skin, Vector3.new(1.375, 2.275, 0))
+            build("Left Leg", Vector3.new(0.9, 1.7, 0.9), denim, Vector3.new(-0.5, 1.15, 0))
+            build("Right Leg", Vector3.new(0.9, 1.7, 0.9), denim, Vector3.new(0.5, 1.15, 0))
+            build("Left Shoe", Vector3.new(0.9, 0.3, 0.95), shoe, Vector3.new(-0.5, 0.15, -0.025))
+            build("Right Shoe", Vector3.new(0.9, 0.3, 0.95), shoe, Vector3.new(0.5, 0.15, -0.025))
+            build("Cap", Vector3.new(1.34, 0.3, 1.34), black, Vector3.new(0, 5.4, 0))
+            build("Cap Brim", Vector3.new(1.34, 0.08, 0.5), black, Vector3.new(0, 5.28, -0.85))
             local head = model:FindFirstChild("Head")
             if head ~= nil then
                 local face = Instance.new("Decal")
@@ -1284,23 +1291,19 @@ tbl17.iQ = function(app)
 
         local preview = grid:AddSection({ Title = "Live Preview", Side = "right" })
         local config = preview:GetConfig()
-        local previewMode = preview:AddDropdown({
-            Label = "Preview Mode",
-            Options = { "Enemies", "Teammates" },
-            Default = "Enemies",
-        })
         local viewport = preview:AddViewport({
             Height = 310,
             FieldOfView = 50,
             AutoRotate = true,
             RotateSpeed = 0.5,
-            DistanceMul = 1.45,
+            DistanceMul = 1.0,
         })
         local refreshPreview = function() end
+        local refreshPending = false
+        local previewTeam = false
 
         local function previewKey()
-            local value = previewMode.Value
-            if value == "Teammates" or value == "Team" then
+            if previewTeam then
                 return "Team"
             end
             return "Enemy"
@@ -1326,15 +1329,33 @@ tbl17.iQ = function(app)
             return model
         end
 
+        local PREVIEW_AVATAR_USER_ID = 1
+
+        local function createPreviewAvatar()
+            local players = game:GetService("Players")
+            local ok, avatar = pcall(function()
+                return players:CreateHumanoidModelFromUserIdAsync(PREVIEW_AVATAR_USER_ID)
+            end)
+            if ok and avatar ~= nil then
+                return avatar
+            end
+            ok, avatar = pcall(function()
+                local description = players:GetHumanoidDescriptionFromUserIdAsync(PREVIEW_AVATAR_USER_ID)
+                return players:CreateHumanoidModelFromDescriptionAsync(description, Enum.HumanoidRigType.R15)
+            end)
+            if ok and avatar ~= nil then
+                return avatar
+            end
+            return nil
+        end
+
         viewport:SetModel(makePreviewDummy())
         viewport._elevation = 0.06
         viewport:SetRotation(-math.pi / 2)
 
         task.spawn(function()
-            local ok, avatar = pcall(function()
-                return game:GetService("Players"):CreateHumanoidModelFromUserId(1)
-            end)
-            if ok and avatar ~= nil then
+            local avatar = createPreviewAvatar()
+            if avatar ~= nil then
                 preparePreviewModel(avatar)
                 viewport:SetModel(avatar)
                 avatar:Destroy()
@@ -1356,6 +1377,7 @@ tbl17.iQ = function(app)
 
             local presets = tbl17.f0()
             local paneOffset = tbl17.f1()
+            local visibility = tbl17.w()
             local LabelClass = tbl17.fQ()
             local BarClass = tbl17.fA()
             local BoxClass = tbl17.fH()
@@ -1545,6 +1567,9 @@ tbl17.iQ = function(app)
 
             local skeletonBones = {}
             local skeletonModel = nil
+            local skeletonHead = nil
+            local modelCenter = Vector3.zero
+            local modelSize = Vector3.zero
 
             local white = Color3.new(1, 1, 1)
             local validSkeletonParts = {
@@ -1679,6 +1704,7 @@ tbl17.iQ = function(app)
                 end
                 table.clear(skeletonBones)
                 skeletonModel = nil
+                skeletonHead = nil
             end
 
             local function addSkeletonBone(part0, part1, seen)
@@ -1714,6 +1740,8 @@ tbl17.iQ = function(app)
                     return
                 end
                 skeletonModel = model
+                skeletonHead = model:FindFirstChild("Head", true)
+                modelCenter, modelSize = model:GetBoundingBox()
                 local seen = {}
                 for _, part in model:GetChildren() do
                     if part:IsA("BasePart") and validSkeletonParts[part.Name] then
@@ -1747,8 +1775,7 @@ tbl17.iQ = function(app)
                 end
             end
 
-            local function updateSkeleton()
-                local player = config and config:Get({ "Esp", previewKey() }) or {}
+            local function updateSkeleton(player)
                 local skeleton = player.Skeleton or {}
                 local visible = skeleton.Enabled == true and #skeletonBones > 0
                 skeletonLayer.Visible = visible
@@ -1781,8 +1808,7 @@ tbl17.iQ = function(app)
                 end
             end
 
-            local function updateTracer()
-                local player = config and config:Get({ "Esp", previewKey() }) or {}
+            local function updateTracer(player)
                 local trace = player.Tracer or {}
                 tracer.Visible = false
                 tracerOutline.Visible = false
@@ -1795,16 +1821,13 @@ tbl17.iQ = function(app)
                 end
                 local targetWorld
                 if trace.Target == "Head" then
-                    local head = model:FindFirstChild("Head", true)
-                    if head ~= nil then
-                        targetWorld = head.Position
+                    if skeletonHead ~= nil then
+                        targetWorld = skeletonHead.Position
                     else
-                        local center, size = model:GetBoundingBox()
-                        targetWorld = center.Position + Vector3.new(0, size.Y * 0.5, 0)
+                        targetWorld = modelCenter.Position + Vector3.new(0, modelSize.Y * 0.5, 0)
                     end
                 else
-                    local center, size = model:GetBoundingBox()
-                    targetWorld = center.Position - Vector3.new(0, size.Y * 0.5, 0)
+                    targetWorld = modelCenter.Position - Vector3.new(0, modelSize.Y * 0.5, 0)
                 end
                 local target = projectPoint(targetWorld)
                 if target == nil then
@@ -1849,15 +1872,13 @@ tbl17.iQ = function(app)
                 end
             end
 
-            local function updateHeadMarker()
-                local player = config and config:Get({ "Esp", previewKey() }) or {}
+            local function updateHeadMarker(player)
                 local marker = player.HeadMarker or {}
                 headMarker.Visible = false
                 if marker.Enabled ~= true then
                     return
                 end
-                local model = viewport._model
-                local head = model and model:FindFirstChild("Head", true)
+                local head = skeletonHead
                 if head == nil then
                     return
                 end
@@ -1905,10 +1926,10 @@ tbl17.iQ = function(app)
                 end
             end
 
-            local function updateWorldOverlay()
-                updateSkeleton()
-                updateTracer()
-                updateHeadMarker()
+            local function updateWorldOverlay(player)
+                updateSkeleton(player)
+                updateTracer(player)
+                updateHeadMarker(player)
             end
 
             local function formatText(settings, flag, value)
@@ -2088,22 +2109,33 @@ tbl17.iQ = function(app)
                 end
             end
 
-            refreshPreview = refresh
+            refreshPreview = function()
+                refreshPending = true
+            end
             viewport._trove:Connect(overlay:GetPropertyChangedSignal("AbsoluteSize"), function()
-                refresh()
+                refreshPending = true
             end)
             if config ~= nil then
                 viewport._trove:Connect(config:Changed({ "Esp" }), function()
-                    refresh()
+                    refreshPending = true
                 end)
             end
             viewport._trove:Add(viewport._menu:OnPreRender(function(delta)
+                if not visibility.isEffectivelyVisible(overlay) then
+                    return
+                end
+                if refreshPending then
+                    refreshPending = false
+                    refresh()
+                end
                 local model = viewport._model
                 if model ~= skeletonModel then
                     buildSkeleton(model)
                 end
+                local esp = (config and config:Get({ "Esp" })) or {}
+                local player = esp[previewKey()] or {}
                 local now = os.clock()
-                updateWorldOverlay()
+                updateWorldOverlay(player)
                 boundingBox:Update(delta, now)
                 nameLabel:Update(now)
                 distanceLabel:Update(now)
@@ -2115,9 +2147,6 @@ tbl17.iQ = function(app)
                 ammoBar:Update()
             end))
             refresh()
-        end)
-        previewMode:OnChanged(function()
-            refreshPreview()
         end)
         local look = grid:AddSection({ Title = "Text", Side = "right" })
         look:AddToggle({ Label = "Use Display Names", Config = P("Settings", "UseDisplayName") })
@@ -2133,8 +2162,7 @@ tbl17.iQ = function(app)
         look:AddGroup({ Source = look:AddToggle({ Label = "Scale With Distance", Config = P("Settings", "DistanceScaling") }) })
             :AddSlider({ Label = "Reference Distance", Min = 10, Max = 300, Config = P("Settings", "DistanceScalingRef") })
 
-        local function side(title, key, where)
-            local s = grid:AddSection({ Title = title, Side = where })
+        local function side(s, title, key)
             local function Q(...) return P(key, ...) end
             enable(s, "Enable " .. title .. " ESP", { "Always", "Toggle", "Hold" }, P(key), true)
             local function color(label, path, transparency)
@@ -2185,8 +2213,21 @@ tbl17.iQ = function(app)
             tr:AddColor({ Row = tro.Row, Alpha = true, Config = Q("Tracer", "OutlineColor"), Transparency = Q("Tracer", "OutlineTransparency") })
             tr:AddSlider({ Label = "Outline Thickness", Min = 1, Max = 6, Config = Q("Tracer", "OutlineThickness") })
         end
-        side("Enemies", "Enemy", "left")
-        side("Teammates", "Team", "right")
+        local enemies, teammates = grid:AddMultiSection({ Titles = { "Enemies", "Teammates" }, Side = "left" })
+        side(enemies, "Enemies", "Enemy")
+        side(teammates, "Teammates", "Team")
+        enemies.Opened:Connect(function(open)
+            if open then
+                previewTeam = false
+                refreshPreview()
+            end
+        end)
+        teammates.Opened:Connect(function(open)
+            if open then
+                previewTeam = true
+                refreshPreview()
+            end
+        end)
     end
 end
 
@@ -50026,6 +50067,9 @@ _playerIdentities = arg2,
 _imageStorage = arg3,
 _espRoot = controller:Add(v119.new(v116.Esp)),
 _entryByEntity = {},
+_remoteStateByEntity = {},
+_pendingEntities = {},
+_pendingSet = {},
 _hidden = true,
 _boundCamera = v124.CurrentCamera,
 _frame = {
@@ -50102,16 +50146,19 @@ end)
 controller:Add(v121:ObserveEnabledKeybind({ "Esp", "Main" }, function(mainEnabled)
 tbl18._mainEnabled = mainEnabled
 tbl18:_MarkAllDirty()
+tbl18:_SyncEntities()
 end))
 
 controller:Add(v121:ObserveEnabledKeybind({ "Esp", "Enemy" }, function(enemyEnabled)
 tbl18._enemyEnabled = enemyEnabled
 tbl18:_MarkAllDirty()
+tbl18:_SyncEntities()
 end))
 
 controller:Add(v121:ObserveEnabledKeybind({ "Esp", "Team" }, function(teamEnabled)
 tbl18._teamEnabled = teamEnabled
 tbl18:_MarkAllDirty()
+tbl18:_SyncEntities()
 end))
 
 local function fn37(arg4)
@@ -50122,8 +50169,13 @@ controller:Connect(arg2.IdentityRegistered, fn37)
 controller:Connect(arg2.IdentityChanged, fn37)
 
 controller:Add(arg:ObserveRemoteStates(function(arg4)
-tbl18:_AddEntity(arg4)
+tbl18._remoteStateByEntity[arg4] = true
+if tbl18:_IsActive() then
+tbl18:_QueueEntity(arg4)
+end
 end, function(arg4)
+tbl18._remoteStateByEntity[arg4] = nil
+tbl18._pendingSet[arg4] = nil
 tbl18:_RemoveEntity(arg4)
 end))
 
@@ -50213,6 +50265,46 @@ v125.Dirty = v86[34]
 return
 end
 end
+end
+
+index2._IsActive = function(arg)
+return arg._mainEnabled and (arg._enemyEnabled or arg._teamEnabled)
+end
+
+index2._QueueEntity = function(arg, arg2)
+if arg._entryByEntity[arg2] ~= nil or arg._pendingSet[arg2] then
+return
+end
+arg._pendingSet[arg2] = true
+local pending = arg._pendingEntities
+pending[#pending + 1] = arg2
+end
+
+index2._SyncEntities = function(arg)
+if not arg:_IsActive() then
+return
+end
+for fighterState in arg._remoteStateByEntity, nil, nil do
+arg:_QueueEntity(fighterState)
+end
+end
+
+index2._DrainPending = function(arg)
+local pending = arg._pendingEntities
+local budget = 4
+while budget > 0 and #pending > 0 do
+local fighterState = table.remove(pending, 1)
+arg._pendingSet[fighterState] = nil
+if arg._remoteStateByEntity[fighterState] then
+arg:_AddEntity(fighterState)
+budget = budget - 1
+end
+end
+end
+
+index2._ClearPending = function(arg)
+table.clear(arg._pendingEntities)
+table.clear(arg._pendingSet)
 end
 
 index2._AddEntity = function(arg, arg2)
@@ -50356,9 +50448,14 @@ esp:SetPanesVisible(v86[34])
 end
 
 index2.Update = function(arg, deltaTime)
-local hidden = not arg._mainEnabled
-if hidden and arg._hidden then
+local active = arg:_IsActive()
+if not active and arg._hidden then
 return
+end
+if active then
+arg:_DrainPending()
+else
+arg:_ClearPending()
 end
 local boundCamera = arg._boundCamera
 local cFrame = boundCamera.CFrame
@@ -50382,7 +50479,7 @@ for k, v125 in arg._entryByEntity, nil, nil do
 arg:_UpdateEntry(k, v125)
 end
 
-arg._hidden = hidden
+arg._hidden = not active
 end
 
 index2.Destroy = function(arg)
@@ -64795,7 +64892,7 @@ return ic.c
 end
 end
 do
-local function fn35() tbl17 .aE();local function l(I,W,N,P,a,e)I:AddGroup({Source=I:AddToggle({Label=W,Config={"ItemModifiers",P,"Enabled"}})}):AddSlider({Label=N,Min=a,Max=e,Config={"ItemModifiers",P,"Percentage"}});end;return function(I)local W,N,P,a=I:AddSection({Title="Aim & Fire",Side="left"}),I:AddSection({Title="Cooldowns",Side="left"}),I:AddSection({Title="Melee",Side="right"}),I:AddSection({Title="Grenades",Side="right"});l(W,"Reduce Recoil","Recoil Reduction (%)","Recoil",0,100);W:AddToggle({Label="Remove Spread",Config={"ItemModifiers","NoSpread"}});W:AddToggle({Label="Fast Shoot",Config={"ItemModifiers","FastShoot"}});W:AddToggle({Label="Fast Projectile",Config={"ItemModifiers","FastProjectile"}});W:AddToggle({Label="Full Auto",Config={"ItemModifiers","FullAuto"}});W:AddGroup({Source=W:AddToggle({Label="Fire Rate Override",Config={"ItemModifiers","FireRate","Enabled"}})}):AddSlider({Label="Fire Rate (%)",Min=1,Max=100,Config={"ItemModifiers","FireRate","Percentage"}});l(W,"Aim Speed Override","Aim Speed (%)","AimSpeed",50,1000);l(N,"Fire Cooldown Override","Percentage","FireCooldown",0,100);l(N,"Aim Cooldown Override","Percentage","AimCooldown",1,100);l(N,"Melee Cooldown Override","Percentage","MeleeCooldown",0,100);l(N,"Dash Cooldown Override","Percentage","DashCooldown",0,100);P:AddToggle({Label="Always Backstab",Config={"ItemModifiers","AlwaysBackstab"}});P:AddGroup({Source=P:AddToggle({Label="Extend Melee Range",Config={"ItemModifiers","ExtendMeleeRange","Enabled"}})}):AddSlider({Label="Range",Min=5,Max=100,Config={"ItemModifiers","ExtendMeleeRange","Range"}});N=a:AddGroup({Source=a:AddToggle({Label="Fuse Override",Config={"ItemModifiers","GrenadeFuse","Enabled"}})});N:AddDropdown({Label="Explode On",Options={"Impact","Throw"},Config={"ItemModifiers","GrenadeFuse","ExplodeOn"}});N:AddToggle({Label="Remove Fuse",Config={"ItemModifiers","GrenadeFuse","RemoveFuse"}});end;end
+local function fn35() tbl17 .aE();local function l(I,W,N,P,a,e)I:AddGroup({Source=I:AddToggle({Label=W,Config={"ItemModifiers",P,"Enabled"}})}):AddSlider({Label=N,Min=a,Max=e,Config={"ItemModifiers",P,"Percentage"}});end;return function(I)local W,N,P,a=I:AddSection({Title="Aim & Fire",Side="left"}),I:AddSection({Title="Cooldowns",Side="left"}),I:AddSection({Title="Melee",Side="right"}),I:AddSection({Title="Grenades",Side="right"});l(W,"Reduce Recoil","Recoil Reduction (%)","Recoil",0,100);W:AddToggle({Label="Remove Spread",Config={"ItemModifiers","NoSpread"}});W:AddToggle({Label="Fast Shoot",Config={"ItemModifiers","FastShoot"}});W:AddToggle({Label="Fast Projectile",Config={"ItemModifiers","FastProjectile"}});W:AddToggle({Label="Full Auto",Config={"ItemModifiers","FullAuto"}});W:AddGroup({Source=W:AddToggle({Label="Fire Rate Override",Config={"ItemModifiers","FireRate","Enabled"}})}):AddSlider({Label="Fire Rate (%)",Min=1,Max=100,Config={"ItemModifiers","FireRate","Percentage"}});l(W,"Aim Speed Override","Aim Speed (%)","AimSpeed",50,1000);l(N,"Fire Cooldown Override","Percentage","FireCooldown",0,100);l(N,"Aim Cooldown Override","Percentage","AimCooldown",1,100);l(N,"Melee Cooldown Override","Percentage","MeleeCooldown",0,100);l(N,"Dash Cooldown Override","Percentage","DashCooldown",0,100);P:AddToggle({Label="Always Backstab",Config={"ItemModifiers","AlwaysBackstab"}});P:AddGroup({Source=P:AddToggle({Label="Extend Melee Range",Config={"ItemModifiers","ExtendMeleeRange","Enabled"}})}):AddSlider({Label="Range",Min=5,Max=10000000000,Config={"ItemModifiers","ExtendMeleeRange","Range"}});N=a:AddGroup({Source=a:AddToggle({Label="Fuse Override",Config={"ItemModifiers","GrenadeFuse","Enabled"}})});N:AddDropdown({Label="Explode On",Options={"Impact","Throw"},Config={"ItemModifiers","GrenadeFuse","ExplodeOn"}});N:AddToggle({Label="Remove Fuse",Config={"ItemModifiers","GrenadeFuse","RemoveFuse"}});end;end
 
 tbl17.id = function()
 local id = tbl17.cache.id
@@ -64824,7 +64921,7 @@ return ie.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=5,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=50,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=500,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","Underground","UEKiller","Void"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=500,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=5,Max=14,Step=1,Config={"Ragebot","Evasion","Underground","Depth"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Y Distance",Min=100,Max=10000000000,Step=100,Config={"Ragebot","Evasion","UEKiller","YDistance"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Teleport Cooldown",Min=0,Max=1,Step=0.05,Config={"Ragebot","Evasion","UEKiller","Cooldown"}});local v=P:AddGroup({Source=a,Option="Void"});v:AddToggle({Label="Anti Translocate",Tooltip="Snap back if the game tries to teleport you while hiding.",Config={"Ragebot","VoidEvasion","AntiTranslocate"}});local s=v:AddToggle({Label="Void Spam",Tooltip="Keep cycling between the void and surfacing to attack.",Config={"Ragebot","VoidEvasion","VoidSpam"}});local g=v:AddGroup({Source=s});g:AddSlider({Label="Hide",Tooltip="How long it stays in the void for.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Hide"}});g:AddSlider({Label="Attack",Tooltip="How long each attack window lasts.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Attack"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
+local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=5,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=50,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=1,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","Underground","UEKiller","Void"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=1,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=5,Max=14,Step=1,Config={"Ragebot","Evasion","Underground","Depth"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Y Distance",Min=100,Max=10000000000,Step=100,Config={"Ragebot","Evasion","UEKiller","YDistance"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Teleport Cooldown",Min=0,Max=1,Step=0.05,Config={"Ragebot","Evasion","UEKiller","Cooldown"}});local v=P:AddGroup({Source=a,Option="Void"});v:AddToggle({Label="Anti Translocate",Tooltip="Snap back if the game tries to teleport you while hiding.",Config={"Ragebot","VoidEvasion","AntiTranslocate"}});local s=v:AddToggle({Label="Void Spam",Tooltip="Keep cycling between the void and surfacing to attack.",Config={"Ragebot","VoidEvasion","VoidSpam"}});local g=v:AddGroup({Source=s});g:AddSlider({Label="Hide",Tooltip="How long it stays in the void for.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Hide"}});g:AddSlider({Label="Attack",Tooltip="How long each attack window lasts.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Attack"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
 
 tbl17.ih = function()
 local ih = tbl17.cache.ih
@@ -65842,6 +65939,20 @@ return iw.c
 end
 end
 do
+local function fn35() tbl17 .aE();return function(l)local I=l:AddSection({Title="Camera FOV",Side="left"});I:AddToggle({Label="Enable Camera FOV",Config={"CameraFov","Enabled"}});I:AddSlider({Label="Field of View",Min=30,Max=120,Config={"CameraFov","Value"}});end;end
+
+tbl17.ix = function()
+local ix = tbl17.cache.ix
+
+if not ix then
+ix = { c = fn35() }
+tbl17.cache.ix = ix
+end
+
+return ix.c
+end
+end
+do
 local function fn35() tbl17 .aE();return function(l)local I=l:AddSection({Title="Gameplay Overlays",Side="right"});I:AddToggle({Label="Hide Flashbang Effect",Config={"Removables","NoFlashbang"}});I:AddToggle({Label="Hide Burn Effect",Config={"Removables","NoBurnEffect"}});I:AddToggle({Label="Hide ADS Vignette",Config={"Removables","NoAdsVignette"}});I:AddToggle({Label="Hide Scope Overlay",Config={"Removables","NoScopeOverlay"}});I:AddToggle({Label="Hide Scope Reticle",Config={"Removables","NoScopeReticle"}});I:AddToggle({Label="Hide Hitmarker",Config={"Removables","NoHitmarker"}});I:AddToggle({Label="Hide In-Game Damage Numbers",Tooltip="Hides the game's built-in damage numbers.",Config={"Removables","NoDamageNumbers"}});end;end
 
 tbl17.iy = function()
@@ -65887,7 +65998,7 @@ return ia.c
 end
 end
 do
-local function fn35() tbl17 .aE();local W,N,P= tbl17 .iy(), tbl17 .iz(), tbl17 .iA();return function(l)P(l);W(l);N(l);end;end
+local function fn35() tbl17 .aE();local I,W,N,P= tbl17 .ix(), tbl17 .iy(), tbl17 .iz(), tbl17 .iA();return function(l)P(l);I(l);W(l);N(l);end;end
 
 tbl17.iB = function()
 local ib = tbl17.cache.iB
@@ -66283,7 +66394,7 @@ return iz.c
 end
 end
 do
-local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P,a,X,e= tbl17 .iB(), tbl17 .iL(), tbl17 .iQ(), tbl17 .iR(), tbl17 .iZ(),tbl17.iViewmodels(),{Visuals="rbxassetid://127234874352422",PlayerEsp="rbxassetid://85332511060401",Crosshair="rbxassetid://83752373575368",Weapon="rbxassetid://121406454377051",Camera="rbxassetid://114084146151777",Sound="rbxassetid://102139623610548"};return function(l,c)local E=c:AddTab({Label="Visuals",Icon=e.Visuals,Description="Player information, crosshair, weapon, camera, and sound visuals."});N(l,c,(E:AddTab({Label="Player ESP",Icon=e.PlayerEsp,Description="Player overlays, team-specific styling, and a synchronized preview."}):Grid({Columns=2})));W(l,c,(E:AddTab({Label="Crosshair",Icon=e.Crosshair,Description="Crosshair lines, images, text, motion, and target-follow effects."}):Grid({Columns=2})));a((E:AddTab({Label="Weapon Visuals",Icon=e.Weapon,Description="Materials, motion, projectile effects, and game health bar."}):Grid({Columns=2})));X((E:AddTab({Label="Viewmodels",Icon=e.Weapon,Description="Viewmodel position, arms, held item, and cosmetics."}):Grid({Columns=2})));I((E:AddTab({Label="Camera & Screen",Icon=e.Camera,Description="Third person, field of view, overlays, and screen scaling."}):Grid({Columns=2})));P((E:AddTab({Label="Sound ESP",Icon=e.Sound,Description="Visualize footsteps and other sounds by source and loudness."}):Grid({Columns=2})));end;end
+local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P,a,X,e= tbl17 .iB(), tbl17 .iL(), tbl17 .iQ(), tbl17 .iR(), tbl17 .iZ(),tbl17.iViewmodels(),{Visuals="rbxassetid://127234874352422",PlayerEsp="rbxassetid://85332511060401",Crosshair="rbxassetid://83752373575368",Weapon="rbxassetid://121406454377051",Camera="rbxassetid://114084146151777",Sound="rbxassetid://102139623610548"};return function(l,c)local E=c:AddTab({Label="Visuals",Icon=e.Visuals,Description="Player information, crosshair, weapon, camera, and sound visuals."});N(l,c,(E:AddTab({Label="Player ESP",Icon=e.PlayerEsp,Description="Player overlays, team-specific styling, and a synchronized preview."}):Grid({Columns=2})));W(l,c,(E:AddTab({Label="Crosshair",Icon=e.Crosshair,Description="Crosshair lines, images, text, motion, and target-follow effects."}):Grid({Columns=2})));a((E:AddTab({Label="Weapon Visuals",Icon=e.Weapon,Description="Materials, motion, projectile effects, and game health bar."}):Grid({Columns=2})));X((E:AddTab({Label="Viewmodels",Icon=e.Weapon,Description="Viewmodel position, arms, held item, and cosmetics."}):Grid({Columns=2})));I((E:AddTab({Label="Camera & Screen",Icon=e.Camera,Description="Third person, camera field of view, overlays, and screen scaling."}):Grid({Columns=2})));P((E:AddTab({Label="Sound ESP",Icon=e.Sound,Description="Visualize footsteps and other sounds by source and loudness."}):Grid({Columns=2})));end;end
 
 tbl17.i_ = function()
 local i = tbl17.cache.i_
@@ -75408,4 +75519,4 @@ task.spawn(function()
             dls()
         end)
     end
-end)        
+end)
