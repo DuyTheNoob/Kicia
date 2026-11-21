@@ -608,7 +608,13 @@ local function cleanItem(o)
     end
 end
 function Trove:Add(o) table.insert(self._items, o); return o end
-function Trove:Connect(sig, fn) return self:Add(sig:Connect(fn)) end
+function Trove:Connect(sig, fn)
+    if sig == nil then
+        warn("[KiciaRebuild] Trove:Connect nil signal on " .. tostring(self._name) .. "\n" .. debug.traceback())
+        return nil
+    end
+    return self:Add(sig:Connect(fn))
+end
 function Trove:Extend() return self:Add(Trove.new(self._name)) end
 function Trove:Remove(o, keep)
     local i = table.find(self._items, o)
@@ -1117,6 +1123,9 @@ tbl17.ca = function() return nil end
 do
     local soft = "rbxasset://textures/particles/smoke_main.dds"
     local sparkle = "rbxasset://textures/particles/sparkles_main.dds"
+    local leaf = "KICIA_WEATHER_LEAF"
+    local petal = "KICIA_WEATHER_PETAL"
+    local dust = "rbxassetid://14302399641"
     local function spec(t)
         t.RotationMin, t.RotationMax = t.RotationMin or 0, t.RotationMax or 360
         t.RotationSpeedMin, t.RotationSpeedMax = t.RotationSpeedMin or -40, t.RotationSpeedMax or 40
@@ -1141,6 +1150,46 @@ do
                     SpeedMin = 18, SpeedMax = 28, SizeStart = 0.3, SizeEnd = 0.2, BaseSpread = 0.8, BaseAccelerationY = -6 }),
                 spec({ Texture = soft, TransparencyMax = 0.75, LifetimeMin = 3, LifetimeMax = 5, BaseRate = 120,
                     SpeedMin = 14, SpeedMax = 22, SizeStart = 3, SizeEnd = 5, BaseSpread = 1, BaseAccelerationY = -2 }),
+            },
+            Sunshine = {
+                spec({ Texture = dust, TransparencyMax = 0.25, LifetimeMin = 5, LifetimeMax = 8, BaseRate = 110,
+                    SpeedMin = 2, SpeedMax = 5, SizeStart = 0.22, SizeEnd = 0.14, BaseSpread = 1.4, BaseAccelerationY = -0.45,
+                    RotationSpeedMin = -20, RotationSpeedMax = 20,
+                    Color = ColorSequence.new(Color3.fromRGB(255, 216, 130)) }),
+                spec({ Texture = sparkle, TransparencyMax = 0.2, LifetimeMin = 4, LifetimeMax = 7, BaseRate = 36,
+                    SpeedMin = 1.5, SpeedMax = 4, SizeStart = 0.16, SizeEnd = 0.1, BaseSpread = 1.6, BaseAccelerationY = -0.3,
+                    RotationSpeedMin = -30, RotationSpeedMax = 30,
+                    Color = ColorSequence.new(Color3.fromRGB(255, 244, 190)) }),
+            },
+            Spring = {
+                spec({ Texture = petal, TransparencyMax = 0.05, LifetimeMin = 7, LifetimeMax = 11, BaseRate = 95,
+                    SpeedMin = 3, SpeedMax = 6, SizeStart = 0.32, SizeEnd = 0.26, BaseSpread = 1.1, BaseAccelerationY = -1.1,
+                    RotationSpeedMin = -130, RotationSpeedMax = 130,
+                    Color = ColorSequence.new(Color3.fromRGB(255, 178, 208)) }),
+                spec({ Texture = petal, TransparencyMax = 0.05, LifetimeMin = 7, LifetimeMax = 11, BaseRate = 55,
+                    SpeedMin = 2.5, SpeedMax = 5, SizeStart = 0.26, SizeEnd = 0.2, BaseSpread = 1.3, BaseAccelerationY = -0.9,
+                    RotationSpeedMin = -110, RotationSpeedMax = 110,
+                    Color = ColorSequence.new(Color3.fromRGB(255, 226, 238)) }),
+            },
+            Autumn = {
+                spec({ Texture = leaf, TransparencyMax = 0.05, LifetimeMin = 6, LifetimeMax = 10, BaseRate = 80,
+                    SpeedMin = 4, SpeedMax = 8, SizeStart = 0.42, SizeEnd = 0.34, BaseSpread = 1.1, BaseAccelerationY = -2,
+                    RotationSpeedMin = -150, RotationSpeedMax = 150,
+                    Color = ColorSequence.new(Color3.fromRGB(214, 122, 45)) }),
+                spec({ Texture = leaf, TransparencyMax = 0.05, LifetimeMin = 6, LifetimeMax = 10, BaseRate = 50,
+                    SpeedMin = 3, SpeedMax = 7, SizeStart = 0.36, SizeEnd = 0.28, BaseSpread = 1.2, BaseAccelerationY = -1.6,
+                    RotationSpeedMin = -130, RotationSpeedMax = 130,
+                    Color = ColorSequence.new(Color3.fromRGB(170, 66, 38)) }),
+            },
+            Fog = {
+                spec({ Texture = soft, TransparencyMax = 0.86, LifetimeMin = 9, LifetimeMax = 14, BaseRate = 80,
+                    SpeedMin = 1.2, SpeedMax = 2.8, SizeStart = 10, SizeEnd = 18, BaseSpread = 2.2, BaseAccelerationY = 0.15,
+                    RotationSpeedMin = -8, RotationSpeedMax = 8,
+                    Color = ColorSequence.new(Color3.fromRGB(218, 224, 230)) }),
+                spec({ Texture = soft, TransparencyMax = 0.94, LifetimeMin = 7, LifetimeMax = 11, BaseRate = 45,
+                    SpeedMin = 0.8, SpeedMax = 2, SizeStart = 16, SizeEnd = 28, BaseSpread = 2.4, BaseAccelerationY = 0.1,
+                    RotationSpeedMin = -5, RotationSpeedMax = 5,
+                    Color = ColorSequence.new(Color3.fromRGB(235, 238, 242)) }),
             },
         },
         LightningPresetSet = { Rain = true },
@@ -6093,12 +6142,11 @@ arg._rt = rt
 arg2.Trove:Connect(textBox.FocusLost, function()
 local num = tonumber(textBox.Text:match("[%d%.%-]+"))
 
-if num == nil then
-fn38(arg, rt, true)
-else
+if num ~= nil then
 arg:Set(num)
 end
 
+fn38(arg, rt, true)
 fn40()
 end)
 
@@ -6686,6 +6734,10 @@ end, nil, nil, trove)
 
 v134:Realize(frame17, tbl20, 1)
 
+if v132 ~= nil and typeof(arg3.Color) == "Color3" then
+v132.Text = "#" .. arg3.Color:ToHex()
+end
+
 if v131 ~= nil then
 local v135 = v131
 
@@ -6706,10 +6758,13 @@ if v132 ~= nil then
 local v135 = v132
 
 trove:Connect(v135.FocusLost, function()
-local v136, v137 = v107(Color3.fromHex, v135.Text)
+local str = (v135.Text:gsub("[%s#]+", ""))
+local v136, v137 = v107(Color3.fromHex, str)
 
 if v136 then
 arg5.SetRgb(v137)
+else
+tbl22.Repaint(true)
 end
 end)
 end
@@ -7163,6 +7218,16 @@ local function repaint(arg6)
     frame14.Position = UDim2.new(0.5, 0, arg3.Alpha, 0)
     frame4.BackgroundColor3 = Color3.fromHSV(arg3.Hue, 1, 1)
     _fn42(arg6)
+
+    if v132 ~= nil then
+        local focusedOk, focused = pcall(function()
+            return v132:IsFocused()
+        end)
+
+        if not focusedOk or not focused then
+            v132.Text = "#" .. Color3.fromHSV(arg3.Hue, arg3.Sat, arg3.Val):ToHex()
+        end
+    end
 end
 tbl22.Repaint = repaint
 
@@ -10218,7 +10283,7 @@ imageLabel.Image = arg2.Image or "rbxassetid://89204837120267"
 imageLabel.Parent = frame2
 local frame3 = Instance.new("Frame")
 frame3.AnchorPoint = Vector2.new(1, 0)
-frame3.Position = UDim2.new(1, 2, 0, -v86[56])
+frame3.Position = UDim2.new(1, -28, 0, -v86[56])
 frame3.Size = UDim2.fromOffset(v86[144], 22)
 frame3.BackgroundTransparency = 1
 frame3.BorderSizePixel = 0
@@ -10233,6 +10298,55 @@ uiStroke.Color = Color3.fromRGB(255, 255, 255)
 uiStroke.Transparency = v86[63]
 uiStroke.Thickness = 1.5
 uiStroke.Parent = frame3
+local favoriteButton = nil
+local favoriteIcon = nil
+local refreshFavorite = nil
+
+if arg._favorite ~= nil and arg2.Name ~= "Unselected" then
+	favoriteButton = Instance.new("TextButton")
+	favoriteButton.AnchorPoint = Vector2.new(1, 0)
+	favoriteButton.Position = UDim2.new(1, -4, 0, -v86[56])
+	favoriteButton.Size = UDim2.fromOffset(v86[144], 22)
+	arg4:Bind(favoriteButton, "BackgroundColor3", "ElementBackground")
+	favoriteButton.BackgroundTransparency = 0.2
+	favoriteButton.BorderSizePixel = 0
+	favoriteButton.Text = ""
+	favoriteButton.AutoButtonColor = false
+	favoriteButton.ZIndex = 8
+	favoriteButton.Parent = instance2
+	local favoriteCorner = Instance.new("UICorner")
+	favoriteCorner.CornerRadius = UDim.new(1, 0)
+	favoriteCorner.Parent = favoriteButton
+	favoriteIcon = Instance.new(v86[135])
+	favoriteIcon.BackgroundTransparency = 1
+	favoriteIcon.Size = UDim2.fromScale(1, 1)
+	favoriteIcon.Text = "♥"
+	favoriteIcon.FontFace = v116.Bold
+	favoriteIcon.TextSize = 17
+	favoriteIcon.TextColor3 = v118.get("Unselected")
+	favoriteIcon.TextTransparency = 0.35
+	favoriteIcon.ZIndex = 9
+	favoriteIcon.Parent = favoriteButton
+
+	refreshFavorite = function()
+		local favorited = arg._favorite.Get ~= nil and arg._favorite.Get(arg2.Name) == true
+		favoriteIcon.TextColor3 = favorited and Color3.fromRGB(255, 92, 141) or v118.get("Unselected")
+		favoriteIcon.TextTransparency = favorited and 0 or 0.35
+	end
+
+	refreshFavorite()
+
+	v117.connectClick(arg3, favoriteButton, function()
+		local favorited = arg._favorite.Get ~= nil and arg._favorite.Get(arg2.Name) == true
+
+		if arg._favorite.Set ~= nil then
+			arg._favorite.Set(arg2.Name, not favorited)
+		end
+
+		refreshFavorite()
+	end)
+end
+
 local instance4 = Instance.new(v86[135])
 instance4.BackgroundTransparency = 1
 instance4.Size = UDim2.fromScale(1, 1)
@@ -10287,6 +10401,9 @@ SelectIndicator = frame3,
 SelectIndicatorIcon = instance4,
 SelectIndicatorStroke = uiStroke,
 Accent = instance5,
+FavoriteButton = favoriteButton,
+FavoriteIcon = favoriteIcon,
+RefreshFavorite = refreshFavorite,
 Selected = arg2.Selected == true,
 TitleColor = titleColor,
 DefaultPreviewColor = previewColor,
@@ -10663,6 +10780,7 @@ _heightMode = arg4.HeightMode or "Fixed",
 State = arg4.State or "Ready",
 _stateMessage = arg4.StateMessage,
 _onClearFilter = arg4.OnClearFilter,
+_favorite = arg4.Favorite,
 _filter = nil,
 _entries = {},
 _selectedEntry = nil,
@@ -10758,6 +10876,16 @@ arg._filter = filter
 
 for _, v120 in arg._entries, nil, nil do
 fn38(v120, filter)
+end
+
+return arg
+end
+
+index2.RefreshFavorites = function(arg)
+for _, v120 in arg._entries, nil, nil do
+if v120.RefreshFavorite ~= nil then
+v120.RefreshFavorite()
+end
 end
 
 return arg
@@ -11295,6 +11423,7 @@ _batch = nil,
 _ctx = nil,
 _elements = nil,
 _titleLabel = nil,
+_icon = nil,
 _rootFrame = nil,
 _separatorsDirty = false,
 _separatorTrove = arg2:Extend(),
@@ -11310,6 +11439,7 @@ end
 index2.BuildSection = function(arg, arg2, arg3, resolveParent)
 local v141 = fn36(arg, arg2:Extend(), "section", arg3.Title or "")
 v141._side = arg3.Side
+v141._icon = arg3.Icon
 v141._resolveParent = resolveParent
 return v141
 end
@@ -11345,21 +11475,46 @@ uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 uiListLayout.Parent = frame
 
 if arg.Title ~= "" then
+local header = Instance.new("Frame")
+header.Name = "SectionHeader"
+header.BackgroundTransparency = 1
+header.BorderSizePixel = 0
+header.Size = UDim2.new(1, 0, 0, v141.Section.TitleTextSize + 4)
+header.Parent = frame
+local headerLayout = Instance.new("UIListLayout")
+headerLayout.FillDirection = Enum.FillDirection.Horizontal
+headerLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+headerLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+headerLayout.Padding = UDim.new(0, 6)
+headerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+headerLayout.Parent = header
+
+if arg._icon ~= nil then
+local icon = Instance.new("ImageLabel")
+icon.Name = "SectionIcon"
+icon.LayoutOrder = 1
+icon.Size = UDim2.fromOffset(16, 16)
+icon.BackgroundTransparency = 1
+icon.BorderSizePixel = 0
+icon.ScaleType = Enum.ScaleType.Fit
+icon.Image = arg._icon
+icon.ImageTransparency = 0
+icon.ZIndex = 2
+icon.Parent = header
+arg2:Bind(icon, "ImageColor3", "TextColor")
+end
+
 local instance = Instance.new(v86[135])
+instance.LayoutOrder = 2
 instance.Text = arg.Title
-instance.AnchorPoint = Vector2.new(0, 0.5)
 instance.BackgroundTransparency = 1
-instance.Position = UDim2.fromScale(v86[186], 0.5)
 instance.BorderSizePixel = 0
 instance.AutomaticSize = Enum.AutomaticSize.XY
 instance.TextSize = v141.Section.TitleTextSize
 instance.FontFace = arg._menu.Fonts.Main
 arg2:Bind(instance, "TextColor3", "TextColor")
-instance.Parent = frame
+instance.Parent = header
 arg._titleLabel = instance
-local uiPadding = Instance.new("UIPadding")
-uiPadding.PaddingLeft = UDim.new(0, -v86[63])
-uiPadding.Parent = instance
 end
 
 local v142 = v134.box(arg2, frame)
@@ -14147,11 +14302,25 @@ row.Label.TextColor3 = v116.get("TextColor")
 row.Label.TextTransparency = 0
 row.ModeText.TextColor3 = v116.get("Accent")
 row.ModeText.TextTransparency = 0
+if row.KeycapStroke ~= nil then
+row.KeycapStroke.Color = v116.get("Accent")
+row.KeycapStroke.Transparency = 0.2
+end
+if row.Keycap ~= nil then
+row.Keycap.BackgroundTransparency = 0.02
+end
 else
 row.Label.TextColor3 = v116.get(v86[96])
 row.Label.TextTransparency = v86[126]
 row.ModeText.TextColor3 = v116.get("Unselected")
 row.ModeText.TextTransparency = 0.25
+if row.KeycapStroke ~= nil then
+row.KeycapStroke.Color = v116.get("Outline")
+row.KeycapStroke.Transparency = 0.5
+end
+if row.Keycap ~= nil then
+row.Keycap.BackgroundTransparency = 0.12
+end
 end
 end
 
@@ -14173,20 +14342,36 @@ local uiListLayout = Instance.new("UIListLayout")
 uiListLayout.FillDirection = Enum.FillDirection.Horizontal
 uiListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-uiListLayout.Padding = UDim.new(0, 10)
+uiListLayout.Padding = UDim.new(0, 8)
 uiListLayout.Parent = frame
+local keycap = Instance.new("Frame")
+keycap.Name = "Keycap"
+keycap.BackgroundTransparency = 0.12
+keycap.BorderSizePixel = 0
+keycap.Size = UDim2.fromOffset(60, 18)
+keycap.LayoutOrder = 0
+keycap.Parent = frame
+arg._batch:Bind(keycap, "BackgroundColor3", "ElementBackground")
+local keycapCorner = Instance.new("UICorner")
+keycapCorner.CornerRadius = UDim.new(0, 4)
+keycapCorner.Parent = keycap
+local keycapStroke = Instance.new("UIStroke")
+keycapStroke.Thickness = 1
+keycapStroke.Transparency = 0.5
+keycapStroke.Parent = keycap
+arg._batch:Bind(keycapStroke, "Color", "Outline")
 local instance = Instance.new(v86[135])
 instance.TextTransparency = v86[186]
 instance.Text = arg2.KeyText
 instance.BackgroundTransparency = 1
 instance.BorderSizePixel = 0
-instance.Size = UDim2.new(0, v86[163], 1, v86[186])
-instance.TextXAlignment = Enum.TextXAlignment.Left
-instance.TextSize = 12
-instance.LayoutOrder = v86[186]
+instance.Size = UDim2.fromScale(1, 1)
+instance.TextXAlignment = Enum.TextXAlignment.Center
+instance.TextTruncate = Enum.TextTruncate.AtEnd
+instance.TextSize = 9
 instance.FontFace = main
 arg._batch:Bind(instance, "TextColor3", "Accent")
-instance.Parent = frame
+instance.Parent = keycap
 local instance2 = Instance.new(v86[135])
 instance2.Text = arg2.Label
 instance2.BackgroundTransparency = 1
@@ -14205,14 +14390,13 @@ local instance3 = Instance.new(v86[135])
 instance3.Text = arg2.Mode
 instance3.BackgroundTransparency = 1
 instance3.BorderSizePixel = 0
-instance3.AutomaticSize = Enum.AutomaticSize.X
-instance3.Size = UDim2.fromScale(0, v86[63])
+instance3.Size = UDim2.new(0, 42, 1, 0)
 instance3.TextXAlignment = Enum.TextXAlignment.Right
 instance3.TextSize = v86[133]
 instance3.LayoutOrder = 2
 instance3.FontFace = main
 instance3.Parent = frame
-arg2.Row = { Outline = canvasGroup, KeyText = instance, Label = instance2, ModeText = instance3, FadeTween = nil }
+arg2.Row = { Outline = canvasGroup, KeyText = instance, Keycap = keycap, KeycapStroke = keycapStroke, Label = instance2, ModeText = instance3, FadeTween = nil }
 fn38(arg2)
 end
 
@@ -14256,7 +14440,7 @@ end
 local canvasGroup2 = Instance.new("CanvasGroup")
 canvasGroup2.BackgroundTransparency = 0.06
 canvasGroup2.BorderSizePixel = v86[186]
-canvasGroup2.Size = UDim2.fromOffset(234, 0)
+canvasGroup2.Size = UDim2.fromOffset(250, 0)
 canvasGroup2.AutomaticSize = Enum.AutomaticSize.Y
 canvasGroup2.GroupTransparency = v86[63]
 canvasGroup2.Visible = false
@@ -14271,20 +14455,28 @@ uiStroke.Thickness = 1
 arg2:Bind(uiStroke, v86[27], "Outline")
 uiStroke.Parent = canvasGroup2
 local frame = Instance.new("Frame")
+frame.Name = "TopAccent"
 frame.BorderSizePixel = 0
-frame.Position = UDim2.fromScale(v86[186], 0)
-frame.Size = UDim2.new(0, v86[56], 1, 0)
+frame.Position = UDim2.fromOffset(0, 0)
+frame.Size = UDim2.new(1, 0, 0, 2)
+frame.ZIndex = 2
 arg2:Bind(frame, v86[5], "Accent")
 frame.Parent = canvasGroup2
+local accentCorner = Instance.new("UICorner")
+accentCorner.CornerRadius = UDim.new(0, 2)
+accentCorner.Parent = frame
+local accentGradient = Instance.new("UIGradient")
+accentGradient.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 0.75) })
+accentGradient.Parent = frame
 local frame2 = Instance.new("Frame")
 frame2.BackgroundTransparency = 1
 frame2.BorderSizePixel = 0
-frame2.Position = UDim2.fromOffset(2, 0)
-frame2.Size = UDim2.new(1, -2, 0, v86[186])
+frame2.Position = UDim2.fromOffset(0, 2)
+frame2.Size = UDim2.new(1, 0, 0, v86[186])
 frame2.AutomaticSize = Enum.AutomaticSize.Y
 frame2.Parent = canvasGroup2
 local uiPadding = Instance.new("UIPadding")
-uiPadding.PaddingTop = UDim.new(v86[186], v86[162])
+uiPadding.PaddingTop = UDim.new(v86[186], 10)
 uiPadding.PaddingBottom = UDim.new(v86[186], 9)
 uiPadding.PaddingLeft = UDim.new(0, 12)
 uiPadding.PaddingRight = UDim.new(0, 12)
@@ -14296,7 +14488,7 @@ instance.Parent = frame2
 local textLabel = Instance.new("TextLabel")
 textLabel.Text = "KEYBINDS"
 textLabel.BackgroundTransparency = 1
-textLabel.Size = UDim2.new(1, 0, 0, 12)
+textLabel.Size = UDim2.new(1, 0, 0, 14)
 textLabel.BorderSizePixel = 0
 textLabel.TextXAlignment = Enum.TextXAlignment.Left
 textLabel.TextSize = 10
@@ -21023,7 +21215,7 @@ end
 end
 do
 local function fn35()
-return (table.freeze({ Desktop = "MouseKeyboard", Mobile = "Touch", Console = "Gamepad", VR = "VR" }))
+return (table.freeze({ VR = "VR", ["K&M"] = "MouseKeyboard", Mobile = "Touch", Console = "Gamepad" }))
 end
 
 tbl17.a2 = function()
@@ -21191,7 +21383,7 @@ return bd.c
 end
 end
 do
-local function fn35()local I= tbl17 .i().atomic; tbl17 .aZ();local W,N,P= tbl17 .aU(), tbl17 .aW(), tbl17 .aY();return{Aimbot=W.buildConfig(),SilentAim=N.buildConfig(),Triggerbot=P.buildConfig(),Ragebot={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false},Stability=0.15,ShootFrames=1,PrioritizeHackers=false,Weapons={Priority=I({"Primary","Secondary","Melee"}),Enabled={Primary=true,Secondary=true,Melee=true},OnEmpty="SwapOrReload"},Evasion={Mode="Random",Random={AnchorFromCharacter=false,BaseRadius=100,RadiusRandomFactor=0.5},ProjectileBreaker={DepthForward={Min=0,Max=4},DepthForwardFrequency=5,DepthUp={Min=0,Max=5.5},DepthUpFrequency=5,RepositionInterval=0.3,FallbackAnchorFromCharacter=false,FallbackBaseRadius=100,FallbackRadiusRandomFactor=0.5},Translocate={Offset=-5},Underground={Depth=10},UEKiller={YDistance=100,Cooldown=0.2}},VoidEvasion={VoidSpam=false,Hide=0.1,Attack=0.15,ShootAttempts=2,AttackMode="Gun",PreferredWeapon="Primary",Settings={SwapOnEmpty=true,PreferProjectile=true}},UtilizeHealthLead=false},Flickbot={Enabled=false,Keybind={State=false,Kind="Hold",Bind=nil,ShowInList=true,Invisible=false},Shoot=false,ShotDelay=0,Cooldown=250,FlickDuration=110,Curvature=12,Humanness=30}};end
+local function fn35()local I= tbl17 .i().atomic; tbl17 .aZ();local W,N,P= tbl17 .aU(), tbl17 .aW(), tbl17 .aY();return{Aimbot=W.buildConfig(),SilentAim=N.buildConfig(),Triggerbot=P.buildConfig(),Ragebot={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false},Stability=0.15,ShootFrames=1,PrioritizeHackers=false,Weapons={Priority=I({"Primary","Secondary","Melee"}),Enabled={Primary=true,Secondary=true,Melee=true},OnEmpty="SwapOrReload"},Evasion={Mode="Random",Random={AnchorFromCharacter=false,BaseRadius=100,RadiusRandomFactor=0.5},ProjectileBreaker={DepthForward={Min=0,Max=4},DepthForwardFrequency=5,DepthUp={Min=0,Max=5.5},DepthUpFrequency=5,RepositionInterval=0.3,FallbackAnchorFromCharacter=false,FallbackBaseRadius=100,FallbackRadiusRandomFactor=0.5},Translocate={Offset=-5},Underground={Depth=10},UEKiller={YDistance=100,Cooldown=0.2}},VoidEvasion={AntiTranslocate=true,VoidSpam=false,Hide=0.1,Attack=0.15,ShootAttempts=2},UtilizeHealthLead=false},Flickbot={Enabled=false,Keybind={State=false,Kind="Hold",Bind=nil,ShowInList=true,Invisible=false},Shoot=false,ShotDelay=0,Cooldown=250,FlickDuration=110,Curvature=12,Humanness=30}};end
 
 tbl17.be = function()
 local be = tbl17.cache.be
@@ -21249,7 +21441,7 @@ return bh.c
 end
 end
 do
-local function fn35() tbl17 .a3();return{Movement={WalkSpeed={Enabled=false,Speed=2,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},JumpPower={Enabled=false,Speed=2,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=false,Invisible=false}},Flight={Enabled=false,Speed=100,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},Sliding={Enabled=false,Speed=10,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},Noclip={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},AutoStrafe={Enabled=false,Speed=50,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},LongJump={Enabled=false,Keybind={State=false,Kind="Tap",Bind=nil,ShowInList=true,Invisible=false},Mode="Under Feet",Force=60,UpwardVelocity=20,Behind=8},MovementRecorder={Enabled=false,HideUI=false,HideNotifications=false,OpenDistance=3,RenderDistance=50,LookAlignSpeed=180,AlignSnapDistance=0.2,LookSmoothing=35,Record={Keybind={State=false,Kind="Toggle",Bind=nil,ShowInList=true,Invisible=false}},Replay={Keybind={State=false,Kind="Toggle",Bind=nil,ShowInList=true,Invisible=false}}}},Removables={NoFlashbang=false,NoBurnEffect=false,NoAdsVignette=false,NoScopeOverlay=false,NoScopeReticle=false,NoGunTracers=false,NoMuzzleFlash=false,NoHitmarker=false},ThirdPerson={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false},ShowReplica=false,RayCheck=false,X=3,Y=2,Z=6},CameraFov={Enabled=false,Value=70},StretchedResolution={Enabled=false,X=13,Y=10},CustomCrosshair={Enabled=false,Style="Lines",Image={Name="",Size=32,Transparency=0},Length=12,Thickness=2,Gap=6,Outline={Enabled=false,Color=Color3.fromRGB(0,0,0),Thickness=1},Animation={Enabled=false,Kind="Shimmer",Speed=1,Shimmer={Color=Color3.fromRGB(40,40,40)},Perimeter={Color=ColorSequence.new(Color3.fromRGB(255,0,0),Color3.fromRGB(0,0,255))},PingPong={BackgroundColor=Color3.fromRGB(0,0,0),MainColor=Color3.fromRGB(255,255,255),Rotation=0}},Rotation={Enabled=false,Angle=0,Speed=90},Spread={Enabled=false,Range={Min=4,Max=16},Speed=3},Top={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Bottom={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Left={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Right={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Text={Enabled=false,Content="",Font="Inconsolata",Size=14,Offset=24,Color=ColorSequence.new(Color3.fromRGB(255,255,255)),Outline={Enabled=false,Color=Color3.fromRGB(0,0,0),Thickness=1},Animation={Enabled=false,Kind="Shimmer",Speed=1,Shimmer={Color=Color3.fromRGB(40,40,40)},Perimeter={Color=ColorSequence.new(Color3.fromRGB(255,0,0),Color3.fromRGB(0,0,255))},PingPong={BackgroundColor=Color3.fromRGB(0,0,0),MainColor=Color3.fromRGB(255,255,255),Rotation=0}}},FollowTarget={Enabled=false,Mode="Crosshair",Speed=20,Damper=1,SnapDistance=5}},AnimationPlayer={Enabled=false,Animation="Cat Girl Bounce",CustomId="",Speed=1,Start=0,End=100},DeviceSpoof={Enabled=false,SpoofType="VR"},PlayerSpoofer={LocalPlayer={Name={Enabled=false,Value="Nosniy"},DisplayName={Enabled=false,Value="Nosniy"},Avatar={Enabled=false,Value="20349956"},Ping={Enabled=false,Value="Low"},Keys={Enabled=false,Value=999},EventCurrency={Enabled=false,Value=9999},Winstreak={Enabled=false,Value=999},Level={Enabled=false,Value=999},CasualWins={Enabled=false,Value=99999},RankedWins={Enabled=false,Value=9999},CasualWinPercent={Enabled=false,Value=100},RankedWinPercent={Enabled=false,Value=100},RankedElo={Enabled=false,Value=3600},LeaderboardRank={Enabled=false,Value=1},FavoriteMap={Enabled=false,Value="Arena"},NametagStatus={Enabled=false,Value="Prime"},Influencer={Enabled=false,Value=true},RobloxEmployee={Enabled=false,Value=true},NosniyTeam={Enabled=false}},OtherPlayers={Name={Enabled=false,Value=""},DisplayName={Enabled=false,Value=""},Avatar={Enabled=false,Value=""},Winstreak={Enabled=false,Value=0},Level={Enabled=false,Value=0},CasualWins={Enabled=false,Value=0},RankedWins={Enabled=false,Value=0},CasualWinPercent={Enabled=false,Value=0},RankedWinPercent={Enabled=false,Value=0},RankedElo={Enabled=false,Value=0},LeaderboardRank={Enabled=false,Value=200},FavoriteMap={Enabled=false,Value=""},NametagStatus={Enabled=false,Value="Prime"},Influencer={Enabled=false},RobloxEmployee={Enabled=false},NosniyTeam={Enabled=false}}}};end
+local function fn35() tbl17 .a3();return{Movement={WalkSpeed={Enabled=false,Speed=2,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},JumpPower={Enabled=false,Speed=2,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=false,Invisible=false}},Flight={Enabled=false,Speed=100,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},Sliding={Enabled=false,Speed=10,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},Noclip={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},AutoStrafe={Enabled=false,Speed=50,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false}},LongJump={Enabled=false,Keybind={State=false,Kind="Tap",Bind=nil,ShowInList=true,Invisible=false},Mode="Under Feet",Force=60,UpwardVelocity=20,Behind=8},MovementRecorder={Enabled=false,HideUI=false,HideNotifications=false,OpenDistance=3,RenderDistance=50,LookAlignSpeed=180,AlignSnapDistance=0.2,LookSmoothing=35,Record={Keybind={State=false,Kind="Toggle",Bind=nil,ShowInList=true,Invisible=false}},Replay={Keybind={State=false,Kind="Toggle",Bind=nil,ShowInList=true,Invisible=false}}}},Removables={NoFlashbang=false,NoBurnEffect=false,NoAdsVignette=false,NoScopeOverlay=false,NoScopeReticle=false,NoGunTracers=false,NoMuzzleFlash=false,NoHitmarker=false,NoDamageNumbers=false},AntiAim={Enabled=false,Pitch="random",Yaw="random",CustomPitch=0,CustomYaw=0},Aura={Enabled=false,Selected={"starlight"},ColorOverride={Enabled=false,Color=Color3.fromRGB(255,255,255)}},TexturePack={Enabled=false,Selected="None"},ThirdPerson={Enabled=false,Keybind={State=false,Kind="Always",Bind=nil,ShowInList=true,Invisible=false},ShowReplica=false,RayCheck=false,X=3,Y=2,Z=6},CameraFov={Enabled=false,Value=70},Freecam={Enabled=false,Keybind={State=false,Kind="Toggle",Bind=nil,ShowInList=true,Invisible=false},Speed=60,Sensitivity=0.45},StretchedResolution={Enabled=false,X=13,Y=10},CustomCrosshair={Enabled=false,Style="Lines",Image={Name="",Size=32,Transparency=0},Length=12,Thickness=2,Gap=6,Outline={Enabled=false,Color=Color3.fromRGB(0,0,0),Thickness=1},Animation={Enabled=false,Kind="Shimmer",Speed=1,Shimmer={Color=Color3.fromRGB(40,40,40)},Perimeter={Color=ColorSequence.new(Color3.fromRGB(255,0,0),Color3.fromRGB(0,0,255))},PingPong={BackgroundColor=Color3.fromRGB(0,0,0),MainColor=Color3.fromRGB(255,255,255),Rotation=0}},Rotation={Enabled=false,Angle=0,Speed=90},Spread={Enabled=false,Range={Min=4,Max=16},Speed=3},Top={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Bottom={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Left={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Right={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(255,255,255))},Text={Enabled=false,Content="",Font="Inconsolata",Size=14,Offset=24,Color=ColorSequence.new(Color3.fromRGB(255,255,255)),Outline={Enabled=false,Color=Color3.fromRGB(0,0,0),Thickness=1},Animation={Enabled=false,Kind="Shimmer",Speed=1,Shimmer={Color=Color3.fromRGB(40,40,40)},Perimeter={Color=ColorSequence.new(Color3.fromRGB(255,0,0),Color3.fromRGB(0,0,255))},PingPong={BackgroundColor=Color3.fromRGB(0,0,0),MainColor=Color3.fromRGB(255,255,255),Rotation=0}}},FollowTarget={Enabled=false,Mode="Crosshair",Speed=20,Damper=1,SnapDistance=5}},AnimationPlayer={Enabled=false,Animation="Cat Girl Bounce",CustomId="",Speed=1,Start=0,End=100},DeviceSpoof={Enabled=false,SpoofType="VR"},PlayerSpoofer={LocalPlayer={Name={Enabled=false,Value="Nosniy"},DisplayName={Enabled=false,Value="Nosniy"},Avatar={Enabled=false,Value="20349956"},Ping={Enabled=false,Value="Low"},Keys={Enabled=false,Value=999},EventCurrency={Enabled=false,Value=9999},Winstreak={Enabled=false,Value=999},Level={Enabled=false,Value=999},CasualWins={Enabled=false,Value=99999},RankedWins={Enabled=false,Value=9999},CasualWinPercent={Enabled=false,Value=100},RankedWinPercent={Enabled=false,Value=100},RankedElo={Enabled=false,Value=3600},LeaderboardRank={Enabled=false,Value=1},FavoriteMap={Enabled=false,Value="Arena"},NametagStatus={Enabled=false,Value="Prime"},Influencer={Enabled=false,Value=true},RobloxEmployee={Enabled=false,Value=true},NosniyTeam={Enabled=false}},OtherPlayers={Name={Enabled=false,Value=""},DisplayName={Enabled=false,Value=""},Avatar={Enabled=false,Value=""},Winstreak={Enabled=false,Value=0},Level={Enabled=false,Value=0},CasualWins={Enabled=false,Value=0},RankedWins={Enabled=false,Value=0},CasualWinPercent={Enabled=false,Value=0},RankedWinPercent={Enabled=false,Value=0},RankedElo={Enabled=false,Value=0},LeaderboardRank={Enabled=false,Value=200},FavoriteMap={Enabled=false,Value=""},NametagStatus={Enabled=false,Value="Prime"},Influencer={Enabled=false},RobloxEmployee={Enabled=false},NosniyTeam={Enabled=false}}}};end
 
 tbl17.bi = function()
 local bi = tbl17.cache.bi
@@ -21489,7 +21681,7 @@ end
 end
 
 do
-local function fn35() tbl17 .a9();return{ItemModifiers={NoMotion=false,NoCameraShake=false,NoCameraSway=false,NoShootAnimation=false,NoSprintAnimation=false,NoEquipAnimation=false,NoReloadAnimation=false,NoSpread=false,AimCooldown={Enabled=false,Percentage=50},Recoil={Enabled=false,Percentage=75},FireCooldown={Enabled=false,Percentage=25},AimSpeed={Enabled=false,Percentage=300},MeleeCooldown={Enabled=false,Percentage=25},DashCooldown={Enabled=false,Percentage=25},ExtendMeleeRange={Enabled=false,Range=10},AutomaticWeapon=false,InfiniteDoubleJumps=false,AlwaysBackstab=false,FastProjectile=false,GrenadeFuse={Enabled=false,ExplodeOn="Impact",RemoveFuse=false}},BulletTracers={Enabled=false,Color=Color3.fromRGB(120,220,255),Width=0.06,Lifetime=0.6,FadeTime=0.35,Style="Beam",TextureLength=4,TextureSpeed=1,Emission=1,Glow=1,Expand=true,ExpandSpeed=18,ExpandDamper=0.7},ViewModelOffset={Enabled=false,X=0,Y=0,Z=0,Pitch=0,Yaw=0,Roll=0},Chams={Character={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false},Arms={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=true},Item={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false}},ViewModelHighlight={Arms={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0},Item={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0}},ViewModelWireframe={Arms={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025},Item={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025}},PlayerHit={Enabled=false,Sound={Enabled=false,DisableGameSound=false,HeadName=nil,BodyName=nil,HeadVolume=1,HeadPitch=1,BodyVolume=1,BodyPitch=1},Notification={Enabled=false,Text="Hit %DNAME% (%NAME%) for %DMG% in %PART%"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},HitFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}},PlayerElimination={Enabled=false,Sound={Enabled=false,Name=nil,Volume=1,Pitch=1},Notification={Enabled=false,Text="Eliminated %DNAME% (%NAME%)"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},KillFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}}};end
+local function fn35() tbl17 .a9();local I= tbl17 .i().atomic;return{ItemModifiers={NoMotion=false,NoCameraShake=false,NoCameraSway=false,NoShootAnimation=false,NoSprintAnimation=false,NoEquipAnimation=false,NoReloadAnimation=false,NoSpread=false,AimCooldown={Enabled=false,Percentage=50},Recoil={Enabled=false,Percentage=75},FireCooldown={Enabled=false,Percentage=25},AimSpeed={Enabled=false,Percentage=300},MeleeCooldown={Enabled=false,Percentage=25},DashCooldown={Enabled=false,Percentage=25},ExtendMeleeRange={Enabled=false,Range=10},InfiniteDoubleJumps=false,AlwaysBackstab=false,FastShoot=false,FastProjectile=false,FullAuto=false,FireRate={Enabled=false,Percentage=100},GrenadeFuse={Enabled=false,ExplodeOn="Impact",RemoveFuse=false}},BulletTracers={Enabled=false,Color=Color3.fromRGB(120,220,255),Width=0.06,Lifetime=0.6,FadeTime=0.35,Style="Beam",TextureLength=4,TextureSpeed=1,Emission=1,Glow=1,Expand=true,ExpandSpeed=18,ExpandDamper=0.7},ViewModelOffset={Enabled=false,X=0,Y=0,Z=0,Pitch=0,Yaw=0,Roll=0},Chams={Character={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false},Arms={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=true},Item={Enabled=false,Material="Ghost",Color=Color3.fromRGB(255,255,255),Transparency=0,StripTextures=false}},ViewModelHighlight={Arms={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0},Item={Enabled=false,AlwaysOnTop=false,FillColor=Color3.fromRGB(255,255,255),FillTransparency=0.5,OutlineColor=Color3.fromRGB(255,255,255),OutlineTransparency=0}},ViewModelWireframe={Arms={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025},Item={Enabled=false,Color=Color3.fromRGB(255,255,255),Width=0.0025}},PlayerHit={Enabled=false,Sound={Enabled=false,DisableGameSound=false,HeadName=nil,BodyName=nil,HeadVolume=1,HeadPitch=1,BodyVolume=1,BodyPitch=1},Notification={Enabled=false,Text="Hit %DNAME% (%NAME%) for %DMG% in %PART%"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},HitFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35},HitEffects={Enabled=false,Selected=I({}),StartColor=Color3.fromRGB(255,255,255),MiddleColor=Color3.fromRGB(255,255,255),EndColor=Color3.fromRGB(255,255,255),FollowTarget=false,StackFortniteDamage=false,CycleTextColors=false,OriginalPhantomForcesColors=false}},PlayerElimination={Enabled=false,Sound={Enabled=false,Name=nil,Volume=1,Pitch=1},Notification={Enabled=false,Text="Eliminated %DNAME% (%NAME%)"},Chams={Enabled=false,Color=Color3.fromRGB(255,0,0),Transparency=0,Duration=0.8,Material="Ghost"},KillFlash={Enabled=false,Color=Color3.fromRGB(90,170,255),Duration=1.35}},EliminatedSpoofer={Enabled=true,Show=true,Color=Color3.fromRGB(255,255,255),Text="Eliminated",Font="Default",NamePosition="after text",NameColorEnabled=false,NameColor=Color3.fromRGB(255,220,90),CustomPosition=false,X=50,Y=70,CustomSize=false,TextSize=24,Gradient=false,GradientStartColor=Color3.fromRGB(255,255,255),GradientColor=Color3.fromRGB(255,170,50),GradientRotation=0,GradientAnimation="static",GradientSpeed=0.5,Animation="none",AnimationDuration=0.3},ViewModelGunMaterial={Enabled=false,Material="Neon",Color=Color3.fromRGB(255,255,255),Reflectance=0,Transparency=0,StripTextures=true},ViewModelGunSize={Enabled=false,Scale=1},ViewModelGunGlow={Enabled=false,Color=Color3.fromRGB(255,255,255),Intensity=1.2,Size=32},ViewModelArmGlow={Enabled=false,Color=Color3.fromRGB(255,255,255),Intensity=1.2,Size=32},ViewModelRemoveArm=false,ViewModelRemoveClothes=false,GameHealthBar={Hidden=false,CustomColor=false,Color=Color3.fromRGB(100,255,50),CustomSize=false,Width=100,Height=100,CustomText=false,Text="kicia",HideHeart=false,CustomPosition=false,X=50,Y=90}};end
 
 tbl17.bk = function()
 local bk = tbl17.cache.bk
@@ -21504,7 +21696,7 @@ return bk.c
 end
 end
 do
-local function fn35() tbl17 .ba();return{Lighting={Enabled=false,Ambient={Enabled=false,Indoor=Color3.new(0.231373,0.796078,1),Outdoor=Color3.new(0.003922,0.4,0.545098)},ClockTime={Enabled=false,Value=12},Brightness={Enabled=false,Value=2},ColorShift={Enabled=false,Top=Color3.fromRGB(100,160,255),Bottom=Color3.fromRGB(20,40,90)},EnvironmentDiffuseScale={Enabled=false,Value=0},EnvironmentSpecularScale={Enabled=false,Value=0},ExposureCompensation={Enabled=false,Value=0},Fog={Enabled=false,Color=Color3.fromRGB(192,192,192),Start=0,End=100000},GeographicLatitude={Enabled=false,Value=41.733},DisableGlobalShadows=false,ShadowSoftness={Enabled=false,Value=0.5},LightingStyle={Enabled=false,Value="Realistic"},ShadowColor={Enabled=false,Value=Color3.new(0.7,0.7,0.72)},PrioritizeLightingQuality=false},Skybox={Enabled=false,Preset=""},Bloom={Enabled=false,Intensity=0.4,Size=24,Threshold=0.95},ColorCorrection={Enabled=false,TintColor=Color3.new(1,1,1),Saturation=0,Brightness=0,Contrast=0},ColorGrading={Enabled=false,TonemapperPreset="Default"},DepthOfField={Enabled=false,FarIntensity=0.75,FocusDistance=0.05,InFocusRadius=10,NearIntensity=0.75},SunRays={Enabled=false,Intensity=0.25,Spread=1},Atmosphere={Enabled=false,Color=Color3.new(0.7843,0.6667,0.4235),Decay=Color3.new(0.3608,0.2353,0.0549),Density=0.395,Offset=0,Glare=0,Haze=0},MotionBlur={Enabled=false,Intensity=10,Sensitivity=1},Weather={Enabled=false,Preset="Snow",Intensity=1,Rate=1,Height=45,Color=Color3.fromRGB(255,255,255),Lightning={Enabled=false,Color=ColorSequence.new(Color3.fromRGB(214,230,255)),Interval=2,Distance=80,Height=220,Thickness=4,Jaggedness=7,Branches=12,Flash=8,Sparks={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(238,246,255)),Count=18,Thickness=2.2,Distance=22,Speed=22,Jaggedness=4},Explosion={Enabled=true,Size=0.45,Bolts=14,Color=ColorSequence.new(Color3.fromRGB(150,200,255))},Sound={Enabled=true,Volume=1,Delay=true,SoundId=""}},Wind={Strength=0,Angle=0},Speed=1,Glow=0.6,Size=1,Spread=25},Ambience={Enabled=false,Sound="",CustomSound="",Volume=1}};end
+local function fn35() tbl17 .ba();return{Lighting={Enabled=false,FogStyle="Off",Ambient={Enabled=false,Indoor=Color3.new(0.231373,0.796078,1),Outdoor=Color3.new(0.003922,0.4,0.545098)},ClockTime={Enabled=false,Value=12},Brightness={Enabled=false,Value=2},ColorShift={Enabled=false,Top=Color3.fromRGB(100,160,255),Bottom=Color3.fromRGB(20,40,90)},EnvironmentDiffuseScale={Enabled=false,Value=0},EnvironmentSpecularScale={Enabled=false,Value=0},ExposureCompensation={Enabled=false,Value=0},Fog={Enabled=false,Color=Color3.fromRGB(192,192,192),Start=0,End=100000},GeographicLatitude={Enabled=false,Value=41.733},DisableGlobalShadows=false,ShadowSoftness={Enabled=false,Value=0.5},LightingStyle={Enabled=false,Value="Realistic"},ShadowColor={Enabled=false,Value=Color3.new(0.7,0.7,0.72)},PrioritizeLightingQuality=false},Skybox={Enabled=false,Preset=""},Bloom={Enabled=false,Intensity=0.4,Size=24,Threshold=0.95},ColorCorrection={Enabled=false,TintColor=Color3.new(1,1,1),Saturation=0,Brightness=0,Contrast=0},ColorGrading={Enabled=false,TonemapperPreset="Default"},DepthOfField={Enabled=false,FarIntensity=0.75,FocusDistance=0.05,InFocusRadius=10,NearIntensity=0.75},SunRays={Enabled=false,Intensity=0.25,Spread=1},Atmosphere={Enabled=false,Color=Color3.new(0.7843,0.6667,0.4235),Decay=Color3.new(0.3608,0.2353,0.0549),Density=0.395,Offset=0,Glare=0,Haze=0},MotionBlur={Enabled=false,Intensity=10,Sensitivity=1},Weather={Enabled=false,Preset="Snow",Intensity=1,Rate=1,Height=45,Color=Color3.fromRGB(255,255,255),Lightning={Enabled=false,Color=ColorSequence.new(Color3.fromRGB(214,230,255)),Interval=2,Distance=80,Height=220,Thickness=4,Jaggedness=7,Branches=12,Flash=8,Sparks={Enabled=true,Color=ColorSequence.new(Color3.fromRGB(238,246,255)),Count=18,Thickness=2.2,Distance=22,Speed=22,Jaggedness=4},Explosion={Enabled=true,Size=0.45,Bolts=14,Color=ColorSequence.new(Color3.fromRGB(150,200,255))},Sound={Enabled=true,Volume=1,Delay=true,SoundId=""}},Wind={Strength=0,Angle=0},Speed=1,Glow=0.6,Size=1,Spread=25},Ambience={Enabled=false,Sound="",CustomSound="",Volume=1}};end
 
 tbl17.bl = function()
 local bl = tbl17.cache.bl
@@ -23190,6 +23382,47 @@ tbl17.by(),
 [14] = v119,
 [15] = v120,
 [16] = v121,
+[17] = function(arg)
+if type(arg) ~= "table" then
+return arg
+end
+if type(arg.Freecam) ~= "table" then
+arg.Freecam = {
+Enabled = false,
+Keybind = { State = false, Kind = "Toggle", Bind = nil, ShowInList = true, Invisible = false },
+Speed = 60,
+Sensitivity = 0.45,
+}
+end
+local lighting = arg.Lighting
+if type(lighting) ~= "table" then
+lighting = {}
+arg.Lighting = lighting
+end
+if lighting.FogStyle == nil then
+local fog = type(lighting.Fog) == "table" and lighting.Fog.Enabled == true
+local atmosphere = type(arg.Atmosphere) == "table" and arg.Atmosphere.Enabled == true
+lighting.FogStyle = atmosphere and "Atmosphere" or (fog and "Fog" or "Off")
+end
+return arg
+end,
+[18] = function(arg)
+if type(arg) ~= "table" then
+return arg
+end
+local spoof = arg.DeviceSpoof
+if type(spoof) == "table" then
+local aliases = {
+Desktop = "K&M", Laptop = "K&M", Mac = "K&M", Linux = "K&M", Windows = "K&M",
+Chromebook = "K&M", UWP = "K&M", ["K&M"] = "K&M",
+Mobile = "Mobile", Tablet = "Mobile", Android = "Mobile", iOS = "Mobile",
+Console = "Console", Xbox = "Console", PlayStation = "Console", Switch = "Console",
+VR = "VR", Quest = "VR", Oculus = "VR", Random = "Random",
+}
+spoof.SpoofType = aliases[spoof.SpoofType] or "K&M"
+end
+return arg
+end,
 }
 end
 
@@ -23214,7 +23447,7 @@ local v118 = tbl17.bc()
 
 return (v117:Add(v115.new({
 DefaultConfig = tbl17.bm(),
-CurrentVersion = 17,
+CurrentVersion = 19,
 LegacyVersion = 1,
 SavePath = "kiciahook/rivals_v3/configs/",
 Migrations = tbl17.bF(),
@@ -43246,6 +43479,9 @@ local index2 = {}
 index2.__index = index2
 
 index2._FireStoresUpdated = function(arg)
+if (arg._batchDepth or 0) > 0 then
+return
+end
 arg.StoresUpdated:Fire()
 end
 
@@ -43335,13 +43571,31 @@ end
 index2._SetOnlyUseFavorites = function(arg, arg2, arg3, arg4)
 local v130 = arg._onlyUseFavoritesState:Set(arg2, arg3, arg4)
 
-if v130 then
+if v130 and (arg._batchDepth or 0) == 0 then
 arg._items:SyncAll(false)
 arg._items:RefreshDataIfEnabled()
 arg:_FireStoresUpdated()
 end
 
 return v130
+end
+
+index2.Batch = function(arg, callback)
+arg._batchDepth = (arg._batchDepth or 0) + 1
+local ok, err = pcall(function()
+arg._items:WithFavoritesSuppressed(callback)
+end)
+arg._batchDepth = arg._batchDepth - 1
+
+if not ok then
+error(err, 0)
+end
+
+if arg._batchDepth == 0 then
+arg._items:SyncAll(false)
+arg._items:RefreshDataIfEnabled()
+arg:_FireStoresUpdated()
+end
 end
 
 index2.RerollAll = function(arg)
@@ -43413,6 +43667,7 @@ _unlockerController = nil,
 _errorReporter = runtime.ErrorReporter,
 _runtimeEnabled = false,
 _isImportingState = false,
+_batchDepth = 0,
 StoresUpdated = cosmetics:Add(v124.new()),
 }
 
@@ -43530,6 +43785,45 @@ end
 
 index2.GetSkinChangerSelections = function(arg, arg2)
 return arg._items:GetLayerSelections(arg2, skinChanger)
+end
+
+index2.GetFavorited = function(arg, arg2, arg3)
+return arg._favoritedIntent:Get(arg2, arg3)
+end
+
+index2.SetFavorited = function(arg, arg2, arg3, arg4)
+local wasFavorited = arg._favoritedIntent:Get(arg2, arg3)
+arg._favoritedIntent:Set(arg2, arg3, arg4)
+return wasFavorited ~= (arg4 == true)
+end
+
+index2.HasFavoritesForType = function(arg, arg2, arg3)
+local favorites = arg._favoritedIntent:GetProposedByItem()[arg2]
+if favorites == nil then
+return false
+end
+
+for name in favorites do
+if type(name) == "string" then
+if name:match("^NONE_COSMETIC") then
+if name:split("_")[3] == arg3 then
+return true
+end
+elseif arg._catalog:IsInCatalog({ CosmeticType = arg3, ItemName = arg2, CosmeticName = name }) then
+return true
+end
+end
+end
+
+return false
+end
+
+index2.IsOnlyUseFavorites = function(arg, arg2, arg3)
+return arg._onlyUseFavoritesState:Get(arg2, arg3)
+end
+
+index2.SetOnlyUseFavorites = function(arg, arg2, arg3, arg4)
+return arg:_SetOnlyUseFavorites(arg2, arg3, arg4)
 end
 
 index2.GetRankCharm = function(arg)
@@ -46102,6 +46396,7 @@ local v119 = tbl17.b3()
 local controlsController = tbl17.aS().ControlsController
 local fighterController = tbl17.aS().FighterController
 local v120 = tbl17.a2()
+local runService = cloneref(game:GetService("RunService"))
 local localPlayer = cloneref(game:GetService("Players")).LocalPlayer
 local v121 = v102(getmetatable(fighterController).__index, "_ReplicateControls")
 
@@ -46111,6 +46406,31 @@ end
 
 local index2 = {}
 index2.__index = index2
+local spoofPlatforms = { "VR", "K&M", "Mobile", "Console" }
+local randomIndex = 1
+local randomElapsed = 0
+
+local function nextRandomIndex()
+local index = math.random(1, #spoofPlatforms - 1)
+
+if index >= randomIndex then
+index += 1
+end
+return index
+end
+
+local function resolveSpoofType()
+local spoofType = v115.Data.DeviceSpoof.SpoofType
+
+if spoofType == "Random" then
+return spoofPlatforms[randomIndex]
+end
+
+if v120[spoofType] ~= nil then
+return spoofType
+end
+return "K&M"
+end
 
 index2.new = function(arg)
 local tbl18 = { _trove = v116.new("device_spoof") }
@@ -46129,6 +46449,8 @@ local trove = arg._trove
 
 trove:Connect(v115:GetPropertyChangedSignal({ "DeviceSpoof", "Enabled" }), function(arg3)
 if arg3 then
+randomIndex = math.random(1, #spoofPlatforms)
+randomElapsed = 0
 arg:_AttemptLoadHook()
 local reconcile = arg._reconcile
 
@@ -46142,10 +46464,34 @@ end
 end)
 
 trove:Connect(v115:GetPropertyChangedSignal({ "DeviceSpoof", "SpoofType" }), function()
+randomElapsed = 0
+if v115.Data.DeviceSpoof.SpoofType == "Random" then
+randomIndex = math.random(1, #spoofPlatforms)
+end
 local reconcile = arg._reconcile
 
 if reconcile then
 reconcile()
+end
+end)
+
+trove:Connect(runService.Heartbeat, function(deltaTime)
+local spoof = v115.Data.DeviceSpoof
+
+if spoof.Enabled ~= true or spoof.SpoofType ~= "Random" then
+randomElapsed = 0
+return
+end
+
+randomElapsed += deltaTime
+
+if randomElapsed >= 0.4 then
+randomElapsed -= 0.4
+randomIndex = nextRandomIndex()
+
+if arg._hook ~= nil then
+fn36()
+end
 end
 end)
 
@@ -46161,7 +46507,7 @@ local function reconcile()
 if flag19 or not v115.Data.DeviceSpoof.Enabled then
 return
 end
-local v122 = v120[v115.Data.DeviceSpoof.SpoofType]
+local v122 = v120[resolveSpoofType()]
 
 if v118(inner, "Controls") ~= v122 then
 flag19 = v86[34]
@@ -46209,7 +46555,7 @@ if arg3 == "CurrentControls" then
 if not flag2 then
 return
 end
-local v124 = v120[v115.Data.DeviceSpoof.SpoofType]
+local v124 = v120[resolveSpoofType()]
 
 if v124 == nil then
 localPlayer:Kick("Unexpected behavior (client misc 1)")
@@ -51689,11 +52035,11 @@ tbl18:_SetupMotionDisabler(itemModifiers)
 tbl18:_SetupCameraShakeDisabler(itemModifiers, v126)
 tbl18:_SetupCameraSwayDisabler(itemModifiers, v126)
 tbl18:_SetupNoSpread(itemModifiers)
+tbl18:_SetupWeaponEngine(itemModifiers)
 tbl18:_SetupAimCooldown(itemModifiers)
 tbl18:_SetupAnimationDisabler(itemModifiers, v126)
 tbl18:_SetupInfoModifier(itemModifiers)
 tbl18:_SetupGrenadeFuse(itemModifiers, v126)
-tbl18:_SetupFastProjectile(itemModifiers)
 return tbl18
 end
 
@@ -51811,12 +52157,6 @@ end
 arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "DashCooldown", "Enabled" }), fn39)
 arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "DashCooldown", "Percentage" }), fn39)
 
-local function fn40()
-arg._infoModifier:SetChange("AutomaticWeapon", v118.Data.ItemModifiers.AutomaticWeapon and { Enabled = true } or nil)
-end
-
-arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "AutomaticWeapon" }), fn40)
-
 local function fn41()
 arg._infoModifier:SetChange("MaxDoubleJumps", v118.Data.ItemModifiers.InfiniteDoubleJumps and { Count = 676767 } or nil)
 end
@@ -51835,7 +52175,6 @@ fn36()
 fn37()
 fn38()
 fn39()
-fn40()
 fn41()
 end
 
@@ -51860,37 +52199,275 @@ fn37()
 fn38()
 end
 
-index2._SetupFastProjectile = function(arg, arg2)
-local reloadCache = setmetatable({}, { __mode = "k" })
-
-local function restore()
-for item, reloadLength in pairs(reloadCache) do
+index2._SetupWeaponEngine = function(arg, arg2)
+local playersSvc = cloneref(game:GetService("Players"))
+local rsSvc = cloneref(game:GetService("ReplicatedStorage"))
+local uisSvc = cloneref(game:GetService("UserInputService"))
+local localPlayer = playersSvc.LocalPlayer
+local st = {
+installed = false,
+enabled = false,
+infoCache = setmetatable({}, { __mode = "k" }),
+reloadCache = setmetatable({}, { __mode = "k" }),
+fullAutoItems = setmetatable({}, { __mode = "k" }),
+wrapped = {},
+orig = {},
+refs = {},
+}
+local function flags()
+local m = v118.Data.ItemModifiers
+local fr = m.FireRate
+local pct = (type(fr) == "table" and fr.Enabled and tonumber(fr.Percentage)) or 100
+if pct == nil or pct <= 0 then pct = 100 end
+return {
+noSpread = m.NoSpread == true,
+fastShoot = m.FastShoot == true,
+fastProjectile = m.FastProjectile == true,
+fullAuto = m.FullAuto == true,
+fireRate = math.max(pct / 100, 0.01),
+}
+end
+local function grenadeOption(name)
+local opts = v118.Data.ItemModifiers.GrenadeOptions
+if type(opts) ~= "table" then return false end
+for _, v in ipairs(opts) do if v == name then return true end end
+return opts[name] == true
+end
+local function isLocalItem(item)
+local f = item ~= nil and item.ClientFighter or nil
+if f == nil then return false end
+if f.IsLocalPlayer == true then return true end
+return f.Player == localPlayer
+end
+local function isThrowableItem(item)
+local info = item ~= nil and item.Info or nil
+if type(info) ~= "table" then return false end
+return info.DetonateDelay ~= nil or info.ThrowForceMin ~= nil or info.LobForceMin ~= nil
+end
+local function rememberInfo(info, key)
+if type(info) ~= "table" or info[key] == nil then return nil end
+local cache = st.infoCache[info]
+if cache == nil then cache = {} st.infoCache[info] = cache end
+if cache[key] == nil then cache[key] = info[key] end
+return cache[key]
+end
+local function applyInfoOptions(item)
+local F = flags()
+local info = item ~= nil and item.Info or nil
+if type(info) ~= "table" then return end
+if not (F.fastShoot or F.fireRate ~= 1) then
+local cache = st.infoCache[info]
+if cache ~= nil then for k, v in pairs(cache) do pcall(function() info[k] = v end) end end
+return
+end
+local recoil = rememberInfo(info, "ShootRecoil")
+if recoil ~= nil then info.ShootRecoil = F.fastShoot and 0 or recoil end
+local spread = rememberInfo(info, "ShootSpread")
+if spread ~= nil then info.ShootSpread = F.fastShoot and 0 or spread end
+local projectileSpeed = rememberInfo(info, "ProjectileSpeed")
+if projectileSpeed ~= nil then info.ProjectileSpeed = F.fastShoot and 99999999 or projectileSpeed end
+for _, key in ipairs({ "ShootCooldown", "QuickShotCooldown", "SpinCooldown", "DashCooldown", "Cooldown", "BuildCooldown", "AttackCooldown", "HeavyAttackCooldown", "BurstCooldown" }) do
+local original = rememberInfo(info, key)
+if original ~= nil then
+if F.fastShoot then info[key] = 0
+elseif F.fireRate ~= 1 and (key == "ShootCooldown" or key == "QuickShotCooldown" or key == "BurstCooldown" or key == "AttackCooldown") then info[key] = original / F.fireRate
+else info[key] = original end
+end
+end
+end
+local function refreshCachedInfo()
+for info in pairs(st.infoCache) do applyInfoOptions({ Info = info }) end
+end
+local function restoreInfo()
+for info, values in pairs(st.infoCache) do
+if type(info) == "table" then
+for k, v in pairs(values) do pcall(function() info[k] = v end) end
+end
+end
+end
+local function restoreFastProjectile()
+for item, reloadLength in pairs(st.reloadCache) do
 if type(item) == "table" then pcall(v103, item, "ReloadLength", reloadLength) end
 end
 end
-
-local function apply()
-if v118.Data.ItemModifiers.FastProjectile ~= true then
-restore()
-return
-end
+local function applyFastProjectile()
+local F = flags()
+if not (st.enabled and F.fastProjectile) then restoreFastProjectile() return end
 pcall(function()
-local ItemLibrary = require(cloneref(game:GetService("ReplicatedStorage")).Modules.ItemLibrary)
+local ItemLibrary = require(rsSvc.Modules.ItemLibrary)
 local Items = v102(ItemLibrary, "Items")
 if Items == nil then return end
 for _, item in pairs(Items) do
 local name = item.Name
 if (name == "Bow" or name == "Daggers" or name == "Slingshot") and v102(item, "ReloadLength") ~= nil then
-if reloadCache[item] == nil then reloadCache[item] = v102(item, "ReloadLength") end
+if st.reloadCache[item] == nil then st.reloadCache[item] = v102(item, "ReloadLength") end
 v103(item, "ReloadLength", name == "Daggers" and 0.09 or 0)
 end
 end
 end)
 end
-
-arg2:Connect(v118:GetPropertyChangedSignal({ "ItemModifiers", "FastProjectile" }), apply)
-arg2:Add(restore)
-apply()
+local function estimateImpactFuse(item, isLob, cameraCFrame, charge)
+if typeof(cameraCFrame) ~= "CFrame" or type(item) ~= "table" or type(item.Info) ~= "table" then return nil end
+local info = item.Info
+local minForce = isLob and info.LobForceMin or info.ThrowForceMin
+local maxForce = isLob and info.LobForceMax or info.ThrowForceMax
+local gravity = isLob and info.LobGravity or info.ThrowGravity
+if type(minForce) ~= "number" or type(maxForce) ~= "number" then return nil end
+local power = math.clamp(tonumber(charge) or 1, 0, 1)
+local speed = minForce + (maxForce - minForce) * power
+local velocity = cameraCFrame.LookVector * speed
+local position = cameraCFrame.Position
+local rayParams = RaycastParams.new()
+rayParams.FilterType = Enum.RaycastFilterType.Exclude
+local charModel = localPlayer.Character
+rayParams.FilterDescendantsInstances = charModel ~= nil and { charModel } or {}
+local last = position
+local grav = Vector3.new(0, -(gravity or workspace.Gravity), 0)
+for t = 0.03, 5, 0.03 do
+local nextPos = position + velocity * t + grav * (0.5 * t * t)
+local ok, result = pcall(workspace.Raycast, workspace, last, nextPos - last, rayParams)
+if ok and result then return math.max(t - 0.015, 0) end
+last = nextPos
+end
+return nil
+end
+local function getFullAutoDelay(item)
+local remaining = type(item._shoot_cooldown) == "number" and math.max(item._shoot_cooldown - tick(), 0) or 0
+if remaining > 0 then return math.clamp(remaining, 0.01, 1) end
+local info = item.Info
+local cooldown = (info ~= nil and tonumber(info.ShootCooldown)) or 0
+if info ~= nil and tonumber(info.BurstCount) ~= nil and info.BurstCount > 1 then cooldown = tonumber(info.BurstCooldown) or cooldown end
+return math.clamp(cooldown > 0 and cooldown or (1 / 60), 1 / 60, 1)
+end
+local function startFullAuto(item, input)
+if st.fullAutoItems[item] then return end
+st.fullAutoItems[item] = true
+task.spawn(function()
+while true do
+local F = flags()
+if not (st.enabled and F.fullAuto and item ~= nil and isLocalItem(item) and uisSvc:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)) then break end
+task.wait(getFullAutoDelay(item))
+local F2 = flags()
+if not (st.enabled and F2.fullAuto and item ~= nil and isLocalItem(item) and uisSvc:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)) then break end
+pcall(function() st.orig.ClientInput(item, input) end)
+end
+st.fullAutoItems[item] = nil
+end)
+end
+local function install()
+if st.installed then return true end
+if localPlayer == nil then return false end
+local R = st.refs
+local ok = pcall(function()
+local ps = localPlayer:WaitForChild("PlayerScripts", 10)
+local modules = ps:WaitForChild("Modules", 10)
+local itemTypes = modules:WaitForChild("ItemTypes", 10)
+R.ClientItem = require(modules.ClientReplicatedClasses.ClientFighter.ClientItem)
+R.GunItem = require(itemTypes:WaitForChild("Gun", 10))
+local th = itemTypes:FindFirstChild("Throwable") or itemTypes:FindFirstChild("Grenade")
+R.GrenadeItem = (th ~= nil and require(th)) or nil
+local me = itemTypes:FindFirstChild("Melee") or itemTypes:FindFirstChild("Knife")
+R.MeleeItem = (me ~= nil and require(me)) or nil
+end)
+if not ok or R.ClientItem == nil or R.GunItem == nil then st.installed = false return false end
+local function hasInfoOpts()
+local F = flags()
+return F.fastShoot or F.fireRate ~= 1
+end
+if st.wrapped.ClientInput == nil and type(R.ClientItem.Input) == "function" then
+st.orig.ClientInput = R.ClientItem.Input
+R.ClientItem.Input = function(self, input, ...)
+if hasInfoOpts() and isLocalItem(self) then applyInfoOptions(self) end
+local result = { st.orig.ClientInput(self, input, ...) }
+local F = flags()
+if st.enabled and F.fullAuto and input == "StartShooting" and isLocalItem(self) then startFullAuto(self, input) end
+return table.unpack(result)
+end
+st.wrapped.ClientInput = true
+end
+if st.wrapped.Gun == nil and type(R.GunItem.StartShooting) == "function" then
+st.orig.GunStartShooting = R.GunItem.StartShooting
+R.GunItem.StartShooting = function(self, ...)
+if hasInfoOpts() and isLocalItem(self) then applyInfoOptions(self) end
+local result = { st.orig.GunStartShooting(self, ...) }
+local F = flags()
+if st.enabled and F.noSpread and isLocalItem(self) and type(result[3]) == "table" then result[4] = true end
+return table.unpack(result)
+end
+st.wrapped.Gun = true
+end
+if R.MeleeItem ~= nil and st.wrapped.Melee == nil and type(R.MeleeItem.StartShooting) == "function" then
+st.orig.MeleeStartShooting = R.MeleeItem.StartShooting
+R.MeleeItem.StartShooting = function(self, ...)
+if hasInfoOpts() and isLocalItem(self) then applyInfoOptions(self) end
+return st.orig.MeleeStartShooting(self, ...)
+end
+st.wrapped.Melee = true
+end
+local function wrapGrenade(method)
+local key = "Grenade" .. method
+if R.GrenadeItem == nil or st.wrapped[key] ~= nil then return end
+if type(R.GrenadeItem[method]) ~= "function" then return end
+st.orig[key] = R.GrenadeItem[method]
+R.GrenadeItem[method] = function(self, ...)
+local result = { st.orig[key](self, ...) }
+if st.enabled and isLocalItem(self) and isThrowableItem(self) and result[1] then
+local action = result[2]
+if action == "FinishShooting" or action == "FinishAiming" then
+if grenadeOption("Explode On Throw") then result[5] = 0.15
+elseif grenadeOption("Explode On Impact") then result[5] = estimateImpactFuse(self, action == "FinishAiming", result[3], result[4]) or result[5]
+elseif grenadeOption("Remove Fuse") then result[5] = 999999 end
+end
+end
+return table.unpack(result)
+end
+st.wrapped[key] = true
+end
+wrapGrenade("FinishShooting")
+wrapGrenade("FinishAiming")
+st.installed = true
+return true
+end
+local function restoreAll()
+st.enabled = false
+local R = st.refs
+if R.ClientItem ~= nil and st.orig.ClientInput ~= nil then pcall(function() R.ClientItem.Input = st.orig.ClientInput end) end
+if R.GunItem ~= nil and st.orig.GunStartShooting ~= nil then pcall(function() R.GunItem.StartShooting = st.orig.GunStartShooting end) end
+if R.MeleeItem ~= nil and st.orig.MeleeStartShooting ~= nil then pcall(function() R.MeleeItem.StartShooting = st.orig.MeleeStartShooting end) end
+if R.GrenadeItem ~= nil then
+if st.orig.GrenadeFinishShooting ~= nil then pcall(function() R.GrenadeItem.FinishShooting = st.orig.GrenadeFinishShooting end) end
+if st.orig.GrenadeFinishAiming ~= nil then pcall(function() R.GrenadeItem.FinishAiming = st.orig.GrenadeFinishAiming end) end
+end
+st.wrapped = {}
+st.orig = {}
+restoreInfo()
+restoreFastProjectile()
+end
+local function update()
+local F = flags()
+local anyGrenade = grenadeOption("Explode On Throw") or grenadeOption("Explode On Impact") or grenadeOption("Remove Fuse")
+local on = F.noSpread or F.fastShoot or F.fastProjectile or F.fullAuto or F.fireRate ~= 1 or anyGrenade
+if on then
+if install() then
+st.enabled = true
+refreshCachedInfo()
+applyFastProjectile()
+else
+st.enabled = false
+end
+else
+st.enabled = false
+restoreInfo()
+restoreFastProjectile()
+end
+end
+for _, path in ipairs({ {"ItemModifiers","NoSpread"}, {"ItemModifiers","FastShoot"}, {"ItemModifiers","FastProjectile"}, {"ItemModifiers","FullAuto"}, {"ItemModifiers","FireRate","Enabled"}, {"ItemModifiers","FireRate","Percentage"} }) do
+arg2:Connect(v118:GetPropertyChangedSignal(path), update)
+end
+task.spawn(update)
+local eng = {}
+function eng.Destroy() restoreAll() end
+arg2:Add(eng)
 end
 
 index2.Destroy = function(arg)
@@ -53567,6 +54144,10 @@ arg._trove:Connect(v115:GetPropertyChangedSignal({ "CameraFov", "Value" }), func
 arg:_Apply()
 end)
 
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "Freecam", "Keybind", "State" }), function()
+arg:_Apply()
+end)
+
 arg:_BindCamera()
 end
 
@@ -53587,8 +54168,10 @@ if guard == nil then
 return
 end
 local cameraFov = v115.Data.CameraFov
+local freecam = v115.Data.Freecam
+local freecamActive = freecam ~= nil and type(freecam.Keybind) == "table" and freecam.Keybind.State == true
 
-if cameraFov.Enabled then
+if cameraFov.Enabled and not freecamActive then
 guard:SetOverride("FieldOfView", cameraFov.Value)
 else
 guard:ClearOverride("FieldOfView")
@@ -53841,6 +54424,370 @@ end
 end
 do
 local function fn35()
+local v115 = tbl17.bG()
+local v116 = tbl17.k()
+local v118 = cloneref(game:GetService("Players"))
+local v119 = cloneref(game:GetService("RunService"))
+local v120 = cloneref(game:GetService("UserInputService"))
+local index2 = {}
+index2.__index = index2
+
+index2.new = function()
+local trove = v116.new("player_camera.Freecam")
+local self = setmetatable({
+_trove = trove,
+_active = false,
+_bound = false,
+_camera = nil,
+_cameraType = nil,
+_humanoid = nil,
+_walkSpeed = nil,
+_jumpPower = nil,
+_jumpHeight = nil,
+_autoRotate = nil,
+_rootPart = nil,
+_rootAnchored = nil,
+_rootCFrame = nil,
+_position = Vector3.zero,
+_velocity = Vector3.zero,
+_pitch = 0,
+_yaw = 0,
+_fov = 70,
+_cameraFov = 70,
+_originalFov = nil,
+_mouseCaptured = false,
+_mouseBehavior = nil,
+_mouseIconEnabled = nil,
+_renderName = "KiciaFreecam_" .. tostring({}),
+}, index2)
+self:_Initialize()
+return self
+end
+
+index2._Initialize = function(arg)
+local function fn36()
+local freecam = v115.Data.Freecam
+if freecam == nil or type(freecam.Keybind) ~= "table" then
+return
+end
+arg:_SetActive(freecam.Keybind.State == true)
+end
+local freecam = v115.Data.Freecam
+local keybind = freecam and freecam.Keybind
+if type(keybind) == "table" then
+if keybind.Kind ~= "Toggle" then
+v115:Set({ "Freecam", "Keybind", "Kind" }, "Toggle")
+end
+if keybind.State == true then
+v115:Set({ "Freecam", "Keybind", "State" }, false)
+end
+end
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "Freecam", "Keybind", "State" }), fn36)
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "Freecam", "Keybind", "Kind" }), fn36)
+fn36()
+
+arg._trove:Connect(v120.InputChanged, function(input)
+if not arg._active then
+return
+end
+if input.UserInputType ~= Enum.UserInputType.MouseWheel then
+return
+end
+local wheel = tonumber(input.Position.Z) or 0
+if wheel == 0 then
+return
+end
+arg:_SetFov((arg._fov or 70) - wheel * 5)
+end)
+
+arg._trove:Connect(v120.InputBegan, function(input, gameProcessed)
+if not arg._active or gameProcessed then
+return
+end
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+arg:_CaptureMouse()
+end
+end)
+
+arg._trove:Connect(v120.InputEnded, function(input, gameProcessed)
+if not arg._active or gameProcessed then
+return
+end
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+arg:_ReleaseMouse()
+end
+end)
+
+local localPlayer = v118.LocalPlayer
+if localPlayer ~= nil then
+arg._trove:Connect(localPlayer.CharacterAdded, function(character)
+if arg._active then
+arg:_BindCharacter(character)
+end
+end)
+arg._trove:Connect(localPlayer.CharacterRemoving, function()
+arg:_RestoreHumanoid()
+end)
+end
+
+arg._trove:Add(function()
+arg:_End()
+end)
+end
+
+index2._SetActive = function(arg, active)
+if arg._active == active then
+return
+end
+arg._active = active
+if active then
+arg:_Begin()
+else
+arg:_End()
+end
+end
+
+index2._SetFov = function(arg, fov)
+local target = math.clamp(tonumber(fov) or 70, 30, 120)
+arg._fov = target
+
+if arg._cameraFov == nil then
+arg._cameraFov = target
+end
+end
+
+index2._Begin = function(arg)
+local camera = workspace.CurrentCamera
+if camera == nil then
+arg._active = false
+return
+end
+arg._camera = camera
+arg._cameraType = camera.CameraType
+local cameraFov = v115.Data.CameraFov
+local startFov = camera.FieldOfView
+if cameraFov ~= nil and cameraFov.Enabled then
+startFov = cameraFov.Value
+end
+arg._originalFov = startFov
+arg._fov = math.clamp(tonumber(startFov) or 70, 30, 120)
+arg._cameraFov = arg._fov
+local pitch, yaw = camera.CFrame:ToOrientation()
+arg._position = camera.CFrame.Position
+arg._velocity = Vector3.zero
+arg._pitch = pitch
+arg._yaw = yaw
+camera.CameraType = Enum.CameraType.Scriptable
+arg:_BindCharacter(v118.LocalPlayer and v118.LocalPlayer.Character)
+if not arg._bound then
+arg._bound = true
+v119:BindToRenderStep(arg._renderName, Enum.RenderPriority.Camera.Value + 2, function(delta)
+arg:_Render(delta)
+end)
+end
+end
+
+index2._CaptureMouse = function(arg)
+if arg._mouseCaptured then
+return
+end
+arg._mouseCaptured = true
+arg._mouseBehavior = v120.MouseBehavior
+arg._mouseIconEnabled = v120.MouseIconEnabled
+v120.MouseBehavior = Enum.MouseBehavior.LockCenter
+v120.MouseIconEnabled = false
+v120:GetMouseDelta()
+end
+
+index2._ReleaseMouse = function(arg)
+if not arg._mouseCaptured then
+return
+end
+arg._mouseCaptured = false
+pcall(function()
+v120.MouseBehavior = arg._mouseBehavior or Enum.MouseBehavior.Default
+v120.MouseIconEnabled = arg._mouseIconEnabled ~= false
+end)
+arg._mouseBehavior = nil
+arg._mouseIconEnabled = nil
+end
+
+index2._End = function(arg)
+if arg._bound then
+arg._bound = false
+v119:UnbindFromRenderStep(arg._renderName)
+end
+if arg._mouseCaptured then
+arg:_ReleaseMouse()
+end
+local camera = arg._camera
+local cameraFov = v115.Data.CameraFov
+local restoreFov = arg._originalFov
+if cameraFov ~= nil and cameraFov.Enabled then
+restoreFov = nil
+end
+if camera ~= nil then
+pcall(function()
+camera.CameraType = arg._cameraType or Enum.CameraType.Custom
+if restoreFov ~= nil then
+camera.FieldOfView = restoreFov
+end
+end)
+end
+arg._camera = nil
+arg._cameraType = nil
+arg._originalFov = nil
+arg._cameraFov = nil
+arg._velocity = Vector3.zero
+arg:_RestoreHumanoid()
+end
+
+index2._BindCharacter = function(arg, character)
+arg:_RestoreHumanoid()
+local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+if humanoid == nil then
+return
+end
+arg._humanoid = humanoid
+arg._walkSpeed = humanoid.WalkSpeed
+arg._jumpPower = humanoid.JumpPower
+arg._jumpHeight = humanoid.JumpHeight
+arg._autoRotate = humanoid.AutoRotate
+humanoid.WalkSpeed = 0
+humanoid.JumpPower = 0
+humanoid.JumpHeight = 0
+humanoid.AutoRotate = false
+local rootPart = character:FindFirstChild("HumanoidRootPart")
+
+if rootPart ~= nil and rootPart:IsA("BasePart") then
+arg._rootPart = rootPart
+arg._rootAnchored = rootPart.Anchored
+arg._rootCFrame = rootPart.CFrame
+rootPart.Anchored = true
+rootPart.AssemblyLinearVelocity = Vector3.zero
+rootPart.AssemblyAngularVelocity = Vector3.zero
+end
+end
+
+index2.Destroy = function(arg)
+arg._trove:Destroy()
+end
+
+index2._RestoreHumanoid = function(arg)
+local humanoid = arg._humanoid
+if humanoid ~= nil and humanoid.Parent ~= nil then
+humanoid.WalkSpeed = arg._walkSpeed or 16
+humanoid.JumpPower = arg._jumpPower or 50
+humanoid.JumpHeight = arg._jumpHeight or 7.2
+humanoid.AutoRotate = arg._autoRotate ~= false
+end
+local rootPart = arg._rootPart
+if rootPart ~= nil and rootPart.Parent ~= nil then
+pcall(function()
+rootPart.Anchored = arg._rootAnchored == true
+rootPart.AssemblyLinearVelocity = Vector3.zero
+rootPart.AssemblyAngularVelocity = Vector3.zero
+end)
+end
+arg._humanoid = nil
+arg._walkSpeed = nil
+arg._jumpPower = nil
+arg._jumpHeight = nil
+arg._autoRotate = nil
+arg._rootPart = nil
+arg._rootAnchored = nil
+arg._rootCFrame = nil
+end
+
+index2._Render = function(arg, delta)
+local camera = workspace.CurrentCamera
+if camera == nil then
+return
+end
+if camera ~= arg._camera then
+arg._camera = camera
+arg._cameraType = camera.CameraType
+arg._originalFov = camera.FieldOfView
+local pitch, yaw = camera.CFrame:ToOrientation()
+arg._position = camera.CFrame.Position
+arg._velocity = Vector3.zero
+arg._pitch = pitch
+arg._yaw = yaw
+end
+camera.CameraType = Enum.CameraType.Scriptable
+local humanoid = arg._humanoid
+if humanoid ~= nil and humanoid.Parent ~= nil then
+humanoid.WalkSpeed = 0
+humanoid.JumpPower = 0
+humanoid.JumpHeight = 0
+humanoid.AutoRotate = false
+end
+local rootPart = arg._rootPart
+if rootPart ~= nil and rootPart.Parent ~= nil then
+rootPart.Anchored = true
+rootPart.AssemblyLinearVelocity = Vector3.zero
+rootPart.AssemblyAngularVelocity = Vector3.zero
+
+if arg._rootCFrame ~= nil then
+rootPart.CFrame = arg._rootCFrame
+end
+end
+local freecam = v115.Data.Freecam
+local targetFov = math.clamp(tonumber(arg._fov) or 70, 30, 120)
+local currentFov = tonumber(arg._cameraFov) or targetFov
+currentFov += (targetFov - currentFov) * math.clamp(delta * 16, 0, 1)
+arg._cameraFov = currentFov
+camera.FieldOfView = currentFov
+local fovScale = currentFov / 70
+local sensitivity = (tonumber(freecam.Sensitivity) or 0.45) * fovScale
+local speed = (tonumber(freecam.Speed) or 60) * fovScale
+if arg._mouseCaptured and v120.MouseBehavior == Enum.MouseBehavior.LockCenter then
+local mouseDelta = v120:GetMouseDelta()
+arg._yaw -= mouseDelta.X * sensitivity * 0.01
+arg._pitch = math.clamp(arg._pitch - mouseDelta.Y * sensitivity * 0.01, -1.52, 1.52)
+end
+local rotation = CFrame.fromOrientation(arg._pitch, arg._yaw, 0)
+local move = Vector3.zero
+if v120:IsKeyDown(Enum.KeyCode.W) then
+move += rotation.LookVector
+end
+if v120:IsKeyDown(Enum.KeyCode.S) then
+move -= rotation.LookVector
+end
+if v120:IsKeyDown(Enum.KeyCode.D) then
+move += rotation.RightVector
+end
+if v120:IsKeyDown(Enum.KeyCode.A) then
+move -= rotation.RightVector
+end
+if v120:IsKeyDown(Enum.KeyCode.E) then
+move += Vector3.yAxis
+end
+if v120:IsKeyDown(Enum.KeyCode.Q) then
+move -= Vector3.yAxis
+end
+if move.Magnitude > 0 then
+move = move.Unit * speed
+end
+arg._velocity = arg._velocity:Lerp(move, math.clamp(delta * 12, 0, 1))
+arg._position += arg._velocity * delta
+camera.CFrame = CFrame.new(arg._position) * rotation
+end
+
+return index2
+end
+
+tbl17.freecam = function()
+local freecam = tbl17.cache.freecam
+if not freecam then
+freecam = { c = fn35() }
+tbl17.cache.freecam = freecam
+end
+return freecam.c
+end
+end
+do
+local function fn35()
 local v115 = tbl17.a8()
 local v116 = tbl17.k()
 local index2 = {}
@@ -53867,11 +54814,15 @@ part.Material = v117
 part.Color = color
 part.Anchored = true
 part.CanCollide = false
+part.CanQuery = false
+part.CanTouch = false
+part.CastShadow = false
+part.Massless = true
 part.Transparency = tbl18._transparency
 part.CFrame = v118.CFrame
 part.Size = v118.Size
 tbl18._trove:Add(part)
-table.insert(tbl18._parts, part)
+table.insert(tbl18._parts, { Part = part, Source = v118 })
 end
 end
 
@@ -53891,7 +54842,16 @@ local n = math.clamp(arg._elapsed / arg._duration, v86[186], v86[63])
 local transparency = arg._transparency + (v86[63] - arg._transparency) * n
 
 for _, v117 in arg._parts, nil, nil do
-v117.Transparency = transparency
+local source = v117.Source
+local part = v117.Part
+
+if source ~= nil and source.Parent ~= nil then
+part.CFrame = source.CFrame
+part.Size = source.Size
+part.Transparency = source.Transparency >= 1 and 1 or transparency
+else
+part.Transparency = 1
+end
 end
 
 if v86[63] <= n then
@@ -53946,9 +54906,9 @@ end
 
 local function fn38(parent, arg, arg2)
 local instance = Instance.new(v86[128])
-instance.AnchorPoint = Vector2.new(arg, 0.5)
-instance.Position = UDim2.fromScale(arg2, 0.5)
-instance.Size = UDim2.fromScale(v86[186], 1)
+instance.AnchorPoint = Vector2.new(0, 0)
+instance.Position = UDim2.fromScale(0, 0)
+instance.Size = UDim2.fromScale(1, 1)
 instance.BackgroundTransparency = 1
 instance.BorderSizePixel = 0
 instance.ClipsDescendants = false
@@ -53997,51 +54957,22 @@ uiGradient.Parent = instance
 return instance
 end
 
-local function fn40(arg, arg2, arg3, arg4, arg5, arg6, arg7)
+local function fn40(arg, arg2, arg3, arg4, arg5, arg6)
 return {
 Frame = fn39(arg, arg2, arg3, arg4, arg5),
-Width = fn36(v86[186], arg6.ExpandedWidth, 220, 8, arg7),
-Transparency = fn36(1, arg6.VisibleTransparency, 260, 10, arg7),
 Config = arg6,
-Phase = "enter",
-HoldElapsed = 0,
 }
 end
 
-local function fn41(arg)
-arg.Frame.Size = UDim2.new(v86[186], math.max(v86[186], arg.Width.Position), 1, 0)
-end
-
-local function fn42(arg)
-arg.Frame.BackgroundTransparency = math.clamp(arg.Transparency.Position, 0, v86[63])
-end
-
 local function fn43(arg, arg2, arg3)
-fn41(arg)
-fn42(arg)
-
-if arg.Phase == "enter" and fn37(arg.Transparency) then
-arg.Phase = "hold"
-arg.HoldElapsed = 0
-return
-end
-
-if arg.Phase == "hold" then
-arg.HoldElapsed = arg.HoldElapsed + arg2
-if arg.HoldElapsed < arg.Config.HoldTime then
-return
-end
-local transparency = arg.Transparency
-arg.Phase = "overshoot"
-arg.Width = fn36(arg.Width.Position, arg.Config.OvershootWidth, 120, v86[122], arg3)
-arg.Transparency = fn36(transparency.Position, 1, 95, 9, arg3)
-return
-end
-
-if arg.Phase == "overshoot" and fn37(arg.Width) then
-arg.Phase = "final"
-arg.Width = fn36(arg.Width.Position, arg.Config.FinalWidth, 90, 9, arg3)
-end
+local progress = math.clamp(arg3 / 1.35, 0, 1)
+local expand = math.clamp(progress / 0.22, 0, 1)
+local fadeIn = math.clamp(progress / 0.1, 0, 1)
+local fadeOut = math.clamp((progress - 0.62) / 0.28, 0, 1)
+local width = arg.Config.ExpandedWidth * (1 - (1 - expand) ^ 3)
+local visible = fadeIn * (1 - fadeOut)
+arg.Frame.Size = UDim2.new(0, math.max(0, width), 1, 0)
+arg.Frame.BackgroundTransparency = 1 - (1 - arg.Config.VisibleTransparency) * visible
 end
 
 local function fn44(parent, arg, arg2, arg3)
@@ -54062,9 +54993,9 @@ end
 tbl18.Clock = clock
 local bands = {}
 local tbl19 = {}
-local v120 = NumberSequenceKeypoint.new(0, 0.9)
-local v121 = NumberSequenceKeypoint.new(0.22, 0.94)
-local v122 = NumberSequenceKeypoint.new(0.62, 0.985)
+local v120 = NumberSequenceKeypoint.new(0, 0.18)
+local v121 = NumberSequenceKeypoint.new(0.38, 0.48)
+local v122 = NumberSequenceKeypoint.new(0.72, 0.82)
 tbl19[1] = v120
 tbl19[2] = v121
 tbl19[3] = v122
@@ -54076,16 +55007,16 @@ end
 
 local v123 = fn40(frame, arg, arg2, tbl19, v86[155], {
 ExpandedWidth = 320,
-VisibleTransparency = 0.94,
+VisibleTransparency = 0.4,
 OvershootWidth = 360,
 FinalWidth = 390,
 HoldTime = 0.28,
-}, clock)
+})
 
 local tbl20 = {}
-local v124 = NumberSequenceKeypoint.new(0, 0.72)
-local v125 = NumberSequenceKeypoint.new(0.2, 0.78)
-local v126 = NumberSequenceKeypoint.new(0.58, v86[173])
+local v124 = NumberSequenceKeypoint.new(0, 0.05)
+local v125 = NumberSequenceKeypoint.new(0.32, 0.32)
+local v126 = NumberSequenceKeypoint.new(0.7, 0.72)
 tbl20[1] = v124
 tbl20[2] = v125
 tbl20[3] = v126
@@ -54097,16 +55028,16 @@ end
 
 local v127 = fn40(frame, arg, v118, tbl20, v86[26], {
 ExpandedWidth = 215,
-VisibleTransparency = 0.76,
+VisibleTransparency = 0.24,
 OvershootWidth = 245,
 FinalWidth = 265,
 HoldTime = 0.24,
-}, clock)
+})
 
 local tbl21 = {}
-local v128 = NumberSequenceKeypoint.new(0, v86[101])
-local v129 = NumberSequenceKeypoint.new(0.14, 0.56)
-local v130 = NumberSequenceKeypoint.new(0.42, 0.72)
+local v128 = NumberSequenceKeypoint.new(0, 0)
+local v129 = NumberSequenceKeypoint.new(0.16, 0.16)
+local v130 = NumberSequenceKeypoint.new(0.52, 0.58)
 local new = NumberSequenceKeypoint.new
 tbl21[1] = v128
 tbl21[2] = v129
@@ -54123,11 +55054,11 @@ bands[2] = v127
 do
 local values = table.pack(fn40(frame, arg, v119, tbl21, 5, {
 ExpandedWidth = 90,
-VisibleTransparency = 0.56,
+VisibleTransparency = 0.08,
 OvershootWidth = 108,
 FinalWidth = 118,
 HoldTime = 0.18,
-}, clock))
+}))
 
 table.move(values, 1, values.n, 3, bands)
 end
@@ -54143,7 +55074,7 @@ v118.IgnoreGuiInset = true
 v118.ResetOnSpawn = false
 v118.DisplayOrder = v117.CombatFeedback
 v118.ZIndexBehavior = Enum.ZIndexBehavior.Global
-local tbl18 = { _trove = sideGradientFx, _leftSide = fn38(v118, 0, 0), _rightSide = fn38(v118, 1, 1), _flashes = {} }
+local tbl18 = { _trove = sideGradientFx, _gui = v118, _leftSide = fn38(v118, 0, 0), _rightSide = fn38(v118, 1, 1), _flashes = {}, _overlays = {} }
 v118.Parent = gethui()
 return setmetatable(tbl18, index2)
 end
@@ -54161,6 +55092,23 @@ end
 
 table.insert(arg._flashes, fn44(arg._leftSide, "Left", arg2, n))
 table.insert(arg._flashes, fn44(arg._rightSide, "Right", arg2, n))
+
+while #arg._overlays > 14 do
+local oldOverlay = table.remove(arg._overlays, 1)
+
+if oldOverlay ~= nil then
+oldOverlay.Frame:Destroy()
+end
+end
+
+local overlay = Instance.new("Frame")
+overlay.BackgroundColor3 = arg2
+overlay.BackgroundTransparency = 1
+overlay.BorderSizePixel = 0
+overlay.Size = UDim2.fromScale(1, 1)
+overlay.ZIndex = 0
+overlay.Parent = arg._gui
+table.insert(arg._overlays, { Frame = overlay, Elapsed = 0, Duration = n })
 end
 
 index2.Update = function(arg, arg2)
@@ -54171,7 +55119,7 @@ local n = arg2 * 1.35 / v118.Duration
 v118.AnimationTime = v118.AnimationTime + n
 
 for _, v119 in v118.Bands, nil, nil do
-fn43(v119, n, v118.Clock)
+fn43(v119, n, v118.AnimationTime)
 end
 
 if v118.Elapsed >= v118.Duration then
@@ -54179,9 +55127,42 @@ v118.Holder:Destroy()
 table.remove(arg._flashes, i)
 end
 end
+
+for i = #arg._overlays, 1, -1 do
+local overlay = arg._overlays[i]
+overlay.Elapsed = overlay.Elapsed + arg2
+local t = math.clamp(overlay.Elapsed / overlay.Duration, 0, 1)
+local fadeIn = math.clamp(t / 0.06, 0, 1)
+local fadeOut = math.clamp((t - 0.16) / 0.84, 0, 1)
+overlay.Frame.BackgroundTransparency = 1 - 0.55 * fadeIn * (1 - fadeOut)
+
+if t >= 1 then
+overlay.Frame:Destroy()
+table.remove(arg._overlays, i)
+end
+end
+end
+
+index2.Clear = function(arg)
+for _, flash in arg._flashes do
+flash.Holder:Destroy()
+end
+
+table.clear(arg._flashes)
+
+for _, overlay in arg._overlays do
+overlay.Frame:Destroy()
+end
+
+table.clear(arg._overlays)
 end
 
 index2.Destroy = function(arg)
+for _, overlay in arg._overlays do
+overlay.Frame:Destroy()
+end
+
+table.clear(arg._overlays)
 arg._trove:Destroy()
 table.clear(arg._flashes)
 end
@@ -54295,6 +55276,10 @@ tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerElimination", "Enabl
 tbl18:_SetEnabled(arg5)
 end)
 
+tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerElimination", "KillFlash", "Enabled" }), function()
+tbl18:_SetEnabled(v116.Data.PlayerElimination.Enabled)
+end)
+
 local function fn36(arg5)
 tbl18._soundId = nil
 
@@ -54316,7 +55301,13 @@ return tbl18
 end
 
 index2._SetEnabled = function(arg, arg2)
-arg._replicateBinding:SetEnabled(arg2)
+local killFlash = v116.Data.PlayerElimination.KillFlash
+local flashEnabled = killFlash ~= nil and killFlash.Enabled == true
+arg._replicateBinding:SetEnabled(arg2 == true or flashEnabled)
+
+if not flashEnabled then
+arg._killFlash:Clear()
+end
 end
 
 index2._HandleReplicate = function(arg, arg2)
@@ -54353,9 +55344,10 @@ end
 
 index2._HandleKill = function(arg, arg2)
 local playerElimination = v116.Data.PlayerElimination
+local enabled = playerElimination.Enabled == true
 local sound = playerElimination.Sound
 
-if sound.Enabled then
+if enabled and sound.Enabled then
 local soundId = arg._soundId
 
 if soundId ~= nil then
@@ -54365,7 +55357,7 @@ end
 
 local notification = playerElimination.Notification
 
-if notification.Enabled then
+if enabled and notification.Enabled then
 local v123, v124 = v122(arg2)
 local v125 = string.gsub(notification.Text, "%%(%w+)%%", { NAME = v123, DNAME = v124 })
 
@@ -54382,7 +55374,7 @@ end
 
 local chams = playerElimination.Chams
 
-if chams.Enabled then
+if enabled and chams.Enabled then
 local v123 = v115.new(arg2, chams.Color, chams.Transparency, chams.Duration, chams.Material)
 table.insert(arg._chams, v123)
 end
@@ -54502,6 +55494,1814 @@ local v123 = tbl17.gN()
 local index2 = {}
 index2.__index = index2
 
+local fxWorkspace = cloneref(game:GetService("Workspace"))
+local fxTerrain = fxWorkspace.Terrain
+local fxFolder = nil
+local fxBuilders = {}
+local function fxGetFolder()
+	if fxFolder ~= nil and fxFolder.Parent ~= nil then
+		return fxFolder
+	end
+
+	local existing = fxWorkspace:FindFirstChild("KiciaHitEffects")
+
+	if existing ~= nil and existing:IsA("Folder") then
+		fxFolder = existing
+	else
+		fxFolder = Instance.new("Folder")
+		fxFolder.Name = "KiciaHitEffects"
+		fxFolder.Parent = fxWorkspace
+	end
+
+	return fxFolder
+end
+
+local function fxColorOf(value, fallback)
+	if typeof(value) == "Color3" then
+		return value
+	end
+
+	if typeof(value) == "ColorSequence" then
+		local keypoints = value.Keypoints
+
+		if #keypoints > 0 then
+			return keypoints[1].Value
+		end
+	end
+
+	return fallback
+end
+
+local function fxColorAt(state, t)
+	t = math.clamp(t, 0, 1)
+
+	if t < 0.5 then
+		return state.StartColor:Lerp(state.MiddleColor, t * 2)
+	end
+
+	return state.MiddleColor:Lerp(state.EndColor, (t - 0.5) * 2)
+end
+
+local function fxRainbow(t)
+	return Color3.fromHSV(t % 1, 1, 1)
+end
+
+local function fxPart(state, offset, size, color, transparency, shape, material)
+	local part = Instance.new("Part")
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanQuery = false
+	part.CanTouch = false
+	part.CastShadow = false
+	part.Massless = true
+	part.Locked = true
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.Size = size
+	part.CFrame = state.BaseCF * offset
+	part.Color = color
+	part.Transparency = transparency or 0
+	part.Material = material or Enum.Material.Neon
+
+	if shape ~= nil then
+		part.Shape = shape
+	end
+
+	part.Parent = state.Folder
+	table.insert(state.Parts, part)
+	return part
+end
+
+local function fxRing(state, offset, radius, thickness, color, transparency, inner)
+	local ring = Instance.new("CylinderHandleAdornment")
+	ring.Adornee = fxTerrain
+	ring.AlwaysOnTop = true
+	ring.ZIndex = 2
+	ring.Height = thickness or 0.06
+	ring.Radius = radius
+	ring.InnerRadius = inner or math.max(0, radius - (thickness or 0.06))
+	ring.Color3 = color
+	ring.Transparency = transparency or 0.15
+	ring.CFrame = state.BaseCF * offset * CFrame.Angles(math.pi / 2, 0, 0)
+	ring.Parent = state.Folder
+	table.insert(state.Adornments, ring)
+	return ring
+end
+
+local function fxText(state, text, offset, color, font, width, height)
+	local part = fxPart(state, offset, Vector3.new(0.2, 0.2, 0.2), color, 1, nil, Enum.Material.SmoothPlastic)
+	part.Transparency = 1
+	local gui = Instance.new("BillboardGui")
+	gui.Adornee = part
+	gui.AlwaysOnTop = true
+	gui.Size = UDim2.fromOffset(width or 150, height or 56)
+	gui.MaxDistance = 1000
+	gui.Parent = part
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.BorderSizePixel = 0
+	label.Size = UDim2.fromScale(1, 1)
+	label.Font = font or Enum.Font.FredokaOne
+	label.Text = text
+	label.TextColor3 = color
+	label.TextStrokeColor3 = Color3.new(0, 0, 0)
+	label.TextStrokeTransparency = 0
+	label.TextScaled = true
+	label.Parent = gui
+	table.insert(state.Guis, gui)
+	return part, label, gui
+end
+
+local function fxFlash(state, offset, color)
+	local part = fxPart(state, offset, Vector3.new(0.2, 0.2, 0.2), color, 1, nil, Enum.Material.SmoothPlastic)
+	part.Transparency = 1
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "FxFlash"
+	gui.Adornee = part
+	gui.AlwaysOnTop = true
+	gui.Brightness = 3
+	gui.LightInfluence = 0
+	gui.Size = UDim2.fromOffset(18, 18)
+	gui.MaxDistance = 1000
+	gui.Parent = part
+	local glow = Instance.new("Frame")
+	glow.Name = "FlashGlow"
+	glow.BackgroundColor3 = color
+	glow.BackgroundTransparency = 0.15
+	glow.BorderSizePixel = 0
+	glow.Size = UDim2.fromScale(1, 1)
+	glow.ZIndex = 1
+	glow.Parent = gui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(1, 0)
+	corner.Parent = glow
+	local sparkle = Instance.new("ImageLabel")
+	sparkle.Name = "FlashSparkle"
+	sparkle.BackgroundTransparency = 1
+	sparkle.BorderSizePixel = 0
+	sparkle.AnchorPoint = Vector2.new(0.5, 0.5)
+	sparkle.Position = UDim2.fromScale(0.5, 0.5)
+	sparkle.Size = UDim2.fromScale(1.35, 1.35)
+	sparkle.Image = "rbxasset://textures/particles/sparkles_main.dds"
+	sparkle.ImageColor3 = color:Lerp(Color3.new(1, 1, 1), 0.45)
+	sparkle.ImageTransparency = 0.05
+	sparkle.ScaleType = Enum.ScaleType.Fit
+	sparkle.ZIndex = 2
+	sparkle.Parent = gui
+	table.insert(state.Guis, gui)
+	return { Gui = gui, Glow = glow, Sparkle = sparkle, Part = part }
+end
+
+local function fxEmitter(state, offset, colorA, colorB, options)
+	options = options or {}
+	local part = fxPart(state, offset, Vector3.new(0.2, 0.2, 0.2), colorA, 1, nil, Enum.Material.SmoothPlastic)
+	part.Transparency = 1
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	emitter.Rate = 0
+	emitter.Lifetime = NumberRange.new(options.LifeMin or 0.45, options.LifeMax or 0.9)
+	emitter.Speed = NumberRange.new(options.SpeedMin or 4, options.SpeedMax or 10)
+	emitter.SpreadAngle = Vector2.new(options.Spread or 180, options.Spread or 180)
+	emitter.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, options.SizeStart or 0.45),
+		NumberSequenceKeypoint.new(1, options.SizeEnd or 0.05),
+	})
+	emitter.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, options.Transparency or 0),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	emitter.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, colorA),
+		ColorSequenceKeypoint.new(1, colorB),
+	})
+	emitter.LightEmission = 1
+	emitter.LightInfluence = 0
+	emitter.Acceleration = options.Acceleration or Vector3.new(0, -8, 0)
+	emitter.Drag = options.Drag or 0
+	emitter.Rotation = NumberRange.new(0, 360)
+	emitter.RotSpeed = NumberRange.new(-120, 120)
+	emitter.EmissionDirection = options.Direction or Enum.NormalId.Top
+	emitter.Parent = part
+	emitter:Emit(options.Count or 20)
+	return emitter, part
+end
+
+local function fxRandomOffset(radius)
+	return Vector3.new(
+		(math.random() - 0.5) * radius * 2,
+		(math.random() - 0.5) * radius * 2,
+		(math.random() - 0.5) * radius * 2
+	)
+end
+
+local function fxNewState(kind, ctx)
+	return {
+		Kind = kind,
+		Folder = fxGetFolder(),
+		Age = 0,
+		Duration = 0.9,
+		Parts = {},
+		Adornments = {},
+		Guis = {},
+		BaseCF = ctx.BaseCF,
+		TargetRoot = ctx.TargetRoot,
+		Follow = ctx.Follow,
+		HeadLocal = ctx.HeadLocal,
+		Damage = ctx.Damage,
+		HitDamage = ctx.HitDamage or ctx.Damage,
+		Head = ctx.Headshot,
+		Stack = ctx.Stack,
+		StackIndex = ctx.StackIndex or 0,
+		Cycle = ctx.Cycle,
+		OriginalPF = ctx.OriginalPF,
+		StartColor = ctx.StartColor,
+		MiddleColor = ctx.MiddleColor,
+		EndColor = ctx.EndColor,
+		Config = ctx.Config,
+	}
+end
+
+local function fxDestroy(state)
+	if state.Destroyed then
+		return
+	end
+
+	state.Destroyed = true
+
+	if state.OnDestroy ~= nil then
+		pcall(state.OnDestroy)
+	end
+
+	for _, part in state.Parts do
+		if part.Parent ~= nil then
+			part:Destroy()
+		end
+	end
+
+	for _, ring in state.Adornments do
+		if ring.Parent ~= nil then
+			ring:Destroy()
+		end
+	end
+
+	for _, gui in state.Guis do
+		if gui.Parent ~= nil then
+			gui:Destroy()
+		end
+	end
+
+	table.clear(state.Parts)
+	table.clear(state.Adornments)
+	table.clear(state.Guis)
+end
+
+fxBuilders.Aura = function(state)
+	state.Duration = 1.15
+	local core = fxPart(state, CFrame.new(0, 2.1, 0), Vector3.new(1.4, 1.4, 1.4), state.StartColor, 0.4, Enum.PartType.Ball)
+	local wisps = {}
+
+	for i = 1, 18 do
+		table.insert(wisps, {
+			Part = fxPart(state, CFrame.new(0, 0.2, 0), Vector3.new(0.16, 0.16, 0.16), state.StartColor, 0, Enum.PartType.Ball),
+			Angle = (i / 18) * math.pi * 4,
+			Height = ((i - 1) / 18) * 3.6,
+			Radius = 1.15 + (i % 3) * 0.18,
+		})
+	end
+
+	local ringA = fxRing(state, CFrame.new(0, 0.12, 0), 1.15, 0.05, state.StartColor, 0.05, 0.95)
+	local ringB = fxRing(state, CFrame.new(0, 2.1, 0), 0.85, 0.04, state.MiddleColor, 0.08, 0.7)
+	fxEmitter(state, CFrame.new(0, 0.6, 0), state.StartColor, state.EndColor, {
+		Count = 26,
+		SpeedMin = 2,
+		SpeedMax = 7,
+		Spread = 90,
+		LifeMin = 0.4,
+		LifeMax = 0.9,
+		SizeStart = 0.28,
+		SizeEnd = 0.02,
+		Acceleration = Vector3.new(0, 7, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local spin = self.Age * 4.2
+		core.Color = color
+		core.Transparency = 0.4 + t * 0.55
+		core.Size = Vector3.new(1.4, 1.4, 1.4) * (1 + math.sin(self.Age * 12) * 0.08)
+		core.CFrame = self.BaseCF * CFrame.new(0, 2 + math.sin(self.Age * 3) * 0.08, 0)
+
+		for _, wisp in wisps do
+			local y = (wisp.Height + self.Age * 1.8) % 3.8
+			local angle = wisp.Angle + spin + y * 1.15
+			local radius = wisp.Radius * (0.7 + y * 0.13)
+			wisp.Part.CFrame = self.BaseCF * CFrame.new(math.cos(angle) * radius, 0.2 + y, math.sin(angle) * radius)
+			wisp.Part.Color = color
+			wisp.Part.Transparency = 0.05 + t * 0.75
+			wisp.Part.Size = Vector3.new(0.16, 0.16, 0.16) * (1.15 - y * 0.12)
+		end
+
+		ringA.Radius = 1.15 + t * 1.6
+		ringA.InnerRadius = math.max(0, ringA.Radius - 0.08)
+		ringA.Color3 = color
+		ringA.Transparency = 0.05 + t * 0.85
+		ringA.CFrame = self.BaseCF * CFrame.new(0, 0.12 + t * 0.2, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		ringB.Radius = 0.85 + t * 1.1
+		ringB.InnerRadius = math.max(0, ringB.Radius - 0.07)
+		ringB.Color3 = color
+		ringB.Transparency = 0.08 + t * 0.8
+		ringB.CFrame = self.BaseCF * CFrame.new(0, 2.1 + t * 0.4, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+	end
+end
+
+fxBuilders.Blades = function(state)
+	state.Duration = 0.85
+	local blades = {}
+
+	for i = 1, 6 do
+		table.insert(blades, {
+			Part = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(0.12, 0.12, 3.2), state.StartColor, 0),
+			Angle = i * (math.pi * 2 / 6),
+			Radius = 1.9,
+			Height = 2 + (i % 2) * 0.4,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.MiddleColor, {
+		Count = 18,
+		SpeedMin = 5,
+		SpeedMax = 12,
+		LifeMin = 0.3,
+		LifeMax = 0.6,
+		SizeStart = 0.25,
+		SizeEnd = 0.05,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local spin = self.Age * 7
+
+		for _, blade in blades do
+			local angle = blade.Angle + spin
+			blade.Part.CFrame = self.BaseCF
+				* CFrame.new(math.cos(angle) * blade.Radius, blade.Height + math.sin(angle * 2) * 0.25, math.sin(angle) * blade.Radius)
+				* CFrame.Angles(0, -angle, math.pi / 4)
+			blade.Part.Color = color
+			blade.Part.Transparency = t * 0.9
+			blade.Part.Size = Vector3.new(0.12, 0.12, 3.2 - t * 1.2)
+		end
+	end
+end
+
+fxBuilders.Bubble = function(state)
+	state.Duration = 1.1
+	local bubble = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(4.6, 4.9, 4.6), state.StartColor, 0.55, Enum.PartType.Ball, Enum.Material.ForceField)
+	local inner = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(3.8, 4.1, 3.8), state.MiddleColor, 0.9, Enum.PartType.Ball, Enum.Material.ForceField)
+	local minis = {}
+
+	for i = 1, 9 do
+		table.insert(minis, {
+			Part = fxPart(state, CFrame.new(0, 1, 0), Vector3.new(0.4, 0.4, 0.4), state.StartColor, 0.25, Enum.PartType.Ball, Enum.Material.ForceField),
+			Angle = i * (math.pi * 2 / 9),
+			Radius = 1.7 + (i % 3) * 0.5,
+			Height = 0.4 + (i % 4) * 0.7,
+			Speed = 0.7 + (i % 3) * 0.3,
+		})
+	end
+
+	local ring = fxRing(state, CFrame.new(0, 0.3, 0), 1.6, 0.06, state.StartColor, 0.08, 1.48)
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local pulse = 1 + math.sin(self.Age * 7) * 0.04
+		bubble.Color = color
+		bubble.Transparency = 0.55 + t * 0.4
+		bubble.Size = Vector3.new(4.6, 4.9, 4.6) * (1 + t * 0.25) * pulse
+		bubble.CFrame = self.BaseCF * CFrame.new(0, 2.2 + t * 0.25, 0)
+		inner.Color = color
+		inner.Transparency = 0.9 + t * 0.08
+		inner.Size = bubble.Size * 0.82
+		inner.CFrame = bubble.CFrame
+
+		for _, mini in minis do
+			local y = (mini.Height + self.Age * mini.Speed) % 3.8
+			local angle = mini.Angle + self.Age * 1.6
+			local radius = mini.Radius * (1 - y * 0.06)
+			mini.Part.CFrame = self.BaseCF * CFrame.new(math.cos(angle) * radius, 0.3 + y, math.sin(angle) * radius)
+			mini.Part.Color = color
+			mini.Part.Transparency = 0.2 + t * 0.6
+			mini.Part.Size = Vector3.new(0.4, 0.4, 0.4) * (0.7 + (y / 3.8) * 0.6)
+		end
+
+		ring.Radius = 1.6 + t * 1.1
+		ring.InnerRadius = math.max(0, ring.Radius - 0.09)
+		ring.Color3 = color
+		ring.Transparency = 0.08 + t * 0.8
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.3, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+	end
+end
+
+fxBuilders.Clone = function(state)
+	state.Duration = 0.95
+	local copies = {}
+	local target = state.TargetRoot and state.TargetRoot.Parent
+	local partCount = 0
+
+	if target ~= nil then
+		for _, part in target:GetDescendants() do
+			if part:IsA("BasePart") and partCount < 18 then
+				partCount += 1
+				local offset = state.BaseCF:ToObjectSpace(part.CFrame)
+				local shape = part:IsA("Part") and part.Shape or nil
+
+				for layer = 1, 2 do
+					local copy = fxPart(
+						state,
+						CFrame.new(),
+						part.Size * (layer == 1 and 1.015 or 1.07),
+						layer == 1 and state.StartColor or state.MiddleColor,
+						layer == 1 and 0.03 or 0.22,
+						shape,
+						Enum.Material.Neon
+					)
+					copy.CFrame = part.CFrame
+					table.insert(copies, {
+						Part = copy,
+						Offset = offset,
+						Size = copy.Size,
+						Layer = layer,
+						Delay = (layer - 1) * 0.08,
+						Phase = partCount * 0.7 + layer,
+					})
+				end
+			end
+		end
+	end
+
+	if #copies == 0 then
+		local fallback = {
+			{ Offset = CFrame.new(0, 1.8, 0), Size = Vector3.new(2, 2, 1) },
+			{ Offset = CFrame.new(0, 3.2, 0), Size = Vector3.new(1.2, 1.2, 1.2), Shape = Enum.PartType.Ball },
+			{ Offset = CFrame.new(-0.9, 1.8, 0), Size = Vector3.new(0.8, 2, 0.8) },
+			{ Offset = CFrame.new(0.9, 1.8, 0), Size = Vector3.new(0.8, 2, 0.8) },
+		}
+
+		for index, source in fallback do
+			for layer = 1, 2 do
+				local copy = fxPart(
+					state,
+					CFrame.new(),
+					source.Size * (layer == 1 and 1.015 or 1.07),
+					layer == 1 and state.StartColor or state.MiddleColor,
+					layer == 1 and 0.03 or 0.22,
+					source.Shape,
+					Enum.Material.Neon
+				)
+				table.insert(copies, {
+					Part = copy,
+					Offset = source.Offset,
+					Size = copy.Size,
+					Layer = layer,
+					Delay = (layer - 1) * 0.08,
+					Phase = index * 0.7 + layer,
+				})
+			end
+		end
+	end
+
+	local ring = fxRing(state, CFrame.new(0, 0.25, 0), 1.25, 0.07, state.StartColor, 0.08, 1.12)
+	local disc = fxPart(state, CFrame.new(0, 0.06, 0) * CFrame.Angles(0, 0, math.pi / 2), Vector3.new(0.04, 2.4, 2.4), state.StartColor, 0.35, Enum.PartType.Cylinder, Enum.Material.Neon)
+	fxEmitter(state, CFrame.new(0, 1.5, 0), state.StartColor, state.EndColor, {
+		Count = 22,
+		SpeedMin = 4,
+		SpeedMax = 11,
+		Spread = 120,
+		LifeMin = 0.3,
+		LifeMax = 0.7,
+		Acceleration = Vector3.new(0, 4, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, copy in copies do
+			local localT = math.clamp((t - copy.Delay) / (1 - copy.Delay), 0, 1)
+			local back = (copy.Layer == 1 and 0.05 or 0.65) + localT * (copy.Layer == 1 and 0.3 or 1.05)
+			local flicker = 0.94 + math.sin(self.Age * 34 + copy.Phase) * 0.06
+			local part = copy.Part
+			part.CFrame = self.BaseCF * copy.Offset * CFrame.new(0, 0, back)
+			part.Size = copy.Size * (1 + localT * (copy.Layer == 1 and 0.02 or 0.14)) * flicker
+			part.Color = copy.Layer == 1 and color or color:Lerp(self.EndColor, localT * 0.65)
+			part.Transparency = (copy.Layer == 1 and 0.03 or 0.22) + localT * 0.82
+		end
+
+		ring.Radius = 1.25 + t * 1.75
+		ring.InnerRadius = math.max(0, ring.Radius - 0.11)
+		ring.Color3 = color
+		ring.Transparency = 0.08 + t * 0.84
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.25 + t * 0.2, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		disc.Size = Vector3.new(0.04, 2.4 + t * 4.6, 2.4 + t * 4.6)
+		disc.Color = color
+		disc.Transparency = 0.35 + t * 0.6
+		disc.CFrame = self.BaseCF * CFrame.new(0, 0.06, 0) * CFrame.Angles(0, 0, math.pi / 2)
+	end
+end
+
+fxBuilders.Confetti = function(state)
+	state.Duration = 1.4
+	local colors = {
+		state.StartColor,
+		state.MiddleColor,
+		state.EndColor,
+		Color3.fromRGB(255, 80, 80),
+		Color3.fromRGB(80, 200, 255),
+		Color3.fromRGB(255, 220, 80),
+	}
+	local bits = {}
+
+	for i = 1, 22 do
+		local position = Vector3.new((math.random() - 0.5) * 2.6, 3 + math.random() * 2, (math.random() - 0.5) * 2.6)
+		local part = fxPart(state, CFrame.new(position), Vector3.new(0.18, 0.05, 0.3), colors[(i - 1) % #colors + 1], 0)
+		table.insert(bits, {
+			Part = part,
+			Position = position,
+			Velocity = Vector3.new((math.random() - 0.5) * 8, 3 + math.random() * 5, (math.random() - 0.5) * 8),
+			Rotation = Vector3.new(math.random() * 6.28, math.random() * 6.28, math.random() * 6.28),
+			Spin = Vector3.new((math.random() - 0.5) * 8, (math.random() - 0.5) * 8, (math.random() - 0.5) * 8),
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 3.2, 0), state.StartColor, state.EndColor, {
+		Count = 40,
+		SpeedMin = 8,
+		SpeedMax = 20,
+		Spread = 180,
+		LifeMin = 0.7,
+		LifeMax = 1.3,
+		SizeStart = 0.3,
+		SizeEnd = 0.05,
+		Acceleration = Vector3.new(0, -18, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+
+		for _, bit in bits do
+			bit.Velocity = bit.Velocity + Vector3.new(0, -18 * dt, 0)
+			bit.Position = bit.Position + bit.Velocity * dt
+			bit.Rotation = bit.Rotation + bit.Spin * dt
+			bit.Part.CFrame = self.BaseCF * CFrame.new(bit.Position) * CFrame.Angles(bit.Rotation.X, bit.Rotation.Y, bit.Rotation.Z)
+			bit.Part.Transparency = t > 0.65 and (t - 0.65) / 0.35 or 0
+		end
+	end
+end
+
+fxBuilders.Cyclone = function(state)
+	state.Duration = 1.35
+	local rings = {
+		{ Ring = fxRing(state, CFrame.new(0, 0.5, 0), 1.8, 0.05, state.StartColor, 0.1, 1.65), Y = 0.5 },
+		{ Ring = fxRing(state, CFrame.new(0, 1.5, 0), 1.45, 0.05, state.MiddleColor, 0.1, 1.3), Y = 1.5 },
+		{ Ring = fxRing(state, CFrame.new(0, 2.5, 0), 1.1, 0.05, state.EndColor, 0.1, 0.95), Y = 2.5 },
+		{ Ring = fxRing(state, CFrame.new(0, 3.5, 0), 0.7, 0.05, state.StartColor, 0.1, 0.55), Y = 3.5 },
+	}
+	local bits = {}
+
+	for i = 1, 14 do
+		local part = fxPart(state, CFrame.new(0, 1, 0), Vector3.new(0.16, 0.16, 0.7), state.StartColor, 0)
+		table.insert(bits, {
+			Part = part,
+			Angle = i * 0.9,
+			Radius = 1.7,
+			Y = (i - 1) * 0.3,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 0.5, 0), state.StartColor, state.EndColor, {
+		Count = 35,
+		SpeedMin = 4,
+		SpeedMax = 12,
+		Spread = 70,
+		LifeMin = 0.6,
+		LifeMax = 1.2,
+		Acceleration = Vector3.new(0, 8, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, entry in rings do
+			entry.Ring.Radius = 1.8 - (entry.Y - 0.5) * 0.3 + math.sin(self.Age * 5 + entry.Y) * 0.1
+			entry.Ring.InnerRadius = math.max(0, entry.Ring.Radius - 0.07)
+			entry.Ring.CFrame = self.BaseCF * CFrame.new(0, entry.Y + t * 0.4, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+			entry.Ring.Color3 = color
+			entry.Ring.Transparency = 0.1 + t * 0.8
+		end
+
+		for _, bit in bits do
+			bit.Angle = bit.Angle + dt * 6
+			bit.Y = bit.Y + dt * 2.2
+
+			if bit.Y > 4.2 then
+				bit.Y = 0
+			end
+
+			bit.Radius = 1.8 - bit.Y * 0.25
+			bit.Part.CFrame = self.BaseCF
+				* CFrame.new(math.cos(bit.Angle) * bit.Radius, bit.Y, math.sin(bit.Angle) * bit.Radius)
+				* CFrame.Angles(0, -bit.Angle, math.pi / 4)
+			bit.Part.Color = color
+			bit.Part.Transparency = 0.05 + t * 0.85
+		end
+	end
+end
+
+fxBuilders.Dots = function(state)
+	state.Duration = 0.95
+	local dots = {}
+
+	for i = 1, 28 do
+		local dir = Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5)
+
+		if dir.Magnitude < 0.05 then
+			dir = Vector3.new(0, 1, 0)
+		end
+
+		table.insert(dots, {
+			Part = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(0.14, 0.14, 0.14), state.StartColor, 0, Enum.PartType.Ball),
+			Dir = dir.Unit,
+			Speed = 7 + math.random() * 11,
+			Delay = math.random() * 0.12,
+		})
+	end
+
+	local ring = fxRing(state, CFrame.new(0, 2, 0), 0.4, 0.05, state.StartColor, 0.08, 0.3)
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.MiddleColor, {
+		Count = 18,
+		SpeedMin = 2,
+		SpeedMax = 6,
+		Spread = 180,
+		LifeMin = 0.3,
+		LifeMax = 0.7,
+		SizeStart = 0.2,
+		SizeEnd = 0.02,
+		Acceleration = Vector3.zero,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, dot in dots do
+			local lt = math.clamp((self.Age - dot.Delay) / (self.Duration - 0.12), 0, 1)
+			local distance = 0.6 + lt * dot.Speed
+			dot.Part.CFrame = self.BaseCF * CFrame.new(Vector3.new(0, 2, 0) + dot.Dir * distance)
+			dot.Part.Color = color
+			dot.Part.Transparency = lt * 0.9
+			dot.Part.Size = Vector3.new(0.14, 0.14, 0.14) * (1 + (1 - lt) * 0.8)
+		end
+
+		ring.Radius = 0.4 + t * 3.4
+		ring.InnerRadius = math.max(0, ring.Radius - 0.08)
+		ring.Color3 = color
+		ring.Transparency = 0.08 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 2, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+	end
+end
+
+fxBuilders.Electricity = function(state)
+	state.Duration = 0.65
+	local bolts = {}
+
+	for i = 1, 5 do
+		local segments = {}
+
+		for j = 1, 6 do
+			table.insert(segments, fxPart(state, CFrame.new(), Vector3.new(0.07, 0.07, 1), state.StartColor, 0))
+		end
+
+		table.insert(bolts, { Segments = segments })
+	end
+
+	local flash = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(2, 2, 2), state.MiddleColor, 0.4, Enum.PartType.Ball)
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.EndColor, {
+		Count = 25,
+		SpeedMin = 6,
+		SpeedMax = 16,
+		Spread = 180,
+		LifeMin = 0.2,
+		LifeMax = 0.5,
+		SizeStart = 0.18,
+		SizeEnd = 0.02,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		self.Flicker = (self.Flicker or 0) - dt
+
+		if self.Flicker <= 0 then
+			self.Flicker = 0.04
+
+			for _, bolt in bolts do
+				local startPoint = self.BaseCF * CFrame.new((math.random() - 0.5) * 3, 4.5 + math.random() * 1.5, (math.random() - 0.5) * 3)
+				local endPoint = self.BaseCF * CFrame.new((math.random() - 0.5) * 3, 0.5 + math.random() * 2.5, (math.random() - 0.5) * 3)
+				local points = { startPoint.Position }
+
+				for j = 1, 5 do
+					table.insert(points, startPoint.Position:Lerp(endPoint.Position, j / 6) + fxRandomOffset(0.35))
+				end
+
+				table.insert(points, endPoint.Position)
+
+				for j, part in bolt.Segments do
+					local a = points[j]
+					local b = points[j + 1]
+					part.Size = Vector3.new(0.07, 0.07, (b - a).Magnitude)
+					part.CFrame = CFrame.new((a + b) * 0.5, b)
+					part.Color = color
+					part.Transparency = 0.05 + t * 0.8 + math.random() * 0.1
+				end
+			end
+		end
+
+		flash.Color = color
+		flash.Transparency = 0.35 + t * 0.6
+		flash.Size = Vector3.new(2 + t * 2, 2 + t * 2, 2 + t * 2)
+		flash.CFrame = self.BaseCF * CFrame.new(0, 2, 0)
+	end
+end
+
+fxBuilders.Emission = function(state)
+	state.Duration = 1.05
+	local core = fxPart(state, CFrame.new(0, 1.2, 0), Vector3.new(1.3, 1.3, 1.3), state.StartColor, 0.15, Enum.PartType.Ball)
+	local beam = fxPart(state, CFrame.new(0, 4.8, 0), Vector3.new(0.35, 6.4, 0.35), state.StartColor, 0.55, nil, Enum.Material.Neon)
+	local rings = {}
+
+	for i = 1, 3 do
+		table.insert(rings, {
+			Ring = fxRing(state, CFrame.new(0, 0.4 + i, 0), 0.5, 0.06, state.StartColor, 0.1, 0.4),
+			Height = 0.4 + i,
+			Delayed = (i - 1) * 0.1,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 0.8, 0), state.StartColor, state.EndColor, {
+		Count = 60,
+		SpeedMin = 8,
+		SpeedMax = 22,
+		Spread = 25,
+		LifeMin = 0.5,
+		LifeMax = 1.1,
+		SizeStart = 0.4,
+		SizeEnd = 0.03,
+		Acceleration = Vector3.new(0, 18, 0),
+		Drag = 1,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local pulse = 0.85 + math.sin(self.Age * 18) * 0.15
+		core.Color = color
+		core.Transparency = 0.15 + t * 0.75
+		core.Size = Vector3.new(1.3, 1.3, 1.3) * (1 + t * 0.6) * pulse
+		core.CFrame = self.BaseCF * CFrame.new(0, 1.2, 0)
+		beam.Color = color
+		beam.Transparency = 0.55 + t * 0.35
+		beam.Size = Vector3.new(0.35, 6.4 * (1 - t * 0.55), 0.35) * pulse
+		beam.CFrame = self.BaseCF * CFrame.new(0, 1.2 + beam.Size.Y / 2, 0)
+
+		for _, entry in rings do
+			local lt = math.clamp((self.Age - entry.Delayed) / 0.9, 0, 1)
+			entry.Ring.Radius = 0.5 + lt * 2.4
+			entry.Ring.InnerRadius = math.max(0, entry.Ring.Radius - 0.1)
+			entry.Ring.Color3 = color
+			entry.Ring.Transparency = 0.1 + lt * 0.85
+			entry.Ring.CFrame = self.BaseCF * CFrame.new(0, entry.Height + lt * 2.4, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		end
+	end
+end
+
+fxBuilders.Explosion = function(state)
+	state.Duration = 0.8
+	local core = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(1, 1, 1), state.StartColor, 0.05, Enum.PartType.Ball)
+	local ring = fxRing(state, CFrame.new(0, 1, 0), 0.5, 0.08, state.StartColor, 0.1, 0.35)
+	local sparks = {}
+
+	for i = 1, 18 do
+		local part = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(0.16, 0.16, 0.16), state.MiddleColor, 0, Enum.PartType.Ball)
+		table.insert(sparks, {
+			Part = part,
+			Position = Vector3.new(0, 2.2, 0),
+			Velocity = fxRandomOffset(1).Unit * (8 + math.random() * 14),
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2.2, 0), state.StartColor, state.EndColor, {
+		Count = 60,
+		SpeedMin = 10,
+		SpeedMax = 28,
+		Spread = 180,
+		LifeMin = 0.3,
+		LifeMax = 0.9,
+		SizeStart = 0.55,
+		SizeEnd = 0.05,
+		Acceleration = Vector3.new(0, -14, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		core.Color = color
+		core.Transparency = 0.05 + t * 0.9
+		core.Size = Vector3.new(1, 1, 1) * (1 + t * 6)
+		core.CFrame = self.BaseCF * CFrame.new(0, 2.2, 0)
+		ring.Radius = 0.5 + t * 5
+		ring.InnerRadius = math.max(0, ring.Radius - 0.15)
+		ring.Color3 = color
+		ring.Transparency = 0.1 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 1, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+
+		for _, spark in sparks do
+			spark.Velocity = spark.Velocity + Vector3.new(0, -20 * dt, 0)
+			spark.Position = spark.Position + spark.Velocity * dt
+			spark.Part.CFrame = self.BaseCF * CFrame.new(spark.Position)
+			spark.Part.Color = color
+			spark.Part.Transparency = t * 0.95
+		end
+	end
+end
+
+fxBuilders["Filled Circle"] = function(state)
+	state.Duration = 0.8
+	local ring = fxRing(state, CFrame.new(0, 0.09, 0), 0.2, 0.05, state.StartColor, 0.08, 0)
+	local disc = fxPart(state, CFrame.new(0, 0.05, 0) * CFrame.Angles(0, 0, math.pi / 2), Vector3.new(0.03, 1, 1), state.StartColor, 0.15, Enum.PartType.Cylinder)
+	local sparks = {}
+
+	for i = 1, 14 do
+		local angle = i * (math.pi * 2 / 14)
+		table.insert(sparks, {
+			Part = fxPart(state, CFrame.new(0, 0.12, 0), Vector3.new(0.12, 0.12, 0.12), state.MiddleColor, 0, Enum.PartType.Ball),
+			Dir = Vector3.new(math.cos(angle), 0.18, math.sin(angle)),
+			Speed = 6 + (i % 4) * 2,
+		})
+	end
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local radius = 0.3 + t * 4.2
+		disc.Size = Vector3.new(0.03, radius * 2, radius * 2)
+		disc.CFrame = self.BaseCF * CFrame.new(0, 0.05, 0) * CFrame.Angles(0, 0, math.pi / 2)
+		disc.Color = color
+		disc.Transparency = 0.15 + t * 0.8
+		ring.Radius = radius
+		ring.InnerRadius = math.max(0, radius - 0.16)
+		ring.Color3 = color
+		ring.Transparency = 0.08 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.09, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+
+		for _, spark in sparks do
+			local distance = 0.5 + t * spark.Speed
+			spark.Part.CFrame = self.BaseCF * CFrame.new(Vector3.new(0, 0.12, 0) + spark.Dir * distance)
+			spark.Part.Color = color
+			spark.Part.Transparency = t * 0.9
+			spark.Part.Size = Vector3.new(0.12, 0.12, 0.12) * (1 - t * 0.5)
+		end
+	end
+end
+
+fxBuilders["Fortnite Damage"] = function(state)
+	state.Duration = 0.95
+	local headOffset = state.HeadLocal or CFrame.new(0, 1.5, 0)
+	local xOffset = (math.random() - 0.5) * 1.2
+	local total = math.max(1, math.round(state.Damage))
+	local color = state.Head and state.MiddleColor or state.StartColor
+	local part, label, gui = fxText(state, tostring(total), headOffset, color, Enum.Font.FredokaOne, 120, 46)
+	gui.Size = UDim2.fromOffset(120, 46)
+	local flash = fxFlash(state, headOffset, color)
+
+	state.AddDamage = function(self, amount)
+		total = math.min(total + math.max(0, amount), 99999)
+		self.Damage = total
+		self.Age = 0
+		label.Text = tostring(math.round(total))
+		label.TextTransparency = 0
+		label.TextStrokeTransparency = 0
+		flash.Gui.Size = UDim2.fromOffset(18, 18)
+		flash.Glow.BackgroundTransparency = 0.15
+		flash.Sparkle.ImageTransparency = 0.05
+	end
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local rise = 0.65 + t * 1.5
+		part.CFrame = self.BaseCF * headOffset * CFrame.new(xOffset, rise, 0)
+		local flashT = math.clamp(self.Age / 0.24, 0, 1)
+		local flashSize = 18 + flashT * 112
+		flash.Gui.Size = UDim2.fromOffset(flashSize, flashSize)
+		flash.Part.CFrame = self.BaseCF * headOffset
+		flash.Glow.BackgroundTransparency = 0.15 + flashT * 0.85
+		flash.Sparkle.ImageTransparency = 0.05 + flashT * 0.95
+		local textColor
+
+		if self.Cycle then
+			textColor = fxRainbow(self.Age * 1.6)
+		elseif self.Head then
+			textColor = self.MiddleColor
+		else
+			textColor = self.StartColor
+		end
+
+		if not self.Cycle then
+			textColor = textColor:Lerp(self.EndColor, t * 0.6)
+		end
+
+		label.TextColor3 = textColor
+		label.TextTransparency = t > 0.55 and (t - 0.55) / 0.45 or 0
+		label.TextStrokeTransparency = label.TextTransparency * 0.8
+		flash.Glow.BackgroundColor3 = textColor
+		flash.Sparkle.ImageColor3 = textColor:Lerp(Color3.new(1, 1, 1), 0.45)
+	end
+end
+
+local phantomGoldenAngle = 2.399963229728653
+local phantomDamageCounter = 0
+local phantomDamageFont = Font.new("rbxasset://fonts/families/Zekton.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+local phantomHeadshotFont = Font.new("rbxasset://fonts/families/Zekton.json", Enum.FontWeight.Regular, Enum.FontStyle.Italic)
+
+local function phantomClampDamage(damage)
+	local amount = tonumber(damage) or 0
+
+	if amount > 99 and amount < 100 then
+		return 99
+	end
+
+	if amount > 0 and amount < 1 then
+		return 1
+	end
+
+	return math.round(amount)
+end
+
+fxBuilders["Phantom Forces"] = function(state)
+	state.Duration = 1.18
+	local headOffset = state.HeadLocal or CFrame.new(0, 1.5, 0)
+	local color = state.Head and state.MiddleColor or state.StartColor
+
+	if state.OriginalPF then
+		color = state.Head and Color3.fromRGB(255, 70, 70) or Color3.fromRGB(245, 245, 245)
+	end
+
+	local amount = math.max(1, phantomClampDamage(state.HitDamage))
+	local part, label, gui = fxText(state, tostring(amount), headOffset, color, Enum.Font.GothamBlack, 200, 200)
+	gui.Size = UDim2.fromOffset(200, 200)
+	local flash = fxFlash(state, headOffset, color)
+	label.TextScaled = false
+	label.TextSize = 24
+	label.TextWrapped = false
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
+	label.Position = UDim2.fromScale(0.5, 0.5)
+	label.TextStrokeTransparency = 1
+	label.FontFace = state.Head and phantomHeadshotFont or phantomDamageFont
+	local shadow = label:Clone()
+	shadow.Name = "TextDamageShadow"
+	shadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+	shadow.TextStrokeTransparency = 1
+	shadow.Position = UDim2.new(0.5, 1, 0.5, 1)
+	shadow.ZIndex = 0
+	shadow.Parent = gui
+	label.ZIndex = 1
+	local outline = Instance.new("UIStroke")
+	outline.Thickness = 0.5
+	outline.Color = Color3.fromRGB(0, 0, 0)
+	outline.Parent = label
+	local angle = phantomGoldenAngle * phantomDamageCounter
+	phantomDamageCounter += 1
+	local targetX = math.cos(angle) * 32
+	local targetY = math.sin(angle) * -48 - 90
+
+	state.Step = function(self, dt)
+		part.CFrame = self.BaseCF * headOffset
+		flash.Part.CFrame = self.BaseCF * headOffset
+		local t = math.clamp(self.Age, 0, 1)
+		local eased = 1 - (1 - t) ^ 5
+		local position = UDim2.new(0.5, targetX * eased, 0.5, targetY * eased)
+		label.Position = position
+		shadow.Position = position + UDim2.fromOffset(1, 1)
+		local fade = math.clamp((self.Age - 1) / 0.18, 0, 1)
+		local flashT = math.clamp(self.Age / 0.24, 0, 1)
+		local flashSize = 18 + flashT * 112
+		flash.Gui.Size = UDim2.fromOffset(flashSize, flashSize)
+		flash.Glow.BackgroundTransparency = 0.15 + flashT * 0.85
+		flash.Sparkle.ImageTransparency = 0.05 + flashT * 0.95
+		local textColor = color
+
+		if self.Cycle and not self.OriginalPF then
+			textColor = fxRainbow(self.Age * 1.6)
+		end
+
+		label.TextColor3 = textColor
+		label.TextTransparency = fade
+		shadow.TextTransparency = fade
+		flash.Glow.BackgroundColor3 = textColor
+		flash.Sparkle.ImageColor3 = textColor:Lerp(Color3.new(1, 1, 1), 0.45)
+	end
+end
+
+fxBuilders.Lightning = function(state)
+	state.Duration = 0.75
+	local bolt = {}
+
+	for i = 1, 12 do
+		table.insert(bolt, fxPart(state, CFrame.new(), Vector3.new(0.1, 0.1, 1), state.StartColor, 0))
+	end
+
+	local branch = {}
+
+	for i = 1, 5 do
+		table.insert(branch, fxPart(state, CFrame.new(), Vector3.new(0.07, 0.07, 1), state.MiddleColor, 0))
+	end
+
+	local flash = fxPart(state, CFrame.new(0, 2.4, 0), Vector3.new(3, 3, 3), state.StartColor, 0.25, Enum.PartType.Ball)
+	local ring = fxRing(state, CFrame.new(0, 0.15, 0), 0.3, 0.06, state.StartColor, 0.1, 0.2)
+	fxEmitter(state, CFrame.new(0, 1, 0), state.StartColor, state.EndColor, {
+		Count = 30,
+		SpeedMin = 6,
+		SpeedMax = 16,
+		Spread = 180,
+		LifeMin = 0.2,
+		LifeMax = 0.6,
+		SizeStart = 0.2,
+		SizeEnd = 0.02,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local startPoint = self.BaseCF * CFrame.new((math.random() - 0.5) * 2, 9 + math.random() * 2, (math.random() - 0.5) * 2)
+		local endPoint = self.BaseCF * CFrame.new(0, 2.4, 0)
+		local points = { startPoint.Position }
+
+		for i = 1, 11 do
+			table.insert(points, startPoint.Position:Lerp(endPoint.Position, i / 12) + fxRandomOffset(0.3))
+		end
+
+		table.insert(points, endPoint.Position)
+
+		for i, part in bolt do
+			local a = points[i]
+			local b = points[i + 1]
+			part.Size = Vector3.new(0.1, 0.1, (b - a).Magnitude)
+			part.CFrame = CFrame.new((a + b) * 0.5, b)
+			part.Color = color
+			part.Transparency = 0.05 + t * 0.7
+		end
+
+		local branchStart = points[5]
+		local branchEnd = self.BaseCF * CFrame.new((math.random() - 0.5) * 4, 1 + math.random() * 2, (math.random() - 0.5) * 4)
+		local branchPoints = { branchStart }
+
+		for i = 1, 4 do
+			table.insert(branchPoints, branchStart:Lerp(branchEnd.Position, i / 5) + fxRandomOffset(0.2))
+		end
+
+		table.insert(branchPoints, branchEnd.Position)
+
+		for i, part in branch do
+			local a = branchPoints[i]
+			local b = branchPoints[i + 1]
+			part.Size = Vector3.new(0.07, 0.07, (b - a).Magnitude)
+			part.CFrame = CFrame.new((a + b) * 0.5, b)
+			part.Color = color
+			part.Transparency = 0.1 + t * 0.7
+		end
+
+		flash.Color = color
+		flash.Transparency = 0.2 + t * 0.7
+		flash.Size = Vector3.new(3 + t * 3, 3 + t * 3, 3 + t * 3)
+		flash.CFrame = self.BaseCF * CFrame.new(0, 2.4, 0)
+		ring.Radius = 0.3 + t * 3.2
+		ring.InnerRadius = math.max(0, ring.Radius - 0.1)
+		ring.Color3 = color
+		ring.Transparency = 0.1 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.15, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+	end
+end
+
+fxBuilders.Petals = function(state)
+	state.Duration = 1.5
+	local colors = { state.StartColor, state.MiddleColor, state.EndColor }
+	local petals = {}
+
+	for i = 1, 18 do
+		local position = Vector3.new((math.random() - 0.5) * 4, 4 + math.random() * 2, (math.random() - 0.5) * 4)
+		local part = fxPart(state, CFrame.new(position), Vector3.new(0.16, 0.04, 0.26), colors[(i - 1) % #colors + 1], 0)
+		table.insert(petals, {
+			Part = part,
+			Position = position,
+			Velocity = Vector3.new((math.random() - 0.5) * 2, -2 - math.random() * 2, (math.random() - 0.5) * 2),
+			Rotation = Vector3.new(math.random() * 6.28, math.random() * 6.28, math.random() * 6.28),
+			Spin = Vector3.new((math.random() - 0.5) * 4, (math.random() - 0.5) * 4, (math.random() - 0.5) * 4),
+			Sway = math.random() * 6.28,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 4, 0), colors[1], colors[3], {
+		Count = 30,
+		SpeedMin = 1,
+		SpeedMax = 4,
+		Spread = 180,
+		LifeMin = 0.8,
+		LifeMax = 1.5,
+		SizeStart = 0.25,
+		SizeEnd = 0.05,
+		Acceleration = Vector3.new(0, -3, 0),
+		Direction = Enum.NormalId.Bottom,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+
+		for _, petal in petals do
+			petal.Sway = petal.Sway + dt * 3
+			petal.Velocity = petal.Velocity + Vector3.new(math.sin(petal.Sway) * dt * 2, -2 * dt, 0)
+			petal.Position = petal.Position + petal.Velocity * dt
+			petal.Rotation = petal.Rotation + petal.Spin * dt
+			petal.Part.CFrame = self.BaseCF * CFrame.new(petal.Position) * CFrame.Angles(petal.Rotation.X, petal.Rotation.Y, petal.Rotation.Z)
+			petal.Part.Transparency = t > 0.6 and (t - 0.6) / 0.4 or 0
+		end
+	end
+end
+
+fxBuilders.Plasma = function(state)
+	state.Duration = 0.95
+	local sphere = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(2.4, 2.4, 2.4), state.StartColor, 0.35, Enum.PartType.Ball, Enum.Material.ForceField)
+	local orbits = {}
+
+	for i = 1, 8 do
+		table.insert(orbits, {
+			Part = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(0.2, 0.2, 0.2), state.MiddleColor, 0, Enum.PartType.Ball),
+			Angle = i * (math.pi * 2 / 8),
+			Radius = 2.4,
+			Height = (i % 3 - 1) * 0.7,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2.2, 0), state.StartColor, state.EndColor, {
+		Count = 35,
+		SpeedMin = 3,
+		SpeedMax = 10,
+		Spread = 180,
+		LifeMin = 0.5,
+		LifeMax = 1,
+		SizeStart = 0.35,
+		SizeEnd = 0.03,
+		Acceleration = Vector3.zero,
+		Drag = 1,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		sphere.Color = color
+		sphere.Transparency = 0.35 + t * 0.55
+		sphere.Size = Vector3.new(2.4, 2.4, 2.4) * (1 + math.sin(self.Age * 15) * 0.15)
+		sphere.CFrame = self.BaseCF * CFrame.new(0, 2.2, 0)
+
+		for _, orbit in orbits do
+			orbit.Angle = orbit.Angle + dt * 5
+			orbit.Part.CFrame = self.BaseCF
+				* CFrame.new(math.cos(orbit.Angle) * orbit.Radius, 2.2 + orbit.Height + math.sin(orbit.Angle * 2) * 0.2, math.sin(orbit.Angle) * orbit.Radius)
+			orbit.Part.Color = color
+			orbit.Part.Transparency = t * 0.9
+		end
+	end
+end
+
+fxBuilders.Portal = function(state)
+	state.Duration = 1.2
+	local ring = fxRing(state, CFrame.new(0, 0.1, 0), 1.8, 0.08, state.StartColor, 0.1, 1.6)
+	local disc = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(0.08, 3.6, 3.6), state.MiddleColor, 0.55, Enum.PartType.Cylinder, Enum.Material.ForceField)
+	local orbits = {}
+
+	for i = 1, 10 do
+		table.insert(orbits, {
+			Part = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(0.18, 0.18, 0.18), state.EndColor, 0, Enum.PartType.Ball),
+			Angle = i * (math.pi * 2 / 10),
+			Radius = 1.4 + (i % 3) * 0.35,
+			Height = (i % 4 - 1.5) * 0.7,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 0.2, 0), state.StartColor, state.EndColor, {
+		Count = 40,
+		SpeedMin = 2,
+		SpeedMax = 8,
+		Spread = 120,
+		LifeMin = 0.6,
+		LifeMax = 1.2,
+		SizeStart = 0.3,
+		SizeEnd = 0.03,
+		Acceleration = Vector3.new(0, 6, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		ring.Radius = 1.8 + t * 0.8
+		ring.InnerRadius = math.max(0, ring.Radius - 0.12)
+		ring.Color3 = color
+		ring.Transparency = 0.1 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.1, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		disc.Color = color
+		disc.Transparency = 0.55 + t * 0.4
+		disc.CFrame = self.BaseCF * CFrame.new(0, 2 + t * 0.4, 0) * CFrame.Angles(0, 0, math.pi / 2) * CFrame.Angles(0, self.Age * 0.8, 0)
+
+		for _, orbit in orbits do
+			orbit.Angle = orbit.Angle + dt * 4
+			orbit.Part.CFrame = self.BaseCF
+				* CFrame.new(math.cos(orbit.Angle) * orbit.Radius, 2.2 + orbit.Height + math.sin(orbit.Angle * 2) * 0.25, math.sin(orbit.Angle) * orbit.Radius)
+			orbit.Part.Color = color
+			orbit.Part.Transparency = t * 0.9
+		end
+	end
+end
+
+fxBuilders.Ring = function(state)
+	state.Duration = 0.85
+	local rings = {
+		{ Ring = fxRing(state, CFrame.new(0, 0.08, 0), 0.4, 0.06, state.StartColor, 0.08, 0.3), Delay = 0, Speed = 4.5 },
+		{ Ring = fxRing(state, CFrame.new(0, 0.08, 0), 0.25, 0.04, state.MiddleColor, 0.1, 0.18), Delay = 0.1, Speed = 3.4 },
+	}
+	local core = fxPart(state, CFrame.new(0, 0.14, 0), Vector3.new(0.5, 0.5, 0.5), state.StartColor, 0.2, Enum.PartType.Ball)
+	fxEmitter(state, CFrame.new(0, 0.2, 0), state.StartColor, state.EndColor, {
+		Count = 18,
+		SpeedMin = 2,
+		SpeedMax = 8,
+		Spread = 80,
+		LifeMin = 0.25,
+		LifeMax = 0.5,
+		SizeStart = 0.18,
+		SizeEnd = 0.02,
+		Acceleration = Vector3.new(0, 3, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, entry in rings do
+			local lt = math.clamp((self.Age - entry.Delay) / (self.Duration - 0.1), 0, 1)
+			local radius = 0.3 + lt * entry.Speed
+			entry.Ring.Radius = radius
+			entry.Ring.InnerRadius = math.max(0, radius - 0.13)
+			entry.Ring.Color3 = color
+			entry.Ring.Transparency = 0.08 + lt * 0.85
+			entry.Ring.CFrame = self.BaseCF * CFrame.new(0, 0.08, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		end
+
+		core.Color = color
+		core.Transparency = 0.2 + t * 0.8
+		core.Size = Vector3.new(0.5, 0.5, 0.5) * (1 + t * 2)
+		core.CFrame = self.BaseCF * CFrame.new(0, 0.14, 0)
+	end
+end
+
+fxBuilders.Ripple = function(state)
+	state.Duration = 1.2
+	local ripples = {}
+
+	for i = 1, 3 do
+		table.insert(ripples, {
+			Ring = fxRing(state, CFrame.new(0, 0.1, 0), 0.3, 0.07, state.StartColor, 0.1, 0.2),
+			Delay = (i - 1) * 0.18,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 0.4, 0), state.StartColor, state.EndColor, {
+		Count = 26,
+		SpeedMin = 2,
+		SpeedMax = 6,
+		Spread = 50,
+		LifeMin = 0.4,
+		LifeMax = 0.9,
+		SizeStart = 0.2,
+		SizeEnd = 0.02,
+		Acceleration = Vector3.new(0, 4, 0),
+	})
+
+	state.Step = function(self, dt)
+		local color = fxColorAt(self, math.clamp(self.Age / self.Duration, 0, 1))
+
+		for _, entry in ripples do
+			local t = math.clamp((self.Age - entry.Delay) / 0.8, 0, 1)
+			entry.Ring.Radius = 0.3 + t * 4
+			entry.Ring.InnerRadius = math.max(0, entry.Ring.Radius - 0.14)
+			entry.Ring.Color3 = color
+			entry.Ring.Transparency = 0.1 + t * 0.85
+			entry.Ring.CFrame = self.BaseCF * CFrame.new(0, 0.1, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		end
+	end
+end
+
+fxBuilders["Sun Rays"] = function(state)
+	state.Duration = 0.85
+	local core = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(1.2, 1.2, 1.2), state.StartColor, 0.25, Enum.PartType.Ball)
+	local rays = {}
+
+	for i = 1, 14 do
+		table.insert(rays, {
+			Part = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(0.12, 0.12, 4.8), state.MiddleColor, 0),
+			Angle = i * (math.pi * 2 / 14),
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.EndColor, {
+		Count = 30,
+		SpeedMin = 4,
+		SpeedMax = 12,
+		Spread = 180,
+		LifeMin = 0.4,
+		LifeMax = 0.9,
+		SizeStart = 0.3,
+		SizeEnd = 0.03,
+		Acceleration = Vector3.zero,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local spin = self.Age * 1.8
+		core.Color = color
+		core.Transparency = 0.25 + t * 0.7
+		core.Size = Vector3.new(1.2, 1.2, 1.2) * (1 + t * 0.8)
+		core.CFrame = self.BaseCF * CFrame.new(0, 2, 0)
+
+		for _, ray in rays do
+			ray.Part.CFrame = self.BaseCF
+				* CFrame.new(0, 2, 0)
+				* CFrame.Angles(0, ray.Angle + spin, 0)
+				* CFrame.new(0, 0, -2.8)
+				* CFrame.Angles(0, 0, math.pi / 2)
+			ray.Part.Color = color
+			ray.Part.Transparency = t * 0.9
+		end
+	end
+end
+
+fxBuilders.Slashes = function(state)
+	state.Duration = 0.75
+	local slashes = {}
+
+	for i = 1, 5 do
+		local part = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(0.09, 0.09, 5), state.StartColor, 0)
+		table.insert(slashes, {
+			Part = part,
+			Yaw = (i / 5) * math.pi * 2 + (math.random() - 0.5) * 0.4,
+			Roll = 0.5 + math.random() * 0.5,
+			Delay = (i - 1) * 0.05,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.MiddleColor, {
+		Count = 24,
+		SpeedMin = 8,
+		SpeedMax = 18,
+		Spread = 180,
+		LifeMin = 0.2,
+		LifeMax = 0.5,
+		SizeStart = 0.2,
+		SizeEnd = 0.02,
+	})
+
+	state.Step = function(self, dt)
+		local color = fxColorAt(self, math.clamp(self.Age / self.Duration, 0, 1))
+
+		for _, slash in slashes do
+			local t = math.clamp((self.Age - slash.Delay) / 0.45, 0, 1)
+			local part = slash.Part
+			part.Size = Vector3.new(0.09, 0.09, 0.05 + 4.95 * math.sin(t * math.pi))
+			part.CFrame = self.BaseCF * CFrame.new(0, 2, 0) * CFrame.Angles(0, slash.Yaw, slash.Roll)
+			part.Color = color
+			part.Transparency = 0.05 + t * 0.85
+		end
+	end
+end
+
+fxBuilders.Spiral = function(state)
+	state.Duration = 1.25
+	local dots = {}
+
+	for i = 1, 26 do
+		local part = fxPart(state, CFrame.new(0, 1, 0), Vector3.new(0.16, 0.16, 0.16), state.StartColor, 0, Enum.PartType.Ball)
+		table.insert(dots, {
+			Part = part,
+			Angle = i * 0.55,
+			Y = ((i - 1) / 26) * 4.2,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.EndColor, {
+		Count = 26,
+		SpeedMin = 3,
+		SpeedMax = 9,
+		Spread = 180,
+		LifeMin = 0.4,
+		LifeMax = 0.9,
+		SizeStart = 0.22,
+		SizeEnd = 0.02,
+		Acceleration = Vector3.new(0, 3, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, dot in dots do
+			local y = (dot.Y + self.Age * 2.2) % 4.4
+			local angle = dot.Angle + self.Age * 5
+			local radius = 1.9 - y * 0.28
+			dot.Part.CFrame = self.BaseCF * CFrame.new(math.cos(angle) * radius, 0.4 + y, math.sin(angle) * radius)
+			dot.Part.Color = color
+			dot.Part.Transparency = 0.05 + t * 0.9
+		end
+	end
+end
+
+fxBuilders.Stars = function(state)
+	state.Duration = 1.2
+	local stars = {}
+
+	for i = 1, 8 do
+		local part, label, gui = fxText(state, "★", CFrame.new(0, 2, 0), state.StartColor, Enum.Font.GothamBlack, 40, 40)
+		gui.Size = UDim2.fromOffset(40, 40)
+		table.insert(stars, {
+			Part = part,
+			Label = label,
+			Angle = i * (math.pi * 2 / 8),
+			Radius = 2.1,
+			Height = 2.2 + (i % 3) * 0.35,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2.2, 0), state.StartColor, state.MiddleColor, {
+		Count = 30,
+		SpeedMin = 2,
+		SpeedMax = 7,
+		Spread = 180,
+		LifeMin = 0.5,
+		LifeMax = 1.1,
+		SizeStart = 0.25,
+		SizeEnd = 0.03,
+		Acceleration = Vector3.zero,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local spin = self.Age * 2
+
+		for _, star in stars do
+			local angle = star.Angle + spin
+			star.Part.CFrame = self.BaseCF * CFrame.new(math.cos(angle) * star.Radius, star.Height + math.sin(self.Age * 4 + star.Angle) * 0.15, math.sin(angle) * star.Radius)
+			star.Label.TextColor3 = color
+			star.Label.TextTransparency = t > 0.5 and (t - 0.5) / 0.5 or 0
+			star.Label.TextStrokeTransparency = star.Label.TextTransparency * 0.7
+			star.Label.Size = UDim2.fromScale(1, 1)
+		end
+	end
+end
+
+fxBuilders.Thunder = function(state)
+	state.Duration = 0.9
+	local bolts = {}
+
+	for i = 1, 3 do
+		local segments = {}
+
+		for j = 1, 9 do
+			table.insert(segments, fxPart(state, CFrame.new(), Vector3.new(0.16, 0.16, 1), state.StartColor, 0))
+		end
+
+		table.insert(bolts, { Segments = segments, Offset = fxRandomOffset(2.2) })
+	end
+
+	local flash = fxPart(state, CFrame.new(0, 2.2, 0), Vector3.new(4, 4, 4), state.StartColor, 0.2, Enum.PartType.Ball)
+	local ring = fxRing(state, CFrame.new(0, 0.12, 0), 0.4, 0.08, state.StartColor, 0.1, 0.3)
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.EndColor, {
+		Count = 60,
+		SpeedMin = 10,
+		SpeedMax = 28,
+		Spread = 180,
+		LifeMin = 0.25,
+		LifeMax = 0.8,
+		SizeStart = 0.4,
+		SizeEnd = 0.03,
+		Acceleration = Vector3.new(0, -14, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, bolt in bolts do
+			local startPoint = self.BaseCF * CFrame.new(bolt.Offset.X, 10 + math.random() * 2, bolt.Offset.Z)
+			local endPoint = self.BaseCF * CFrame.new(bolt.Offset.X * 0.5, 1.5 + math.random() * 1.5, bolt.Offset.Z * 0.5)
+			local points = { startPoint.Position }
+
+			for j = 1, 8 do
+				table.insert(points, startPoint.Position:Lerp(endPoint.Position, j / 9) + fxRandomOffset(0.45))
+			end
+
+			table.insert(points, endPoint.Position)
+
+			for j, part in bolt.Segments do
+				local a = points[j]
+				local b = points[j + 1]
+				part.Size = Vector3.new(0.16, 0.16, (b - a).Magnitude)
+				part.CFrame = CFrame.new((a + b) * 0.5, b)
+				part.Color = color
+				part.Transparency = 0.05 + t * 0.7 + math.random() * 0.1
+			end
+		end
+
+		flash.Color = color
+		flash.Transparency = 0.2 + t * 0.8
+		flash.Size = Vector3.new(4, 4, 4) * (1 + t * 2)
+		flash.CFrame = self.BaseCF * CFrame.new(0, 2.2, 0)
+		ring.Radius = 0.4 + t * 5
+		ring.InnerRadius = math.max(0, ring.Radius - 0.16)
+		ring.Color3 = color
+		ring.Transparency = 0.1 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.12, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+	end
+end
+
+fxBuilders.Tornado = function(state)
+	state.Duration = 1.4
+	local rings = {}
+
+	for i = 1, 5 do
+		table.insert(rings, {
+			Ring = fxRing(state, CFrame.new(0, 0.4 + i * 0.75, 0), 1.9 - i * 0.25, 0.05, state.StartColor, 0.1, 1.75 - i * 0.25),
+			Y = 0.4 + i * 0.75,
+			Radius = 1.9 - i * 0.25,
+		})
+	end
+
+	local bits = {}
+
+	for i = 1, 16 do
+		table.insert(bits, {
+			Part = fxPart(state, CFrame.new(0, 1, 0), Vector3.new(0.15, 0.15, 0.6), state.MiddleColor, 0),
+			Angle = i * 0.7,
+			Y = (i - 1) * 0.25,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 0.4, 0), state.StartColor, state.EndColor, {
+		Count = 40,
+		SpeedMin = 5,
+		SpeedMax = 14,
+		Spread = 70,
+		LifeMin = 0.6,
+		LifeMax = 1.3,
+		Acceleration = Vector3.new(0, 9, 0),
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+
+		for _, entry in rings do
+			entry.Ring.Radius = entry.Radius + math.sin(self.Age * 5 + entry.Y) * 0.08
+			entry.Ring.InnerRadius = math.max(0, entry.Ring.Radius - 0.07)
+			entry.Ring.Color3 = color
+			entry.Ring.Transparency = 0.1 + t * 0.8
+			entry.Ring.CFrame = self.BaseCF * CFrame.new(0, entry.Y + t * 0.4, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+		end
+
+		for _, bit in bits do
+			bit.Angle = bit.Angle + dt * 7
+			bit.Y = bit.Y + dt * 2.4
+
+			if bit.Y > 4.5 then
+				bit.Y = 0
+			end
+
+			local radius = 1.9 - bit.Y * 0.35
+			bit.Part.CFrame = self.BaseCF
+				* CFrame.new(math.cos(bit.Angle) * radius, bit.Y, math.sin(bit.Angle) * radius)
+				* CFrame.Angles(0, -bit.Angle, math.pi / 4)
+			bit.Part.Color = color
+			bit.Part.Transparency = 0.05 + t * 0.85
+		end
+	end
+end
+
+fxBuilders.Wind = function(state)
+	state.Duration = 0.9
+	local arcs = {}
+
+	for i = 1, 3 do
+		local segments = {}
+
+		for j = 1, 7 do
+			table.insert(segments, fxPart(state, CFrame.new(), Vector3.new(0.08, 0.08, 1), state.StartColor, 0))
+		end
+
+		table.insert(arcs, {
+			Segments = segments,
+			Radius = 1.4 + i * 0.45,
+			Height = 0.8 + i * 0.7,
+			Speed = 2.4 + i * 0.6,
+		})
+	end
+
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.EndColor, {
+		Count = 25,
+		SpeedMin = 8,
+		SpeedMax = 18,
+		Spread = 30,
+		LifeMin = 0.3,
+		LifeMax = 0.7,
+		SizeStart = 0.18,
+		SizeEnd = 0.02,
+		Acceleration = Vector3.zero,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local spin = self.Age * 2.6
+
+		for _, arc in arcs do
+			local points = {}
+			local count = #arc.Segments + 1
+
+			for j = 0, count do
+				local angle = spin * arc.Speed + (j / count) * math.pi * 2
+				local radius = arc.Radius * (1 + math.sin(self.Age * 5 + j) * 0.05)
+				local point = self.BaseCF * CFrame.new(math.cos(angle) * radius, arc.Height + math.sin(angle * 2) * 0.25, math.sin(angle) * radius)
+				table.insert(points, point.Position)
+			end
+
+			for j, part in arc.Segments do
+				local a = points[j]
+				local b = points[j + 1]
+				part.Size = Vector3.new(0.08, 0.08, (b - a).Magnitude)
+				part.CFrame = CFrame.new((a + b) * 0.5, b)
+				part.Color = color
+				part.Transparency = 0.05 + t * 0.85
+			end
+		end
+	end
+end
+
+fxBuilders.Zap = function(state)
+	state.Duration = 0.6
+	local arcs = {}
+
+	for i = 1, 8 do
+		local segments = {}
+
+		for j = 1, 3 do
+			table.insert(segments, fxPart(state, CFrame.new(), Vector3.new(0.08, 0.08, 1), state.StartColor, 0))
+		end
+
+		table.insert(arcs, { Segments = segments, Angle = i * (math.pi * 2 / 8) })
+	end
+
+	local core = fxPart(state, CFrame.new(0, 2, 0), Vector3.new(1.2, 1.2, 1.2), state.MiddleColor, 0.2, Enum.PartType.Ball)
+	local ring = fxRing(state, CFrame.new(0, 0.1, 0), 0.3, 0.06, state.StartColor, 0.1, 0.2)
+	fxEmitter(state, CFrame.new(0, 2, 0), state.StartColor, state.EndColor, {
+		Count = 30,
+		SpeedMin = 8,
+		SpeedMax = 20,
+		Spread = 180,
+		LifeMin = 0.2,
+		LifeMax = 0.5,
+		SizeStart = 0.22,
+		SizeEnd = 0.02,
+	})
+
+	state.Step = function(self, dt)
+		local t = math.clamp(self.Age / self.Duration, 0, 1)
+		local color = fxColorAt(self, t)
+		local center = self.BaseCF * CFrame.new(0, 2, 0)
+		local flicker = 0.9 + math.random() * 0.5
+		core.Color = color
+		core.Transparency = 0.2 + t * 0.75
+		core.Size = Vector3.new(1.2, 1.2, 1.2) * (1 + t * 0.8) * flicker
+		core.CFrame = center
+
+		for _, arc in arcs do
+			local angle = arc.Angle + (math.random() - 0.5) * 0.35
+			local startPoint = center.Position
+			local endPoint = center.Position + Vector3.new(math.cos(angle) * 2.6, (math.random() - 0.5) * 2.4, math.sin(angle) * 2.6) * (1 + t)
+			local points = { startPoint }
+
+			for j = 1, 3 do
+				table.insert(points, startPoint:Lerp(endPoint, j / 4) + fxRandomOffset(0.25))
+			end
+
+			table.insert(points, endPoint)
+
+			for j, part in arc.Segments do
+				local a = points[j]
+				local b = points[j + 1]
+				part.Size = Vector3.new(0.08, 0.08, (b - a).Magnitude)
+				part.CFrame = CFrame.new((a + b) * 0.5, b)
+				part.Color = color
+				part.Transparency = 0.05 + t * 0.8
+			end
+		end
+
+		ring.Radius = 0.3 + t * 3
+		ring.InnerRadius = math.max(0, ring.Radius - 0.1)
+		ring.Color3 = color
+		ring.Transparency = 0.1 + t * 0.85
+		ring.CFrame = self.BaseCF * CFrame.new(0, 0.1, 0) * CFrame.Angles(math.pi / 2, 0, 0)
+	end
+end
+
+local function fxStart(kind, ctx)
+	local builder = fxBuilders[kind]
+
+	if builder == nil then
+		return nil
+	end
+
+	local made, state = pcall(fxNewState, kind, ctx)
+
+	if not made or state == nil then
+		return nil
+	end
+
+	local ok = pcall(builder, state, ctx)
+
+	if not ok or type(state.Step) ~= "function" or (#state.Parts == 0 and #state.Adornments == 0) then
+		fxDestroy(state)
+		return nil
+	end
+
+	return state
+end
+
+local function fxSelectedSet(selected)
+	local set = {}
+
+	if type(selected) ~= "table" then
+		return set
+	end
+
+	for key, value in selected do
+		if type(key) == "string" and (value == true or value == 1) then
+			set[key] = true
+		elseif type(key) == "number" and type(value) == "string" then
+			set[value] = true
+		end
+	end
+
+	return set
+end
+
+local fxOptionNames = {
+	"Aura",
+	"Blades",
+	"Bubble",
+	"Clone",
+	"Confetti",
+	"Cyclone",
+	"Dots",
+	"Electricity",
+	"Emission",
+	"Explosion",
+	"Filled Circle",
+	"Fortnite Damage",
+	"Lightning",
+	"Petals",
+	"Phantom Forces",
+	"Plasma",
+	"Portal",
+	"Ring",
+	"Ripple",
+	"Slashes",
+	"Spiral",
+	"Stars",
+	"Sun Rays",
+	"Thunder",
+	"Tornado",
+	"Wind",
+	"Zap",
+}
+
 local function fn36(arg)
 local v124 = v86[133]
 return tostring(math.round(arg * 10) / v124)
@@ -54521,6 +57321,8 @@ _sfxSoundStorage = arg3,
 _noGameHitsound = PlayerHit:Add(v118.new()),
 _hitFlash = PlayerHit:Add(v120.new()),
 _chams = {},
+_effects = {},
+_fxStacks = setmetatable({}, { __mode = "k" }),
 _headSoundId = nil,
 _bodySoundId = nil,
 }
@@ -54533,6 +57335,22 @@ end)
 
 tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerHit", v86[44] }), function(arg4)
 tbl18:_SetEnabled(arg4)
+end)
+
+tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerHit", "HitFlash", "Enabled" }), function()
+tbl18:_SetEnabled(v116.Data.PlayerHit.Enabled)
+end)
+
+tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerHit", "HitEffects", "Enabled" }), function()
+pcall(tbl18._ClearHitEffects, tbl18)
+end)
+
+tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerHit", "HitEffects", "Selected" }), function()
+pcall(tbl18._ClearHitEffects, tbl18)
+end)
+
+tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "Removables", "NoDamageNumbers" }), function()
+tbl18:_SetEnabled(v116.Data.PlayerHit.Enabled)
 end)
 
 tbl18._trove:Connect(v116:GetPropertyChangedSignal({ "PlayerHit", "Sound", "DisableGameSound" }), function(arg4)
@@ -54578,7 +57396,26 @@ return tbl18
 end
 
 index2._SetEnabled = function(arg, arg2)
-arg._replicateBinding:SetEnabled(arg2)
+local playerHit = v116.Data.PlayerHit
+local flashEnabled = playerHit.HitFlash ~= nil and playerHit.HitFlash.Enabled == true
+local hideDamageNumbers = v116.Data.Removables ~= nil and v116.Data.Removables.NoDamageNumbers == true
+arg._replicateBinding:SetEnabled(arg2 == true or flashEnabled or hideDamageNumbers)
+
+if not arg2 then
+if arg._ClearHitEffects ~= nil then
+pcall(arg._ClearHitEffects, arg)
+end
+
+for _, chams in arg._chams do
+chams:Destroy()
+end
+
+table.clear(arg._chams)
+end
+
+if not flashEnabled then
+arg._hitFlash:Clear()
+end
 end
 
 index2._HandleReplicate = function(arg, arg2)
@@ -54593,6 +57430,11 @@ end
 if arg2.ObjectId ~= inner.FighterState.ObjectId then
 return
 end
+
+if v116.Data.Removables ~= nil and v116.Data.Removables.NoDamageNumbers == true then
+arg2.Block = true
+end
+
 local args = arg2.Args
 local parent = args[1].Parent
 if parent == nil then
@@ -54603,9 +57445,10 @@ end
 
 index2._HandleHit = function(arg, arg2, arg3, arg4)
 local playerHit = v116.Data.PlayerHit
+local enabled = playerHit.Enabled == true
 local sound = playerHit.Sound
 
-if sound.Enabled then
+if enabled and sound.Enabled then
 local flag19 = arg3 == "Head"
 local headSoundId = flag19 and arg._headSoundId or arg._bodySoundId
 
@@ -54616,7 +57459,7 @@ end
 
 local notification = playerHit.Notification
 
-if notification.Enabled then
+if enabled and notification.Enabled then
 local v124, v125 = v123(arg4)
 local str7 = notification.Text:gsub("%%(%w+)%%", { NAME = v124, DNAME = v125, PART = arg3 })
 
@@ -54633,13 +57476,206 @@ end
 
 local chams = playerHit.Chams
 
-if chams.Enabled then
+if enabled and chams.Enabled then
 local v124 = v115.new(arg4, chams.Color, chams.Transparency, chams.Duration, chams.Material)
 table.insert(arg._chams, v124)
+end
+
+if enabled then
+pcall(arg._SpawnHitEffects, arg, arg2, arg3, arg4)
+end
+end
+
+index2._SpawnHitEffects = function(arg, arg2, arg3, arg4)
+local hitEffects = v116.Data.PlayerHit.HitEffects
+
+if hitEffects == nil or not hitEffects.Enabled then
+return
+end
+
+local selected = fxSelectedSet(hitEffects.Selected)
+local hasEffect = false
+
+for _, name in fxOptionNames do
+if selected[name] then
+hasEffect = true
+break
+end
+end
+
+if not hasEffect then
+return
+end
+
+local root = nil
+
+if typeof(arg4) == "Instance" and arg4:IsA("Model") then
+local candidate = arg4:FindFirstChild("HumanoidRootPart")
+
+if candidate ~= nil and candidate:IsA("BasePart") then
+root = candidate
+elseif arg4.PrimaryPart ~= nil then
+root = arg4.PrimaryPart
+end
+end
+
+local baseCF
+
+if root ~= nil then
+baseCF = root.CFrame
+elseif typeof(arg4) == "Instance" and arg4:IsA("Model") then
+baseCF = arg4:GetPivot()
+elseif typeof(arg4) == "Instance" and arg4:IsA("BasePart") then
+baseCF = arg4.CFrame
+else
+return
+end
+
+local damage = tonumber(arg2) or 0
+local stackEntry = nil
+local stackHandled = false
+
+if hitEffects.StackFortniteDamage and selected["Fortnite Damage"] then
+local now = os.clock()
+local stack = arg._fxStacks[arg4]
+
+if stack == nil or now - stack.Time > 1.4 then
+stack = { Time = now, Total = 0, State = nil }
+arg._fxStacks[arg4] = stack
+end
+
+stack.Time = now
+stack.Total = math.min(stack.Total + damage, 99999)
+stackEntry = stack
+
+if selected["Fortnite Damage"] and stack.State ~= nil and not stack.State.Destroyed then
+stack.State:AddDamage(damage)
+stackHandled = true
+end
+end
+
+local ctx = {
+BaseCF = baseCF,
+TargetRoot = root,
+Follow = hitEffects.FollowTarget,
+HeadLocal = CFrame.new(0, 1.5, 0),
+Damage = stackEntry ~= nil and stackEntry.Total or damage,
+HitDamage = damage,
+Headshot = arg3 == "Head",
+Stack = hitEffects.StackFortniteDamage,
+Cycle = hitEffects.CycleTextColors,
+OriginalPF = hitEffects.OriginalPhantomForcesColors,
+StartColor = fxColorOf(hitEffects.StartColor, Color3.new(1, 1, 1)),
+MiddleColor = fxColorOf(hitEffects.MiddleColor, Color3.new(1, 1, 1)),
+EndColor = fxColorOf(hitEffects.EndColor, Color3.new(1, 1, 1)),
+Config = hitEffects,
+}
+
+for _, name in fxOptionNames do
+if selected[name] then
+if name == "Fortnite Damage" and stackHandled then
+continue
+end
+
+local state = fxStart(name, ctx)
+
+if state ~= nil then
+table.insert(arg._effects, state)
+
+if name == "Fortnite Damage" and stackEntry ~= nil then
+stackEntry.State = state
+state.OnDestroy = function()
+if stackEntry.State == state then
+stackEntry.State = nil
+end
+end
+end
+end
+end
+end
+
+while #arg._effects > 40 do
+local state = table.remove(arg._effects, 1)
+fxDestroy(state)
+end
+end
+
+index2._UpdateHitEffects = function(arg, arg2)
+local hitEffects = v116.Data.PlayerHit.HitEffects
+
+if hitEffects == nil or not hitEffects.Enabled or not v116.Data.PlayerHit.Enabled then
+if #arg._effects > 0 then
+arg:_ClearHitEffects()
+end
+
+return
+end
+local selected = fxSelectedSet(hitEffects.Selected)
+local hasEffect = false
+
+for _, name in fxOptionNames do
+if selected[name] then
+hasEffect = true
+break
+end
+end
+
+if not hasEffect then
+if #arg._effects > 0 then
+arg:_ClearHitEffects()
+end
+
+return
+end
+
+for i = #arg._effects, 1, -1 do
+local state = arg._effects[i]
+
+if state.Follow and state.TargetRoot ~= nil and state.TargetRoot.Parent ~= nil then
+state.BaseCF = state.TargetRoot.CFrame
+end
+
+state.Age = state.Age + arg2
+local ok = pcall(state.Step, state, arg2)
+
+if not ok or state.Age >= state.Duration then
+fxDestroy(state)
+table.remove(arg._effects, i)
+end
+end
+end
+
+index2._ClearHitEffects = function(arg)
+for _, state in arg._effects do
+fxDestroy(state)
+end
+
+table.clear(arg._effects)
+table.clear(arg._fxStacks)
+
+if fxFolder ~= nil and fxFolder.Parent ~= nil and #fxFolder:GetChildren() == 0 then
+fxFolder:Destroy()
+fxFolder = nil
 end
 end
 
 index2.PreRender = function(arg, arg2)
+local playerHit = v116.Data.PlayerHit
+
+if not playerHit.HitFlash.Enabled then
+arg._hitFlash:Clear()
+end
+
+if not playerHit.Enabled or not playerHit.Chams.Enabled then
+if #arg._chams > 0 then
+for _, chams in arg._chams do
+chams:Destroy()
+end
+
+table.clear(arg._chams)
+end
+end
+
 arg._hitFlash:Update(arg2)
 
 for i = #arg._chams, 1, -1 do
@@ -54647,6 +57683,8 @@ if not arg._chams[i]:Step(arg2) then
 table.remove(arg._chams, i)
 end
 end
+
+pcall(arg._UpdateHitEffects, arg, arg2)
 end
 
 index2.Destroy = function(arg)
@@ -54655,6 +57693,7 @@ v124:Destroy()
 end
 
 table.clear(arg._chams)
+pcall(arg._ClearHitEffects, arg)
 arg._errorReporter:Destroy()
 arg._trove:Destroy()
 arg._replicateBinding:Destroy()
@@ -57431,6 +60470,1076 @@ end
 end
 do
 local function fn35()
+tbl17.aO()
+local v115 = tbl17.bG()
+local v116 = tbl17.k()
+local v117 = tbl17.g6()
+local v119 = tbl17.dC()
+local v120 = cloneref(game:GetService("RunService"))
+local v121 = cloneref(game:GetService("Workspace"))
+local data = v115.Data
+local materialMap = {
+Neon = Enum.Material.Neon,
+ForceField = Enum.Material.ForceField,
+Chromatic = Enum.Material.Metal,
+["Fully Black"] = Enum.Material.Neon,
+}
+local glowDirections = {
+Vector2.new(1, 0),
+Vector2.new(-1, 0),
+Vector2.new(0, 1),
+Vector2.new(0, -1),
+Vector2.new(0.707, 0.707),
+Vector2.new(-0.707, 0.707),
+Vector2.new(0.707, -0.707),
+Vector2.new(-0.707, -0.707),
+}
+local index2 = {}
+index2.__index = index2
+
+local function getParts(scope)
+if scope:IsA("BasePart") then
+return { scope }
+end
+local parts = {}
+for _, part in scope:QueryDescendants("BasePart") do
+parts[#parts + 1] = part
+end
+return parts
+end
+
+local function forEachScopeInstance(scope, fn)
+fn(scope)
+for _, descendant in scope:GetDescendants() do
+fn(descendant)
+end
+end
+
+local function clothesProperty(instance)
+if instance:IsA("Shirt") then
+return "ShirtTemplate"
+elseif instance:IsA("Pants") then
+return "PantsTemplate"
+elseif instance:IsA("ShirtGraphic") then
+return "Graphic"
+elseif instance:IsA("MeshPart") then
+return "TextureID"
+elseif instance:IsA("SpecialMesh") then
+return "TextureId"
+elseif instance:IsA("Decal") or instance:IsA("Texture") then
+return "Texture"
+end
+return nil
+end
+
+local function materialActive()
+return data.ViewModelGunMaterial.Enabled and not data.Chams.Item.Enabled
+end
+
+local function materialSpec()
+local options = data.ViewModelGunMaterial
+local color = options.Color
+if options.Material == "Fully Black" then
+color = Color3.new()
+end
+local reflectance = options.Reflectance or 0
+if options.Material == "Chromatic" then
+reflectance = math.max(reflectance, 0.85)
+end
+return {
+Material = materialMap[options.Material] or Enum.Material.Neon,
+Color = color,
+Reflectance = reflectance,
+Transparency = options.Transparency or 0,
+NullTextures = options.StripTextures,
+}
+end
+
+index2.new = function(arg)
+local trove = v116.new("viewmodel_extras")
+local collector = v117.new(arg)
+local tbl18 = {
+_trove = trove,
+_collector = collector,
+_materials = {},
+_sizeOriginals = {},
+_sizeScopes = {},
+_armRecords = {},
+_armParts = {},
+_clothesRecords = {},
+_glowParts = setmetatable({}, { __mode = "k" }),
+_glowRecords = {},
+_glowGeneration = 0,
+_glowFolder = nil,
+_destroyed = false,
+}
+setmetatable(tbl18, index2)
+
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunMaterial", "Enabled" }), function()
+if materialActive() then
+task.defer(function()
+if not tbl18._destroyed then
+tbl18:_RefreshMaterials()
+end
+end)
+else
+tbl18:_RefreshMaterials()
+end
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunMaterial", "Material" }), function()
+tbl18:_RefreshMaterials()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunMaterial", "Color" }), function()
+tbl18:_RefreshMaterials()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunMaterial", "Reflectance" }), function()
+tbl18:_RefreshMaterials()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunMaterial", "StripTextures" }), function()
+tbl18:_RefreshMaterials()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "Chams", "Item", "Enabled" }), function()
+if not materialActive() then
+tbl18:_RefreshMaterials()
+end
+task.defer(function()
+if not tbl18._destroyed then
+tbl18:_RefreshMaterials()
+end
+end)
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunSize", "Enabled" }), function()
+tbl18:_RefreshSizes()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelGunSize", "Scale" }), function()
+tbl18:_RefreshSizes()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelRemoveArm" }), function()
+tbl18:_RefreshArms()
+end)
+trove:Connect(v115:GetPropertyChangedSignal({ "ViewModelRemoveClothes" }), function()
+tbl18:_RefreshClothes()
+end)
+trove:Connect(collector.EntryAdded, function(inner, groupMap)
+tbl18:_ApplyMaterial(inner, groupMap)
+tbl18:_ApplySize(inner, groupMap)
+tbl18:_ApplyArm(inner, groupMap)
+tbl18:_ApplyClothes(inner, groupMap)
+table.clear(tbl18._glowParts)
+end)
+trove:Connect(collector.EntryRefreshed, function(inner, groupMap)
+tbl18:_RemoveMaterial(inner)
+tbl18:_RemoveSizeInner(inner)
+tbl18:_RemoveArmInner(inner)
+tbl18:_RemoveClothesInner(inner)
+tbl18:_ApplyMaterial(inner, groupMap)
+tbl18:_ApplySize(inner, groupMap)
+tbl18:_ApplyArm(inner, groupMap)
+tbl18:_ApplyClothes(inner, groupMap)
+table.clear(tbl18._glowParts)
+end)
+trove:Connect(collector.EntryRemoved, function(inner)
+tbl18:_RemoveMaterial(inner)
+tbl18:_RemoveSizeInner(inner)
+tbl18:_RemoveArmInner(inner)
+tbl18:_RemoveClothesInner(inner)
+table.clear(tbl18._glowParts)
+end)
+trove:Connect(v120.RenderStepped, function()
+tbl18:_UpdateGlow()
+end)
+tbl18:_RefreshMaterials()
+tbl18:_RefreshSizes()
+tbl18:_RefreshArms()
+tbl18:_RefreshClothes()
+return tbl18
+end
+
+index2._ApplyMaterial = function(arg, inner, groupMap)
+if not materialActive() or arg._materials[inner] then
+return
+end
+local overrides = {}
+local spec = materialSpec()
+for _, scope in groupMap.Items do
+local override = v119.new(scope)
+override:SetSpec(spec)
+overrides[#overrides + 1] = override
+end
+arg._materials[inner] = overrides
+end
+
+index2._RemoveMaterial = function(arg, inner)
+local overrides = arg._materials[inner]
+if not overrides then
+return
+end
+arg._materials[inner] = nil
+for _, override in overrides do
+override:Destroy(true)
+end
+end
+
+index2._RefreshMaterials = function(arg)
+local active = materialActive()
+for inner, groupMap in arg._collector.Entries do
+local overrides = arg._materials[inner]
+if active then
+if overrides then
+local spec = materialSpec()
+for _, override in overrides do
+override:SetSpec(spec)
+end
+else
+arg:_ApplyMaterial(inner, groupMap)
+end
+elseif overrides then
+arg:_RemoveMaterial(inner)
+end
+end
+end
+
+index2._ApplySize = function(arg, inner, groupMap)
+if not data.ViewModelGunSize.Enabled then
+return
+end
+local scopes = arg._sizeScopes[inner]
+if not scopes then
+scopes = {}
+arg._sizeScopes[inner] = scopes
+end
+for _, scope in groupMap.Items do
+if not table.find(scopes, scope) then
+local ok, scale = pcall(function()
+return scope:GetScale()
+end)
+if ok and scale ~= nil then
+arg._sizeOriginals[scope] = scale
+end
+scopes[#scopes + 1] = scope
+end
+pcall(function()
+scope:ScaleTo(data.ViewModelGunSize.Scale)
+end)
+end
+end
+
+index2._RemoveSizeInner = function(arg, inner)
+local scopes = arg._sizeScopes[inner]
+if not scopes then
+return
+end
+arg._sizeScopes[inner] = nil
+for _, scope in scopes do
+local original = arg._sizeOriginals[scope]
+if original ~= nil then
+arg._sizeOriginals[scope] = nil
+pcall(function()
+scope:ScaleTo(original)
+end)
+end
+end
+end
+
+index2._RestoreSizes = function(arg)
+local inners = {}
+for inner in arg._sizeScopes do
+inners[#inners + 1] = inner
+end
+for _, inner in inners do
+arg:_RemoveSizeInner(inner)
+end
+end
+
+index2._RefreshSizes = function(arg)
+if data.ViewModelGunSize.Enabled then
+for inner, groupMap in arg._collector.Entries do
+arg:_ApplySize(inner, groupMap)
+end
+else
+arg:_RestoreSizes()
+end
+end
+
+index2._ApplyArm = function(arg, inner, groupMap)
+if not data.ViewModelRemoveArm then
+return
+end
+local parts = arg._armParts[inner]
+if not parts then
+parts = {}
+arg._armParts[inner] = parts
+end
+for _, scope in groupMap.Arms do
+for _, part in getParts(scope) do
+if not arg._armRecords[part] then
+local original = part.LocalTransparencyModifier
+local connection = part:GetPropertyChangedSignal("LocalTransparencyModifier"):Connect(function()
+if arg._destroyed or not data.ViewModelRemoveArm then
+return
+end
+if part.Parent == nil then
+return
+end
+if part.LocalTransparencyModifier ~= 1 then
+part.LocalTransparencyModifier = 1
+end
+end)
+arg._armRecords[part] = { Original = original, Connection = connection }
+parts[#parts + 1] = part
+end
+part.LocalTransparencyModifier = 1
+end
+end
+end
+
+index2._RemoveArmInner = function(arg, inner)
+local parts = arg._armParts[inner]
+if not parts then
+return
+end
+arg._armParts[inner] = nil
+for _, part in parts do
+local record = arg._armRecords[part]
+if record then
+arg._armRecords[part] = nil
+record.Connection:Disconnect()
+if not arg._destroyed and part.Parent ~= nil then
+part.LocalTransparencyModifier = record.Original
+end
+end
+end
+end
+
+index2._RestoreArms = function(arg)
+local inners = {}
+for inner in arg._armParts do
+inners[#inners + 1] = inner
+end
+for _, inner in inners do
+arg:_RemoveArmInner(inner)
+end
+end
+
+index2._RefreshArms = function(arg)
+if data.ViewModelRemoveArm then
+for inner, groupMap in arg._collector.Entries do
+arg:_ApplyArm(inner, groupMap)
+end
+else
+arg:_RestoreArms()
+end
+end
+
+index2._ApplyClothes = function(arg, inner, groupMap)
+if not data.ViewModelRemoveClothes then
+return
+end
+local records = arg._clothesRecords[inner]
+if not records then
+records = {}
+arg._clothesRecords[inner] = records
+end
+local function apply(instance)
+local property = clothesProperty(instance)
+if property == nil then
+return
+end
+local record = records[instance]
+if record ~= nil and record.Property ~= property then
+record.Connection:Disconnect()
+if not arg._destroyed and instance.Parent ~= nil and instance[record.Property] == "" then
+instance[record.Property] = record.Original
+end
+records[instance] = nil
+record = nil
+end
+if record == nil then
+record = { Property = property, Original = instance[property] }
+record.Connection = instance:GetPropertyChangedSignal(property):Connect(function()
+if arg._destroyed or not data.ViewModelRemoveClothes then
+return
+end
+if instance.Parent == nil or instance[property] == "" then
+return
+end
+record.Original = instance[property]
+instance[property] = ""
+end)
+records[instance] = record
+end
+if instance[property] ~= "" then
+instance[property] = ""
+end
+end
+for _, scope in groupMap.Arms do
+forEachScopeInstance(scope, apply)
+end
+end
+
+index2._RemoveClothesInner = function(arg, inner)
+local records = arg._clothesRecords[inner]
+if not records then
+return
+end
+arg._clothesRecords[inner] = nil
+for instance, record in records do
+record.Connection:Disconnect()
+if not arg._destroyed and instance.Parent ~= nil and instance[record.Property] == "" then
+instance[record.Property] = record.Original
+end
+end
+end
+
+index2._RestoreClothes = function(arg)
+local inners = {}
+for inner in arg._clothesRecords do
+inners[#inners + 1] = inner
+end
+for _, inner in inners do
+arg:_RemoveClothesInner(inner)
+end
+end
+
+index2._RefreshClothes = function(arg)
+if data.ViewModelRemoveClothes then
+for inner, groupMap in arg._collector.Entries do
+arg:_ApplyClothes(inner, groupMap)
+end
+else
+arg:_RestoreClothes()
+end
+end
+
+index2._GetGlowParts = function(arg, scope)
+local parts = arg._glowParts[scope]
+if not parts then
+parts = getParts(scope)
+arg._glowParts[scope] = parts
+end
+return parts
+end
+
+index2._EnsureGlowFolder = function(arg)
+local camera = v121.CurrentCamera
+if not camera then
+return nil
+end
+if not arg._glowFolder then
+local folder = Instance.new("Folder")
+folder.Name = "KiciaViewmodelGlow"
+arg._glowFolder = folder
+end
+if arg._glowFolder.Parent ~= camera then
+arg._glowFolder.Parent = camera
+end
+return camera
+end
+
+index2._AddGlow = function(arg, part)
+local wasArchivable = part.Archivable
+part.Archivable = true
+local ok, result = pcall(part.Clone, part)
+part.Archivable = wasArchivable
+if not ok or not result then
+return nil
+end
+local function strip(instance)
+for _, child in instance:GetChildren() do
+if child:IsA("DataModelMesh") or child:IsA("Bone") then
+strip(child)
+else
+child:Destroy()
+end
+end
+end
+strip(result)
+for _, descendant in result:GetDescendants() do
+if descendant:IsA("SpecialMesh") then
+descendant.TextureId = ""
+end
+end
+result.Anchored = true
+result.CanCollide = false
+result.CanTouch = false
+result.CanQuery = false
+result.CastShadow = false
+result.Material = Enum.Material.Neon
+result.MaterialVariant = ""
+result.Reflectance = 0
+result.LocalTransparencyModifier = 0
+result.Transparency = 1
+if result:IsA("MeshPart") then
+result.TextureID = ""
+end
+local record = { Copies = {}, Seen = arg._glowGeneration }
+for _, direction in glowDirections do
+local copy = result:Clone()
+local children = {}
+local function mapChildren(source, target)
+for _, child in target:GetChildren() do
+local match = source:FindFirstChild(child.Name)
+if match then
+children[child] = match
+mapChildren(match, child)
+end
+end
+end
+mapChildren(part, copy)
+copy.Parent = arg._glowFolder
+record.Copies[#record.Copies + 1] = { Part = copy, Direction = direction, Children = children }
+end
+result:Destroy()
+local highlight = Instance.new("Highlight")
+highlight.Name = "KiciaGlowEdge"
+highlight.Adornee = part
+highlight.FillTransparency = 1
+highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+highlight.Parent = part
+record.Highlight = highlight
+arg._glowRecords[part] = record
+return record
+end
+
+index2._RemoveGlow = function(arg, part)
+local record = arg._glowRecords[part]
+if not record then
+return
+end
+arg._glowRecords[part] = nil
+if record.Highlight then
+record.Highlight:Destroy()
+end
+for _, copy in record.Copies do
+copy.Part:Destroy()
+end
+end
+
+index2._ClearGlow = function(arg)
+for part in arg._glowRecords do
+arg:_RemoveGlow(part)
+end
+if arg._glowFolder then
+arg._glowFolder:Destroy()
+arg._glowFolder = nil
+end
+end
+
+index2._UpdateGlowPart = function(arg, part, options, camera, pixelScale, drawOutline)
+if part.Parent == nil then
+arg:_RemoveGlow(part)
+return
+end
+local transparency = 1 - (1 - part.Transparency) * (1 - part.LocalTransparencyModifier)
+local visible = transparency < 0.99 and options.Intensity > 0 and options.Size > 0
+local record = arg._glowRecords[part]
+if not visible then
+if record then
+arg:_RemoveGlow(part)
+end
+return
+end
+if not record then
+record = arg:_AddGlow(part)
+end
+if not record then
+return
+end
+record.Seen = arg._glowGeneration
+local highlight = record.Highlight
+local outlineTransparency = 1 - math.clamp(options.Intensity, 0, 1)
+if highlight.Enabled ~= drawOutline then
+highlight.Enabled = drawOutline
+end
+if highlight.OutlineColor ~= options.Color then
+highlight.OutlineColor = options.Color
+end
+if highlight.OutlineTransparency ~= outlineTransparency then
+highlight.OutlineTransparency = outlineTransparency
+end
+local cameraCFrame = camera.CFrame
+local partCFrame = part.CFrame
+local offsetLength = math.max(-cameraCFrame:PointToObjectSpace(partCFrame.Position).Z, 0.1) * pixelScale * options.Size * 0.5
+local baseCFrame = partCFrame + partCFrame.Position - cameraCFrame.Position
+local rightOffset = cameraCFrame.RightVector * offsetLength
+local upOffset = cameraCFrame.UpVector * offsetLength
+local copySize = part.Size * 1.01
+local glowTransparency = transparency > 0.05 and 1 or 1 - math.clamp(options.Intensity * 0.22, 0, 0.7)
+for _, copy in record.Copies do
+local offset = rightOffset * copy.Direction.X + upOffset * copy.Direction.Y
+local glowPart = copy.Part
+glowPart.CFrame = baseCFrame + offset
+if glowPart.Size ~= copySize then
+glowPart.Size = copySize
+end
+if glowPart.Color ~= options.Color then
+glowPart.Color = options.Color
+end
+if glowPart.Material ~= Enum.Material.Neon then
+glowPart.Material = Enum.Material.Neon
+end
+if glowPart.LocalTransparencyModifier ~= 0 then
+glowPart.LocalTransparencyModifier = 0
+end
+if glowPart.Transparency ~= glowTransparency then
+glowPart.Transparency = glowTransparency
+end
+for target, source in copy.Children do
+if source.Parent ~= nil then
+if source:IsA("SpecialMesh") then
+if target.Scale ~= source.Scale then
+target.Scale = source.Scale
+end
+if target.Offset ~= source.Offset then
+target.Offset = source.Offset
+end
+if target.MeshId ~= source.MeshId then
+target.MeshId = source.MeshId
+end
+if target.MeshType ~= source.MeshType then
+target.MeshType = source.MeshType
+end
+if target.TextureId ~= "" then
+target.TextureId = ""
+end
+elseif source:IsA("Bone") then
+target.CFrame = source.CFrame
+target.Transform = source.Transform
+end
+end
+end
+end
+end
+
+index2._UpdateGlow = function(arg)
+if arg._destroyed then
+return
+end
+local camera = v121.CurrentCamera
+local gunGlow = data.ViewModelGunGlow
+local armGlow = data.ViewModelArmGlow
+local gunOn = gunGlow.Enabled and not data.ViewModelWireframe.Item.Enabled
+local armOn = armGlow.Enabled and not data.ViewModelWireframe.Arms.Enabled and not data.ViewModelRemoveArm
+if not camera or (not gunOn and not armOn) then
+arg:_ClearGlow()
+return
+end
+camera = arg:_EnsureGlowFolder()
+if not camera then
+arg:_ClearGlow()
+return
+end
+arg._glowGeneration = arg._glowGeneration + 1
+local pixelScale = 2 * math.tan(math.rad(camera.FieldOfView) * 0.5) / math.max(camera.ViewportSize.Y, 1)
+if gunOn then
+for _, groupMap in arg._collector.Entries do
+for _, scope in groupMap.Items do
+for _, part in arg:_GetGlowParts(scope) do
+arg:_UpdateGlowPart(part, gunGlow, camera, pixelScale, not data.ViewModelHighlight.Item.Enabled)
+end
+end
+end
+end
+if armOn then
+for _, groupMap in arg._collector.Entries do
+for _, scope in groupMap.Arms do
+for _, part in arg:_GetGlowParts(scope) do
+arg:_UpdateGlowPart(part, armGlow, camera, pixelScale, not data.ViewModelHighlight.Arms.Enabled)
+end
+end
+end
+end
+for part, record in arg._glowRecords do
+if record.Seen ~= arg._glowGeneration then
+arg:_RemoveGlow(part)
+end
+end
+end
+
+index2.Destroy = function(arg)
+arg:_ClearGlow()
+arg:_RestoreSizes()
+arg:_RestoreArms()
+arg:_RestoreClothes()
+arg._destroyed = true
+local inners = {}
+for inner in arg._materials do
+inners[#inners + 1] = inner
+end
+for _, inner in inners do
+arg:_RemoveMaterial(inner)
+end
+arg._collector:Destroy()
+arg._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.viewmodelExtras = function()
+local ve = tbl17.cache.viewmodelExtras
+
+if not ve then
+ve = { c = fn35() }
+tbl17.cache.viewmodelExtras = ve
+end
+
+return ve.c
+end
+end
+do
+local function fn35()
+local v115 = tbl17.bG()
+local v116 = tbl17.k()
+local v117 = cloneref(game:GetService("RunService"))
+local v118 = cloneref(game:GetService("Workspace"))
+local v119 = cloneref(game:GetService("GuiService"))
+local fighterController = tbl17.aS().FighterController
+local mechanicsController = tbl17.aS().MechanicsController
+local data = v115.Data
+local function field(object, key)
+if object == nil then
+return nil
+end
+if type(object) == "table" then
+local value = rawget(object, key)
+if value ~= nil then
+return value
+end
+end
+local ok, resolved = pcall(function()
+return object[key]
+end)
+if ok then
+return resolved
+end
+return nil
+end
+local index2 = {}
+index2.__index = index2
+
+index2.new = function()
+local trove = v116.new("visuals.game_healthbar")
+local tbl18 = {
+_trove = trove,
+Records = {},
+Connections = {},
+Unloaded = false,
+Generation = 0,
+Health = nil,
+Heart = nil,
+InterfaceFrame = nil,
+Root = nil,
+DetachedLayout = nil,
+DetachedLayoutParent = nil,
+Queued = false,
+_elapsed = 0,
+_nextWarn = 0,
+}
+setmetatable(tbl18, index2)
+trove:Connect(v117.Heartbeat, function(deltaTime)
+tbl18._elapsed = tbl18._elapsed + deltaTime
+if tbl18._elapsed < 0.25 then
+return
+end
+tbl18._elapsed = 0
+tbl18:Refresh()
+end)
+return tbl18
+end
+
+index2.Apply = function(self, record)
+if record.Writing or self.Unloaded then
+return
+end
+local current = record.Object[record.Property]
+if record.Applied == nil or current ~= record.Applied then
+record.Original = current
+end
+local original = record.Original
+local resolved = record.Resolve(data.GameHealthBar, original)
+record.Applied = resolved
+if resolved == nil then
+resolved = record.Original
+end
+if current ~= resolved then
+record.Writing = true
+record.Object[record.Property] = resolved
+record.Writing = false
+end
+end
+
+index2.Track = function(self, object, property, resolve)
+local record = { Object = object, Property = property, Original = object[property], Resolve = resolve }
+local generation = self.Generation
+table.insert(self.Records, record)
+table.insert(self.Connections, object:GetPropertyChangedSignal(property):Connect(function()
+if not self.Unloaded and self.Generation == generation then
+self:Apply(record)
+end
+end))
+return record
+end
+
+index2.Release = function(self)
+self.Generation = self.Generation + 1
+for _, connection in self.Connections do
+connection:Disconnect()
+end
+table.clear(self.Connections)
+for _, record in self.Records do
+if record.Applied ~= nil and record.Object.Parent and record.Object[record.Property] == record.Applied then
+record.Object[record.Property] = record.Original
+end
+end
+table.clear(self.Records)
+self.Health = nil
+self.Heart = nil
+self.InterfaceFrame = nil
+self.Root = nil
+self.Queued = false
+self:_RestoreLayout()
+end
+
+index2._RestoreLayout = function(self)
+local layout = self.DetachedLayout
+if layout == nil then
+return
+end
+self.DetachedLayout = nil
+local parent = self.DetachedLayoutParent
+self.DetachedLayoutParent = nil
+if layout.Parent == nil and parent ~= nil and parent.Parent ~= nil then
+pcall(function()
+layout.Parent = parent
+end)
+end
+end
+
+index2.QueueRefresh = function(self)
+if self.Queued or self.Unloaded then
+return
+end
+self.Queued = true
+local generation = self.Generation
+task.defer(function()
+if self.Unloaded or self.Generation ~= generation then
+return
+end
+self.Queued = false
+self:Refresh()
+end)
+end
+
+index2.GetBounds = function(self)
+local camera = v118.CurrentCamera
+local viewportSize = camera and camera.ViewportSize
+if not viewportSize then
+local frame = self.InterfaceFrame or self.Root
+viewportSize = frame and frame.AbsoluteSize or Vector2.new(1280, 720)
+end
+local guiInset, insetBottomRight = v119:GetGuiInset()
+return guiInset + Vector2.new(8, 8), viewportSize - insetBottomRight - Vector2.new(8, 8)
+end
+
+index2.Bind = function(self, binding, heart)
+self.Health = binding.Health
+self.Heart = heart
+self.InterfaceFrame = binding.InterfaceFrame
+self.Root = binding.Root
+self:Track(binding.Root, "Visible", function(options)
+if options.Hidden then
+return false
+end
+end)
+self:Track(binding.Fill, "BackgroundColor3", function(options)
+if options.CustomColor then
+return options.Color
+end
+end)
+self:Track(binding.Track, "BackgroundColor3", function(options)
+if options.CustomColor then
+local color = options.Color
+return Color3.new(color.R / 2, color.G / 2, color.B / 2)
+end
+end)
+self:Track(binding.Background, "BackgroundColor3", function(options)
+if options.CustomColor then
+local color = options.Color
+return Color3.new(color.R / 3, color.G / 3, color.B / 3)
+end
+end)
+self:Track(binding.Label, "Text", function(options)
+if options.CustomText then
+return options.Text
+end
+end)
+if heart then
+self:Track(heart, "Visible", function(options)
+if options.HideHeart then
+return false
+end
+end)
+end
+self:Track(binding.SizeTarget, "Size", function(options, size)
+if not options.CustomSize then
+return
+end
+local scaleX = options.Width / 100
+local scaleY = options.Height / 100
+return UDim2.new(size.X.Scale * scaleX, size.X.Offset * scaleX, size.Y.Scale * scaleY, size.Y.Offset * scaleY)
+end)
+self:Track(binding.PositionTarget, "Position", function(options)
+if not options.CustomPosition then
+return
+end
+local parent = binding.PositionTarget.Parent
+if parent == nil then
+return
+end
+local bounds, maxBounds = self:GetBounds()
+local size = binding.PositionTarget.AbsoluteSize
+local anchor = binding.PositionTarget.AnchorPoint
+local parentPosition = parent.AbsolutePosition
+local x = math.clamp(options.X, 0, 100)
+local y = math.clamp(options.Y, 0, 100)
+local targetX = bounds.X + math.max(0, maxBounds.X - bounds.X - size.X) * x / 100
+local targetY = bounds.Y + math.max(0, maxBounds.Y - bounds.Y - size.Y) * y / 100
+return UDim2.fromOffset(targetX - parentPosition.X + anchor.X * size.X, targetY - parentPosition.Y + anchor.Y * size.Y)
+end)
+for _, frame in { binding.Root, binding.SizeTarget, binding.InterfaceFrame } do
+if frame ~= nil then
+for _, property in { "AbsoluteSize", "AbsolutePosition" } do
+if not (frame == binding.PositionTarget and property == "AbsolutePosition") then
+table.insert(self.Connections, frame:GetPropertyChangedSignal(property):Connect(function()
+self:QueueRefresh()
+end))
+end
+end
+end
+end
+table.insert(self.Connections, binding.Root.Destroying:Connect(function()
+self:Release()
+end))
+end
+
+index2.Refresh = function(self)
+if self.Unloaded then
+return
+end
+local options = data.GameHealthBar
+if options == nil then
+return
+end
+if not (options.Hidden or options.CustomColor or options.CustomSize or options.CustomText or options.HideHeart or options.CustomPosition) then
+if self.Health then
+self:Release()
+end
+return
+end
+local fighter = field(fighterController, "LocalFighter") or field(mechanicsController, "LocalFighter")
+local interface = fighter and field(fighter, "FighterInterface")
+local health = interface and field(interface, "Health")
+local root = health and field(health, "Frame")
+local modernTrack = health and field(health, "HealthFrame")
+local modern = modernTrack ~= nil
+local track = modernTrack or (health and field(health, "ContainerFrame"))
+local fill = (health and field(health, "HealthBarFrame")) or (health and field(health, "ContainerBar"))
+local background = (health and field(health, "HealthBackground")) or (health and field(health, "ContainerBackground"))
+local label = (health and field(health, "HealthBarTitle")) or (health and field(health, "ContainerBarText"))
+local ready = root ~= nil and track ~= nil and fill ~= nil and background ~= nil and label ~= nil
+if ready then
+local okRoot, rootParent = pcall(function()
+return root.Parent
+end)
+local okTrack, trackParent = pcall(function()
+return track.Parent
+end)
+ready = okRoot and okTrack and rootParent ~= nil and trackParent ~= nil
+end
+if not ready then
+local now = os.clock()
+if now >= (self._nextWarn or 0) then
+self._nextWarn = now + 15
+local notify = warn or print
+pcall(notify, "[Kicia] Custom HealthBar: health UI not found (fighter=" .. tostring(fighter ~= nil) .. ", interface=" .. tostring(interface ~= nil) .. ", health=" .. tostring(health ~= nil) .. ", root=" .. tostring(root ~= nil) .. ", bar=" .. tostring(fill ~= nil) .. ", text=" .. tostring(label ~= nil) .. ")")
+end
+if self.Health then
+self:Release()
+end
+return
+end
+local interfaceFrame = interface and field(interface, "Frame")
+local heart = nil
+local okHeart, foundHeart = pcall(function()
+return label:FindFirstChild("Favorited") or label:FindFirstChild("Icon")
+end)
+if okHeart then
+heart = foundHeart
+end
+local modernRoot = modern and root or nil
+local layout = nil
+if modernRoot ~= nil and modernRoot.Parent ~= nil then
+local okLayout, foundLayout = pcall(function()
+return modernRoot.Parent:FindFirstChildOfClass("UIListLayout")
+end)
+if okLayout then
+layout = foundLayout
+end
+end
+if self.Health ~= health or self.Root ~= root or self.Heart ~= heart then
+self:Release()
+self:Bind({
+Health = health,
+InterfaceFrame = interfaceFrame,
+Root = root,
+Track = track,
+Fill = fill,
+Background = background,
+Label = label,
+SizeTarget = modernRoot or track,
+PositionTarget = modernRoot or track,
+}, heart)
+end
+if options.CustomPosition then
+if layout ~= nil and layout.Parent ~= nil then
+if self.DetachedLayout ~= nil and self.DetachedLayout ~= layout then
+self:_RestoreLayout()
+end
+self.DetachedLayout = layout
+self.DetachedLayoutParent = layout.Parent
+layout.Parent = nil
+end
+else
+self:_RestoreLayout()
+end
+for _, record in self.Records do
+self:Apply(record)
+end
+end
+
+index2.Destroy = function(self)
+self.Unloaded = true
+self:Release()
+self._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.gameHealthBar = function()
+local ghb = tbl17.cache.gameHealthBar
+
+if not ghb then
+ghb = { c = fn35() }
+tbl17.cache.gameHealthBar = ghb
+end
+
+return ghb.c
+end
+end
+do
+local function fn35()
 local v115 = tbl17.bG()
 local v116 = tbl17.c4()
 local v117 = tbl17.a()
@@ -57847,7 +61956,7 @@ local v117 = tbl17.gF()
 local v118 = tbl17.k()
 local v119 = cloneref(game:GetService("Lighting"))
 local tbl18 = { "Color", "Decay", "Density", "Offset", "Glare", "Haze" }
-local tbl19 = { "Atmosphere", v86[44] }
+local tbl19 = { "Lighting", "FogStyle" }
 local index2 = {}
 index2.__index = index2
 
@@ -57890,7 +61999,7 @@ end
 activeTrove:Destroy()
 end
 
-if not v115:Get(tbl19) then
+if v115:Get(tbl19) ~= "Atmosphere" then
 return
 end
 local v120 = arg._trove:Extend()
@@ -58071,13 +62180,13 @@ fn36()
 end
 
 index2._BindFog = function(arg)
-local tbl20 = { "Lighting", "Fog", "Enabled" }
+local tbl20 = { "Lighting", "FogStyle" }
 local tbl21 = { "Lighting", "Fog", "Color" }
 local tbl22 = { "Lighting", "Fog", "Start" }
 local tbl23 = { "Lighting", "Fog", "End" }
 
 local function fn36()
-if not v115:Get(tbl19) or not v115:Get(tbl20) then
+if v115:Get(tbl20) ~= "Fog" then
 arg._guardedLighting:ClearOverride("FogColor")
 arg._guardedLighting:ClearOverride("FogStart")
 arg._guardedLighting:ClearOverride("FogEnd")
@@ -58092,7 +62201,6 @@ arg._guardedLighting:SetOverride("FogStart", v120)
 arg._guardedLighting:SetOverride("FogEnd", v121)
 end
 
-arg._trove:Connect(v115:GetPropertyChangedSignal(tbl19), fn36)
 arg._trove:Connect(v115:GetPropertyChangedSignal(tbl20), fn36)
 arg._trove:Connect(v115:GetPropertyChangedSignal(tbl21), fn36)
 arg._trove:Connect(v115:GetPropertyChangedSignal(tbl22), fn36)
@@ -59695,6 +63803,7 @@ arg:_Rebuild()
 end
 
 index2._Rebuild = function(arg)
+tbl17.skyboxPresetActive = false
 local activeTrove = arg._activeTrove
 
 if activeTrove ~= nil then
@@ -59724,6 +63833,7 @@ end
 
 index2._Reconcile = function(arg)
 local v120 = arg._skyboxes:FindPreset(v115:Get(tbl20))
+tbl17.skyboxPresetActive = v120 ~= nil
 
 for _, v121 in arg._guardBySky, nil, nil do
 fn36(v121, v120)
@@ -59734,6 +63844,7 @@ index2._SetupGuard = function(arg, arg2)
 local v120 = v117.new(arg2)
 arg._guardBySky[arg2] = v120
 local v121 = arg._skyboxes:FindPreset(v115:Get(tbl20))
+tbl17.skyboxPresetActive = v121 ~= nil
 
 if v121 ~= nil then
 fn36(v120, v121)
@@ -59917,13 +64028,24 @@ end
 local v123 = arg._trove:Extend()
 arg._activeTrove = v123
 local v124 = table.create(#v122)
+local weatherTextures = getgenv().KiciaWeatherTextures or {}
+
+local function fn41(texture)
+if texture == "KICIA_WEATHER_LEAF" then
+return weatherTextures.Leaf or "rbxassetid://6703369286"
+end
+if texture == "KICIA_WEATHER_PETAL" then
+return weatherTextures.Petal or "rbxassetid://3010776037"
+end
+return texture
+end
 
 for _, v125 in v122, nil, nil do
 local particleEmitter = Instance.new("ParticleEmitter")
 particleEmitter.Shape = Enum.ParticleEmitterShape.Box
 particleEmitter.EmissionDirection = Enum.NormalId.Bottom
 particleEmitter.Enabled = true
-particleEmitter.Texture = v125.Texture
+particleEmitter.Texture = fn41(v125.Texture)
 particleEmitter.Transparency = fn36(v125.TransparencyMax)
 particleEmitter.Lifetime = NumberRange.new(v125.LifetimeMin, v125.LifetimeMax)
 particleEmitter.Rotation = NumberRange.new(v125.RotationMin, v125.RotationMax)
@@ -60076,7 +64198,7 @@ emitter.Size = fn37(NumberSequence.new(spec.SizeStart, spec.SizeEnd), size)
 emitter.LightEmission = glow
 local n34 = spec.BaseSpread * spread
 emitter.SpreadAngle = Vector2.new(n34, n34)
-emitter.Color = colorSequence
+emitter.Color = spec.Color or colorSequence
 emitter.Acceleration = Vector3.new(n, spec.BaseAccelerationY, n33)
 end
 end
@@ -60643,7 +64765,7 @@ return ia.c
 end
 end
 do
-local function fn35()local I= tbl17 .a8(); tbl17 .aE(); tbl17 .hN();return function(l,W,N)local P=W:AddSection({Title="Elimination Feedback",Side="right"});P:AddToggle({Label="Enable Elimination Feedback",Config={"PlayerElimination","Enabled"}});P:AddDivider({Label="Sound"});W=P:AddGroup({Source=P:AddToggle({Label="Play Elimination Sound",Config={"PlayerElimination","Sound","Enabled"}})});local a=W:AddDropdown({Label="Elimination Sound",Options=l.SfxSoundStorage:GetNames(),Config={"PlayerElimination","Sound","Name"}});a:Connect(l.SfxSoundStorage.Changed,function(e)a:SetOptions(e);end);W:AddSlider({Label="Elimination Volume",Min=0.1,Max=10,Step=0.1,Config={"PlayerElimination","Sound","Volume"}});W:AddSlider({Label="Elimination Pitch",Min=0.1,Max=3,Step=0.1,Config={"PlayerElimination","Sound","Pitch"}});W:AddButton({Label="Manage Custom Sounds",OnClick=N});P:AddDivider({Label="Visual Chams"});l=P:AddToggle({Label="Enable Elimination Chams",Config={"PlayerElimination","Chams","Enabled"}});P:AddColor({Row=l.Row,Alpha=true,Config={"PlayerElimination","Chams","Color"},Transparency={"PlayerElimination","Chams","Transparency"},Animatable=true});W=P:AddGroup({Source=l});W:AddSlider({Label="Elimination Chams Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerElimination","Chams","Duration"}});W:AddDropdown({Label="Elimination Chams Material",Options=I.Names,Config={"PlayerElimination","Chams","Material"}});P:AddDivider({Label="Flash"});l=P:AddToggle({Label="Enable Elimination Flash",Config={"PlayerElimination","KillFlash","Enabled"}});P:AddColor({Row=l.Row,Config={"PlayerElimination","KillFlash","Color"},Animatable=true});P:AddGroup({Source=l}):AddSlider({Label="Elimination Flash Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerElimination","KillFlash","Duration"}});P:AddDivider({Label="Notification"});P:AddGroup({Source=P:AddToggle({Label="Enable Elimination Notification",Config={"PlayerElimination","Notification","Enabled"}})}):AddTextBox({Label="Elimination Notification Text",Config={"PlayerElimination","Notification","Text"}});end;end
+local function fn35()local I= tbl17 .a8(); tbl17 .aE(); tbl17 .hN();return function(l,W,N)local P=W:AddSection({Title="Elimination Feedback",Side="right"});P:AddToggle({Label="Enable Elimination Feedback",Config={"PlayerElimination","Enabled"}});P:AddDivider({Label="Sound"});W=P:AddGroup({Source=P:AddToggle({Label="Play Elimination Sound",Config={"PlayerElimination","Sound","Enabled"}})});local a=W:AddDropdown({Label="Elimination Sound",Options=l.SfxSoundStorage:GetNames(),Config={"PlayerElimination","Sound","Name"}});a:Connect(l.SfxSoundStorage.Changed,function(e)a:SetOptions(e);end);W:AddSlider({Label="Elimination Volume",Min=0.1,Max=10,Step=0.1,Config={"PlayerElimination","Sound","Volume"}});W:AddSlider({Label="Elimination Pitch",Min=0.1,Max=3,Step=0.1,Config={"PlayerElimination","Sound","Pitch"}});W:AddButton({Label="Manage Custom Sounds",OnClick=N});P:AddDivider({Label="Visual Chams"});l=P:AddToggle({Label="Enable Elimination Chams",Config={"PlayerElimination","Chams","Enabled"}});P:AddColor({Row=l.Row,Alpha=true,Config={"PlayerElimination","Chams","Color"},Transparency={"PlayerElimination","Chams","Transparency"},Animatable=true});W=P:AddGroup({Source=l});W:AddSlider({Label="Elimination Chams Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerElimination","Chams","Duration"}});W:AddDropdown({Label="Elimination Chams Material",Options=I.Names,Config={"PlayerElimination","Chams","Material"}});P:AddDivider({Label="Flash"});l=P:AddToggle({Label="Enable Elimination Flash",Config={"PlayerElimination","KillFlash","Enabled"}});P:AddColor({Row=l.Row,Config={"PlayerElimination","KillFlash","Color"},Animatable=true});P:AddGroup({Source=l}):AddSlider({Label="Elimination Flash Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerElimination","KillFlash","Duration"}});P:AddDivider({Label="Notification"});P:AddGroup({Source=P:AddToggle({Label="Enable Elimination Notification",Config={"PlayerElimination","Notification","Enabled"}})}):AddTextBox({Label="Elimination Notification Text",Config={"PlayerElimination","Notification","Text"}});P:AddDivider({Label="Spoof"});local eliminationSpoofToggle=P:AddToggle({Label="Elimination Spoof",Config={"EliminatedSpoofer","Enabled"}});P=P:AddGroup({Source=eliminationSpoofToggle});P:AddToggle({Label="Show Eliminated Text",Config={"EliminatedSpoofer","Show"}});P:AddColor({Row=P:AddLabel({Label="Text Color"}).Row,Config={"EliminatedSpoofer","Color"},Animatable=true});P:AddTextBox({Label="Text / Template",Tooltip="Use {name} with template name placement.",Config={"EliminatedSpoofer","Text"}});P:AddDropdown({Label="Font",Options={"Default","Minecraftia","Proggy Clean","Proggy Tiny","Arial","Roboto","Ubuntu","Inconsolata"},Config={"EliminatedSpoofer","Font"}});P:AddDropdown({Label="Name Placement",Options={"after text","before text","above text","below text","template"},Labels={["after text"]="After Text",["before text"]="Before Text",["above text"]="Above Text",["below text"]="Below Text",template="Template"},Config={"EliminatedSpoofer","NamePosition"}});local nameColor=P:AddToggle({Label="Custom Name Color",Config={"EliminatedSpoofer","NameColorEnabled"}});P:AddColor({Row=nameColor.Row,Config={"EliminatedSpoofer","NameColor"},Animatable=true});local customPosition=P:AddToggle({Label="Custom Screen Position",Config={"EliminatedSpoofer","CustomPosition"}});local positionGroup=P:AddGroup({Source=customPosition});positionGroup:AddSlider({Label="Screen X",Min=0,Max=100,Step=1,Suffix="%",Config={"EliminatedSpoofer","X"}});positionGroup:AddSlider({Label="Screen Y",Min=0,Max=100,Step=1,Suffix="%",Config={"EliminatedSpoofer","Y"}});local customSize=P:AddToggle({Label="Custom Text Size",Config={"EliminatedSpoofer","CustomSize"}});P:AddGroup({Source=customSize}):AddSlider({Label="Text Size",Min=10,Max=48,Step=1,Config={"EliminatedSpoofer","TextSize"}});local gradient=P:AddToggle({Label="Text and Name Gradient",Config={"EliminatedSpoofer","Gradient"}});P:AddColor({Row=P:AddLabel({Label="Gradient Color 1"}).Row,Config={"EliminatedSpoofer","GradientStartColor"},Animatable=true});P:AddColor({Row=P:AddLabel({Label="Gradient Color 2"}).Row,Config={"EliminatedSpoofer","GradientColor"},Animatable=true});P:AddSlider({Label="Gradient Angle",Min=0,Max=360,Step=1,Config={"EliminatedSpoofer","GradientRotation"}});P:AddDropdown({Label="Gradient Animation",Options={"static","flow","sweep","rotate"},Config={"EliminatedSpoofer","GradientAnimation"}});P:AddSlider({Label="Gradient Speed",Min=0.1,Max=3,Step=0.1,Config={"EliminatedSpoofer","GradientSpeed"}});P:AddDropdown({Label="Entrance Animation",Options={"none","fade","slide","pop"},Config={"EliminatedSpoofer","Animation"}});P:AddSlider({Label="Animation Duration",Min=0.1,Max=1,Step=0.01,Suffix="s",Config={"EliminatedSpoofer","AnimationDuration"}});end;end
 
 tbl17.ib = function()
 local ib = tbl17.cache.ib
@@ -60658,7 +64780,7 @@ return ib.c
 end
 end
 do
-local function fn35()local I= tbl17 .a8(); tbl17 .aE(); tbl17 .hN();return function(l,W,N)local P=W:AddSection({Title="Hit Feedback",Side="left"});P:AddToggle({Label="Enable Hit Feedback",Config={"PlayerHit","Enabled"}});P:AddDivider({Label="Sound"});local a,e=P:AddGroup({Source=P:AddToggle({Label="Play Hit Sound",Config={"PlayerHit","Sound","Enabled"}})}),l.SfxSoundStorage:GetNames();local c=a:AddDropdown({Label="Headshot Sound",Options=e,Config={"PlayerHit","Sound","HeadName"}});c:Connect(l.SfxSoundStorage.Changed,function(E)c:SetOptions(E);end);a:AddSlider({Label="Headshot Volume",Min=0.1,Max=10,Step=0.1,Config={"PlayerHit","Sound","HeadVolume"}});a:AddSlider({Label="Headshot Pitch",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","Sound","HeadPitch"}});local c_148=a:AddDropdown({Label="Body Hit Sound",Options=e,Config={"PlayerHit","Sound","BodyName"}});c_148:Connect(l.SfxSoundStorage.Changed,function(e)c_148:SetOptions(e);end);a:AddSlider({Label="Body Hit Volume",Min=0.1,Max=10,Step=0.1,Config={"PlayerHit","Sound","BodyVolume"}});a:AddSlider({Label="Body Hit Pitch",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","Sound","BodyPitch"}});a:AddToggle({Label="Mute Game Hit Sound",Config={"PlayerHit","Sound","DisableGameSound"}});a:AddButton({Label="Manage Custom Sounds",OnClick=N});P:AddDivider({Label="Visual Chams"});l=P:AddToggle({Label="Enable Hit Chams",Config={"PlayerHit","Chams","Enabled"}});P:AddColor({Row=l.Row,Alpha=true,Config={"PlayerHit","Chams","Color"},Transparency={"PlayerHit","Chams","Transparency"},Animatable=true});N=P:AddGroup({Source=l});N:AddSlider({Label="Hit Chams Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","Chams","Duration"}});N:AddDropdown({Label="Hit Chams Material",Options=I.Names,Config={"PlayerHit","Chams","Material"}});P:AddDivider({Label="Flash"});W=P:AddToggle({Label="Enable Hit Flash",Config={"PlayerHit","HitFlash","Enabled"}});P:AddColor({Row=W.Row,Config={"PlayerHit","HitFlash","Color"},Animatable=true});P:AddGroup({Source=W}):AddSlider({Label="Hit Flash Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","HitFlash","Duration"}});P:AddDivider({Label="Notification"});P:AddGroup({Source=P:AddToggle({Label="Enable Hit Notification",Config={"PlayerHit","Notification","Enabled"}})}):AddTextBox({Label="Hit Notification Text",Config={"PlayerHit","Notification","Text"}});end;end
+local function fn35()local I= tbl17 .a8(); tbl17 .aE(); tbl17 .hN();return function(l,W,N)local P=W:AddSection({Title="Hit Feedback",Side="left"});P:AddToggle({Label="Enable Hit Feedback",Config={"PlayerHit","Enabled"}});P:AddDivider({Label="Sound"});local a,e=P:AddGroup({Source=P:AddToggle({Label="Play Hit Sound",Config={"PlayerHit","Sound","Enabled"}})}),l.SfxSoundStorage:GetNames();local c=a:AddDropdown({Label="Headshot Sound",Options=e,Config={"PlayerHit","Sound","HeadName"}});c:Connect(l.SfxSoundStorage.Changed,function(E)c:SetOptions(E);end);a:AddSlider({Label="Headshot Volume",Min=0.1,Max=10,Step=0.1,Config={"PlayerHit","Sound","HeadVolume"}});a:AddSlider({Label="Headshot Pitch",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","Sound","HeadPitch"}});local c_148=a:AddDropdown({Label="Body Hit Sound",Options=e,Config={"PlayerHit","Sound","BodyName"}});c_148:Connect(l.SfxSoundStorage.Changed,function(e)c_148:SetOptions(e);end);a:AddSlider({Label="Body Hit Volume",Min=0.1,Max=10,Step=0.1,Config={"PlayerHit","Sound","BodyVolume"}});a:AddSlider({Label="Body Hit Pitch",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","Sound","BodyPitch"}});a:AddToggle({Label="Mute Game Hit Sound",Config={"PlayerHit","Sound","DisableGameSound"}});a:AddButton({Label="Manage Custom Sounds",OnClick=N});P:AddDivider({Label="Hit Effects"});local effectsToggle=P:AddToggle({Label="Enable Hit Effects",Config={"PlayerHit","HitEffects","Enabled"}});local fxGroup=P:AddGroup({Source=effectsToggle});fxGroup:AddMultiDropdown({Label="Effects",Tooltip="Effects to show on hit",Options={"Aura","Blades","Bubble","Clone","Confetti","Cyclone","Dots","Electricity","Emission","Explosion","Filled Circle","Fortnite Damage","Lightning","Petals","Phantom Forces","Plasma","Portal","Ring","Ripple","Slashes","Spiral","Stars","Sun Rays","Thunder","Tornado","Wind","Zap"},Config={"PlayerHit","HitEffects","Selected"},Search=true});fxGroup:AddColor({Label="Start Color",Tooltip="First effect color",Config={"PlayerHit","HitEffects","StartColor"},Animatable=true});fxGroup:AddColor({Label="Middle Color",Tooltip="Second effect color",Config={"PlayerHit","HitEffects","MiddleColor"},Animatable=true});fxGroup:AddColor({Label="End Color",Tooltip="Third effect color",Config={"PlayerHit","HitEffects","EndColor"},Animatable=true});fxGroup:AddToggle({Label="Follow Target",Tooltip="Effects move with the hit player",Config={"PlayerHit","HitEffects","FollowTarget"}});fxGroup:AddToggle({Label="Stack Fortnite Damage",Tooltip="Add up rapid hits into one damage number",Config={"PlayerHit","HitEffects","StackFortniteDamage"}});fxGroup:AddToggle({Label="Cycle Text Colors",Config={"PlayerHit","HitEffects","CycleTextColors"}});fxGroup:AddToggle({Label="Original Phantom Forces Colors",Config={"PlayerHit","HitEffects","OriginalPhantomForcesColors"}});P:AddDivider({Label="Visual Chams"});l=P:AddToggle({Label="Enable Hit Chams",Config={"PlayerHit","Chams","Enabled"}});P:AddColor({Row=l.Row,Alpha=true,Config={"PlayerHit","Chams","Color"},Transparency={"PlayerHit","Chams","Transparency"},Animatable=true});N=P:AddGroup({Source=l});N:AddSlider({Label="Hit Chams Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","Chams","Duration"}});N:AddDropdown({Label="Hit Chams Material",Options=I.Names,Config={"PlayerHit","Chams","Material"}});P:AddDivider({Label="Flash"});W=P:AddToggle({Label="Enable Hit Flash",Config={"PlayerHit","HitFlash","Enabled"}});P:AddColor({Row=W.Row,Config={"PlayerHit","HitFlash","Color"},Animatable=true});P:AddGroup({Source=W}):AddSlider({Label="Hit Flash Duration",Min=0.1,Max=3,Step=0.1,Config={"PlayerHit","HitFlash","Duration"}});P:AddDivider({Label="Notification"});P:AddGroup({Source=P:AddToggle({Label="Enable Hit Notification",Config={"PlayerHit","Notification","Enabled"}})}):AddTextBox({Label="Hit Notification Text",Config={"PlayerHit","Notification","Text"}});end;end
 
 tbl17.ic = function()
 local ic = tbl17.cache.ic
@@ -60673,7 +64795,7 @@ return ic.c
 end
 end
 do
-local function fn35() tbl17 .aE();local function l(I,W,N,P,a,e)I:AddGroup({Source=I:AddToggle({Label=W,Config={"ItemModifiers",P,"Enabled"}})}):AddSlider({Label=N,Min=a,Max=e,Config={"ItemModifiers",P,"Percentage"}});end;return function(I)local W,N,P,a=I:AddSection({Title="Aim & Fire",Side="left"}),I:AddSection({Title="Cooldowns",Side="left"}),I:AddSection({Title="Melee",Side="right"}),I:AddSection({Title="Grenades",Side="right"});l(W,"Reduce Recoil","Recoil Reduction (%)","Recoil",0,100);W:AddToggle({Label="Remove Spread",Config={"ItemModifiers","NoSpread"}});W:AddToggle({Label="Automatic Fire",Config={"ItemModifiers","AutomaticWeapon"}});W:AddToggle({Label="Fast Projectile",Config={"ItemModifiers","FastProjectile"}});l(W,"Aim Speed Override","Aim Speed (%)","AimSpeed",50,1000);l(N,"Fire Cooldown Override","Percentage","FireCooldown",0,100);l(N,"Aim Cooldown Override","Percentage","AimCooldown",1,100);l(N,"Melee Cooldown Override","Percentage","MeleeCooldown",0,100);l(N,"Dash Cooldown Override","Percentage","DashCooldown",0,100);P:AddToggle({Label="Always Backstab",Config={"ItemModifiers","AlwaysBackstab"}});P:AddGroup({Source=P:AddToggle({Label="Extend Melee Range",Config={"ItemModifiers","ExtendMeleeRange","Enabled"}})}):AddSlider({Label="Range",Min=5,Max=100,Config={"ItemModifiers","ExtendMeleeRange","Range"}});N=a:AddGroup({Source=a:AddToggle({Label="Fuse Override",Config={"ItemModifiers","GrenadeFuse","Enabled"}})});N:AddDropdown({Label="Explode On",Options={"Impact","Throw"},Config={"ItemModifiers","GrenadeFuse","ExplodeOn"}});N:AddToggle({Label="Remove Fuse",Config={"ItemModifiers","GrenadeFuse","RemoveFuse"}});end;end
+local function fn35() tbl17 .aE();local function l(I,W,N,P,a,e)I:AddGroup({Source=I:AddToggle({Label=W,Config={"ItemModifiers",P,"Enabled"}})}):AddSlider({Label=N,Min=a,Max=e,Config={"ItemModifiers",P,"Percentage"}});end;return function(I)local W,N,P,a=I:AddSection({Title="Aim & Fire",Side="left"}),I:AddSection({Title="Cooldowns",Side="left"}),I:AddSection({Title="Melee",Side="right"}),I:AddSection({Title="Grenades",Side="right"});l(W,"Reduce Recoil","Recoil Reduction (%)","Recoil",0,100);W:AddToggle({Label="Remove Spread",Config={"ItemModifiers","NoSpread"}});W:AddToggle({Label="Fast Shoot",Config={"ItemModifiers","FastShoot"}});W:AddToggle({Label="Fast Projectile",Config={"ItemModifiers","FastProjectile"}});W:AddToggle({Label="Full Auto",Config={"ItemModifiers","FullAuto"}});W:AddGroup({Source=W:AddToggle({Label="Fire Rate Override",Config={"ItemModifiers","FireRate","Enabled"}})}):AddSlider({Label="Fire Rate (%)",Min=1,Max=100,Config={"ItemModifiers","FireRate","Percentage"}});l(W,"Aim Speed Override","Aim Speed (%)","AimSpeed",50,1000);l(N,"Fire Cooldown Override","Percentage","FireCooldown",0,100);l(N,"Aim Cooldown Override","Percentage","AimCooldown",1,100);l(N,"Melee Cooldown Override","Percentage","MeleeCooldown",0,100);l(N,"Dash Cooldown Override","Percentage","DashCooldown",0,100);P:AddToggle({Label="Always Backstab",Config={"ItemModifiers","AlwaysBackstab"}});P:AddGroup({Source=P:AddToggle({Label="Extend Melee Range",Config={"ItemModifiers","ExtendMeleeRange","Enabled"}})}):AddSlider({Label="Range",Min=5,Max=100,Config={"ItemModifiers","ExtendMeleeRange","Range"}});N=a:AddGroup({Source=a:AddToggle({Label="Fuse Override",Config={"ItemModifiers","GrenadeFuse","Enabled"}})});N:AddDropdown({Label="Explode On",Options={"Impact","Throw"},Config={"ItemModifiers","GrenadeFuse","ExplodeOn"}});N:AddToggle({Label="Remove Fuse",Config={"ItemModifiers","GrenadeFuse","RemoveFuse"}});end;end
 
 tbl17.id = function()
 local id = tbl17.cache.id
@@ -60702,7 +64824,7 @@ return ie.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=5,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=50,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","Underground","UEKiller","Void"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=1000,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=5,Max=14,Step=1,Config={"Ragebot","Evasion","Underground","Depth"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Y Distance",Min=100,Max=10000000,Step=100,Config={"Ragebot","Evasion","UEKiller","YDistance"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Teleport Cooldown",Min=0,Max=1,Step=0.05,Config={"Ragebot","Evasion","UEKiller","Cooldown"}});local v=P:AddGroup({Source=a,Option="Void"});local s=v:AddToggle({Label="Void Spam",Tooltip="Keep cycling between the void and surfacing to attack.",Config={"Ragebot","VoidEvasion","VoidSpam"}});local g=v:AddGroup({Source=s});g:AddSlider({Label="Hide",Tooltip="How long it stays in the void for.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Hide"}});g:AddSlider({Label="Attack",Tooltip="How long each attack window lasts.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Attack"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
+local function fn35() tbl17 .aE();local I= tbl17 .h6();local function l(W)I(W,"Enable Ragebot",{"Always","Toggle","Hold"},{"Ragebot"},true);W:AddToggle({Label="Prioritize Hackers",Config={"Ragebot","PrioritizeHackers"}});W:AddSlider({Label="Stability",Min=0,Max=5,Step=0.001,Config={"Ragebot","Stability"}});W:AddSlider({Label="Shoot Frames",Min=1,Max=50,Config={"Ragebot","ShootFrames"}});end;local function I_150(W)local N={"Primary","Secondary","Melee"};for P,P_151 in N,nil,nil do W:AddToggle({Label=string.format("%s Enabled",tostring(P_151)),Config={"Ragebot","Weapons","Enabled",P_151}});end;W:AddOrderedList({Label="Weapon Priority",Items=N,Default=N,Config={"Ragebot","Weapons","Priority"}});W:AddDropdown({Label="On Empty",Options={"Reload","Swap","SwapOrReload"},Labels={SwapOrReload="Swap or Reload"},Config={"Ragebot","Weapons","OnEmpty"}});end;local function W(N,P)local a=N:AddGroup({Source=P,Option="ProjectileBreaker"});a:AddRangeSlider({Label="Forward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForward"}});a:AddSlider({Label="Forward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthForwardFrequency"}});a:AddRangeSlider({Label="Upward Depth",Min=0,Max=50,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUp"}});a:AddSlider({Label="Upward Frequency",Min=0,Max=100,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","DepthUpFrequency"}});a:AddSlider({Label="Reposition Interval (s)",Min=0.01,Max=2,Step=0.01,Config={"Ragebot","Evasion","ProjectileBreaker","RepositionInterval"}});a:AddToggle({Label="Fallback Character Origin",Config={"Ragebot","Evasion","ProjectileBreaker","FallbackAnchorFromCharacter"}});a:AddSlider({Label="Fallback Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackBaseRadius"}});a:AddSlider({Label="Fallback Random Factor",Min=0,Max=500,Step=0.1,Config={"Ragebot","Evasion","ProjectileBreaker","FallbackRadiusRandomFactor"}});end;local function N(P)local a=P:AddDropdown({Label="Evasion Mode",Options={"Off","Random","Translocate","ProjectileBreaker","Underground","UEKiller","Void"},Labels={ProjectileBreaker="Projectile Breaker"},Config={"Ragebot","Evasion","Mode"}});local e=P:AddGroup({Source=a,Option="Random"});e:AddToggle({Label="Character Origin",Config={"Ragebot","Evasion","Random","AnchorFromCharacter"}});e:AddSlider({Label="Base Radius",Min=5,Max=100000000000,Config={"Ragebot","Evasion","Random","BaseRadius"}});e:AddSlider({Label="Random Factor",Min=0,Max=500,Step=0.1,Config={"Ragebot","Evasion","Random","RadiusRandomFactor"}});P:AddGroup({Source=a,Option="Translocate"}):AddSlider({Label="Offset",Min=-5,Max=5,Step=0.1,Config={"Ragebot","Evasion","Translocate","Offset"}});P:AddGroup({Source=a,Option="Underground"}):AddSlider({Label="Underground Depth",Min=5,Max=14,Step=1,Config={"Ragebot","Evasion","Underground","Depth"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Y Distance",Min=100,Max=10000000000,Step=100,Config={"Ragebot","Evasion","UEKiller","YDistance"}});P:AddGroup({Source=a,Option="UEKiller"}):AddSlider({Label="Teleport Cooldown",Min=0,Max=1,Step=0.05,Config={"Ragebot","Evasion","UEKiller","Cooldown"}});local v=P:AddGroup({Source=a,Option="Void"});v:AddToggle({Label="Anti Translocate",Tooltip="Snap back if the game tries to teleport you while hiding.",Config={"Ragebot","VoidEvasion","AntiTranslocate"}});local s=v:AddToggle({Label="Void Spam",Tooltip="Keep cycling between the void and surfacing to attack.",Config={"Ragebot","VoidEvasion","VoidSpam"}});local g=v:AddGroup({Source=s});g:AddSlider({Label="Hide",Tooltip="How long it stays in the void for.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Hide"}});g:AddSlider({Label="Attack",Tooltip="How long each attack window lasts.",Min=0.01,Max=1,Step=0.01,Suffix="s",Config={"Ragebot","VoidEvasion","Attack"}});W(P,a);end;return function(W)l(W:AddSection({Title="Activation",Side="left"}));I_150(W:AddSection({Title="Weapon Strategy",Side="left"}));N(W:AddSection({Title="Evasion",Side="right"}));end;end
 
 tbl17.ih = function()
 local ih = tbl17.cache.ih
@@ -61104,19 +65226,136 @@ fn49(v122)
 fn49(v125)
 fn49(v128)
 fn49(v132)
+local function favoriteSpecFor(cosmeticType)
+	return {
+		Get = function(name)
+			if name == "Unselected" then
+				return false
+			end
+
+			if name == "Random" then
+				if str7 == "All" then
+					if #v118 == 0 then
+						return false
+					end
+
+					for _, item in v118 do
+						if not arg.Cosmetics:IsOnlyUseFavorites(item, cosmeticType) then
+							return false
+						end
+					end
+
+					return true
+				end
+
+				return arg.Cosmetics:IsOnlyUseFavorites(str7, cosmeticType)
+			end
+
+			local key = name == "None" and "NONE_COSMETIC_" .. cosmeticType or name
+
+			if str7 == "All" then
+				if #v118 == 0 then
+					return false
+				end
+
+				for _, item in v118 do
+					if not arg.Cosmetics:GetFavorited(item, key) then
+						return false
+					end
+				end
+
+				return true
+			end
+
+			return arg.Cosmetics:GetFavorited(str7, key)
+		end,
+		Set = function(name, value)
+			if name == "Unselected" then
+				return
+			end
+
+			if name == "Random" then
+				if value then
+					local hasFavorites = false
+
+					if str7 == "All" then
+						for _, item in v118 do
+							if arg.Cosmetics:HasFavoritesForType(item, cosmeticType) then
+								hasFavorites = true
+								break
+							end
+						end
+					else
+						hasFavorites = arg.Cosmetics:HasFavoritesForType(str7, cosmeticType)
+					end
+
+					if not hasFavorites then
+						return
+					end
+				end
+
+				if str7 == "All" then
+					arg.Cosmetics:Batch(function()
+						for _, item in v118 do
+							arg.Cosmetics:SetOnlyUseFavorites(item, cosmeticType, value)
+						end
+					end)
+				else
+					arg.Cosmetics:SetOnlyUseFavorites(str7, cosmeticType, value)
+				end
+
+				return
+			end
+
+			local key = name == "None" and "NONE_COSMETIC_" .. cosmeticType or name
+
+			local function apply(item)
+				local hadFavorites = arg.Cosmetics:HasFavoritesForType(item, cosmeticType)
+				arg.Cosmetics:SetFavorited(item, key, value)
+				local hasFavorites = arg.Cosmetics:HasFavoritesForType(item, cosmeticType)
+
+				if not hasFavorites then
+					arg.Cosmetics:SetOnlyUseFavorites(item, cosmeticType, false)
+				elseif not hadFavorites then
+					arg.Cosmetics:SetOnlyUseFavorites(item, cosmeticType, true)
+				end
+			end
+
+			if str7 == "All" then
+				arg.Cosmetics:Batch(function()
+					for _, item in v118 do
+						apply(item)
+					end
+				end)
+			else
+				arg.Cosmetics:Batch(function()
+					apply(str7)
+				end)
+			end
+		end,
+	}
+end
+
 local v134 = v123:AddTextBox({ Label = "Search Skins" })
-local v135 = v123:AddSkinChanger({ HeightMode = "Fill", State = "Loading" })
+local v135 = v123:AddSkinChanger({ HeightMode = "Fill", State = "Loading", Favorite = favoriteSpecFor("Skin") })
 local v136 = v126:AddTextBox({ Label = "Search Wraps" })
 local v137 = v126:AddToggle({ Label = "Inverted Wrap" })
-local v138 = v126:AddSkinChanger({ HeightMode = "Fill", State = "Loading" })
+local v138 = v126:AddSkinChanger({ HeightMode = "Fill", State = "Loading", Favorite = favoriteSpecFor("Wrap") })
 local v139 = v126:AddButton({ Label = "Retry Loading Wrap Catalog", Variant = "primary" })
 v139:SetVisible(false)
 local v140 = v130:AddTextBox({ Label = "Search Charms" })
-local v141 = v130:AddSkinChanger({ HeightMode = "Fill", State = "Loading" })
+local v141 = v130:AddSkinChanger({ HeightMode = "Fill", State = "Loading", Favorite = favoriteSpecFor("Charm") })
 local v142 = v130:AddButton({ Label = "Retry Loading Charm Catalog", Variant = "primary" })
 v142:SetVisible(false)
 local v143 = v133:AddTextBox({ Label = "Search Finishers" })
-local v144 = v133:AddSkinChanger({ HeightMode = "Fill", State = "Loading" })
+local v144 = v133:AddSkinChanger({ HeightMode = "Fill", State = "Loading", Favorite = favoriteSpecFor("Finisher") })
+
+local function fn56()
+	v135:RefreshFavorites()
+	v138:RefreshFavorites()
+	v141:RefreshFavorites()
+	v144:RefreshFavorites()
+end
 local tbl22 = {}
 local tbl23 = {}
 local tbl24 = {}
@@ -61208,6 +65447,7 @@ v138:Set("Unselected", true)
 v141:Set("Unselected", true)
 v144:Set("Unselected", true)
 v137:Set(false, v86[34])
+fn56()
 return
 end
 
@@ -61219,6 +65459,7 @@ v138:Set(v86[96], true)
 v137:Set(false, v86[34])
 v141:Set(v86[96], v86[34])
 v144:Set("Unselected", v86[34])
+fn56()
 return
 end
 
@@ -61237,6 +65478,7 @@ end
 v141:Set(fn39(skinChangerSelections.Charm), true)
 local v146 = v86[34]
 v144:Set(fn39(skinChangerSelections.Finisher), v146)
+fn56()
 end
 
 local flag22 = false
@@ -61428,6 +65670,7 @@ fn55()
 fn47()
 end)
 
+v120:Connect(arg.Cosmetics.StoresUpdated, fn56)
 fn55()
 fn47()
 return fn47
@@ -61489,7 +65732,7 @@ return ip.c
 end
 end
 do
-local function fn35()local I= tbl17 .dj(); tbl17 .aE();return function(l)local W=l:AddSection({Title="Animation Player",Side="left"});W:AddToggle({Label="Enable Animation Player",Config={"AnimationPlayer","Enabled"}});W:AddDropdown({Label="Animation",Options=I.Names,Config={"AnimationPlayer","Animation"}});W:AddTextBox({Label="Custom Animation ID",Config={"AnimationPlayer","CustomId"}});W:AddSlider({Label="Speed",Min=0,Max=5,Step=0.01,Config={"AnimationPlayer","Speed"}});W:AddSlider({Label="Start",Min=0,Max=100,Config={"AnimationPlayer","Start"}});W:AddSlider({Label="End",Min=0,Max=100,Config={"AnimationPlayer","End"}});end;end
+local function fn35()local I= tbl17 .dj(); tbl17 .aE();return function(l)local W=l:AddSection({Title="Animation Player",Side="left"});W:AddToggle({Label="Enable Animation Player",Config={"AnimationPlayer","Enabled"}});W:AddDropdown({Label="Animation",Options=I.Names,Config={"AnimationPlayer","Animation"}});W:AddTextBox({Label="Custom Animation ID",Config={"AnimationPlayer","CustomId"}});W:AddSlider({Label="Speed",Min=0,Max=5,Step=0.01,Config={"AnimationPlayer","Speed"}});W:AddSlider({Label="Start",Min=0,Max=100,Config={"AnimationPlayer","Start"}});W:AddSlider({Label="End",Min=0,Max=100,Config={"AnimationPlayer","End"}});local A=l:AddSection({Title="Anti Aim",Side="left"});A:AddToggle({Label="Enable Anti Aim",Config={"AntiAim","Enabled"}});A:AddDropdown({Label="Pitch",Options={"random","look up","look down","custom","extended custom","extended random"},Labels={random="Random",["look up"]="Look Up",["look down"]="Look Down",custom="Custom",["extended custom"]="Extended Custom",["extended random"]="Extended Random"},Config={"AntiAim","Pitch"}});A:AddSlider({Label="Custom Pitch",Min=-180,Max=180,Step=1,Config={"AntiAim","CustomPitch"}});A:AddDropdown({Label="Yaw",Options={"random","custom","backwards","extended custom","extended random"},Labels={random="Random",custom="Custom",backwards="Backwards",["extended custom"]="Extended Custom",["extended random"]="Extended Random"},Config={"AntiAim","Yaw"}});A:AddSlider({Label="Custom Yaw",Min=-360,Max=360,Step=1,Config={"AntiAim","CustomYaw"}});end;end
 
 tbl17.iq = function()
 local iq = tbl17.cache.iq
@@ -61503,7 +65746,7 @@ return iq.c
 end
 end
 do
-local function fn35()local I= tbl17 .a8(); tbl17 .aE();return function(l)local W=l:AddSection({Title="Character Appearance",Side="right"});l=W:AddToggle({Label="Enable Character Chams",Config={"Chams","Character","Enabled"}});W:AddColor({Row=l.Row,Alpha=true,Config={"Chams","Character","Color"},Transparency={"Chams","Character","Transparency"},Animatable=true});local N=W:AddGroup({Source=l});N:AddDropdown({Label="Character Chams Material",Options=I.List,Config={"Chams","Character","Material"}});N:AddToggle({Label="Strip Character Chams Textures",Config={"Chams","Character","StripTextures"}});end;end
+local function fn35()local I= tbl17 .a8(); tbl17 .aE();return function(grid)local W=grid:AddSection({Title="Character Appearance",Side="right"});local toggle=W:AddToggle({Label="Enable Character Chams",Config={"Chams","Character","Enabled"}});W:AddColor({Row=toggle.Row,Alpha=true,Config={"Chams","Character","Color"},Transparency={"Chams","Character","Transparency"},Animatable=true});local N=W:AddGroup({Source=toggle});N:AddDropdown({Label="Character Chams Material",Options=I.List,Config={"Chams","Character","Material"}});N:AddToggle({Label="Strip Character Chams Textures",Config={"Chams","Character","StripTextures"}});local A=grid:AddSection({Title="Character Aura",Side="left"});A:AddToggle({Label="Enable Character Aura",Config={"Aura","Enabled"}});A:AddMultiDropdown({Label="Auras",Options={"starlight","heavenly","ribbon","sakura","angel","wind","flow","star"},Labels={starlight="Starlight",heavenly="Heavenly",ribbon="Ribbon",sakura="Sakura",angel="Angel",wind="Wind",flow="Flow",star="Star"},Config={"Aura","Selected"},Search=true});local C=A:AddToggle({Label="Color Override",Config={"Aura","ColorOverride","Enabled"}});A:AddColor({Row=C.Row,Config={"Aura","ColorOverride","Color"},Animatable=true});end;end
 
 tbl17.ir = function()
 local ir = tbl17.cache.ir
@@ -61518,7 +65761,17 @@ return ir.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .a2();local W= tbl17 .a7()(I);return function(l)local I=l:AddSection({Title="Device Spoof",Side="left"});I:AddToggle({Label="Enable Device Spoof",Config={"DeviceSpoof","Enabled"}});I:AddDropdown({Label="Presented Platform",Options=W,Config={"DeviceSpoof","SpoofType"}});end;end
+local function fn35()
+tbl17.aE()
+local options = { "VR", "K&M", "Mobile", "Console", "Random" }
+local labels = { VR = "VR", ["K&M"] = "K&M", Mobile = "Mobile", Console = "Console", Random = "Random" }
+return function(l)
+local P = l:AddSection({Title="Device Spoof",Side="left"})
+P:AddToggle({Label="Enable Device Spoof",Config={"DeviceSpoof","Enabled"}})
+P:AddDropdown({Label="Presented Platform",Tooltip="Choose a fixed platform, or Random to automatically switch between VR, K&M, Mobile and Console.",Options=options,Labels=labels,Config={"DeviceSpoof","SpoofType"}})
+P:AddLabel({Label="Random switches between all four platforms every 0.4s while enabled."})
+end
+end
 
 tbl17.is = function()
 local is = tbl17.cache.is
@@ -61581,31 +65834,15 @@ tbl17.iw = function()
 local iw = tbl17.cache.iw
 
 if not iw then
-local iw2 = { c = fn35() }
-tbl17.cache.iw = iw2
-iw = iw2
+iw = { c = fn35() }
+tbl17.cache.iw = iw
 end
 
 return iw.c
 end
 end
 do
-local function fn35() tbl17 .aE();return function(l)local I=l:AddSection({Title="Camera FOV",Side="left"});I:AddToggle({Label="Enable Camera FOV",Config={"CameraFov","Enabled"}});I:AddSlider({Label="Field of View",Min=30,Max=120,Config={"CameraFov","Value"}});end;end
-
-tbl17.ix = function()
-local ix = tbl17.cache.ix
-
-if not ix then
-local ix2 = { c = fn35() }
-tbl17.cache.ix = ix2
-ix = ix2
-end
-
-return ix.c
-end
-end
-do
-local function fn35() tbl17 .aE();return function(l)local I=l:AddSection({Title="Gameplay Overlays",Side="right"});I:AddToggle({Label="Hide Flashbang Effect",Config={"Removables","NoFlashbang"}});I:AddToggle({Label="Hide Burn Effect",Config={"Removables","NoBurnEffect"}});I:AddToggle({Label="Hide ADS Vignette",Config={"Removables","NoAdsVignette"}});I:AddToggle({Label="Hide Scope Overlay",Config={"Removables","NoScopeOverlay"}});I:AddToggle({Label="Hide Scope Reticle",Config={"Removables","NoScopeReticle"}});I:AddToggle({Label="Hide Hitmarker",Config={"Removables","NoHitmarker"}});end;end
+local function fn35() tbl17 .aE();return function(l)local I=l:AddSection({Title="Gameplay Overlays",Side="right"});I:AddToggle({Label="Hide Flashbang Effect",Config={"Removables","NoFlashbang"}});I:AddToggle({Label="Hide Burn Effect",Config={"Removables","NoBurnEffect"}});I:AddToggle({Label="Hide ADS Vignette",Config={"Removables","NoAdsVignette"}});I:AddToggle({Label="Hide Scope Overlay",Config={"Removables","NoScopeOverlay"}});I:AddToggle({Label="Hide Scope Reticle",Config={"Removables","NoScopeReticle"}});I:AddToggle({Label="Hide Hitmarker",Config={"Removables","NoHitmarker"}});I:AddToggle({Label="Hide In-Game Damage Numbers",Tooltip="Hides the game's built-in damage numbers.",Config={"Removables","NoDamageNumbers"}});end;end
 
 tbl17.iy = function()
 local iy = tbl17.cache.iy
@@ -61650,7 +65887,7 @@ return ia.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I,W,N,P= tbl17 .ix(), tbl17 .iy(), tbl17 .iz(), tbl17 .iA();return function(l)P(l);I(l);W(l);N(l);end;end
+local function fn35() tbl17 .aE();local W,N,P= tbl17 .iy(), tbl17 .iz(), tbl17 .iA();return function(l)P(l);W(l);N(l);end;end
 
 tbl17.iB = function()
 local ib = tbl17.cache.iB
@@ -61852,7 +66089,7 @@ return it.c
 end
 end
 do
-local function fn35() tbl17 .aE();local function l(I,W,N)I:AddDivider({Label="Highlight"});local P=I:AddToggle({Label=N.." Highlight",Config={"ViewModelHighlight",W,"Enabled"}});I:AddColor({Row=P.Row,Config={"ViewModelHighlight",W,"FillColor"},Animatable=true});I:AddToggle({Label=N.." Render Above",Config={"ViewModelHighlight",W,"AlwaysOnTop"}});local a=I:AddGroup({Source=P});a:AddSlider({Label=N.." Fill Transparency",Min=-10,Max=10,Step=0.01,Config={"ViewModelHighlight",W,"FillTransparency"}});a:AddColor({Label=N.." Outline",Config={"ViewModelHighlight",W,"OutlineColor"},Animatable=true});a:AddSlider({Label=N.." Outline Transparency",Min=-10,Max=10,Step=0.01,Config={"ViewModelHighlight",W,"OutlineTransparency"}});end;return function(I,W)l(I,"Arms","Arms");l(W,"Item","Held Item");end;end
+local function fn35() tbl17 .aE();local function l(I,W,N)I:AddDivider({Label="Highlight"});local P=I:AddToggle({Label=N.." Highlight",Config={"ViewModelHighlight",W,"Enabled"}});I:AddColor({Row=P.Row,Config={"ViewModelHighlight",W,"FillColor"},Animatable=true});I:AddToggle({Label=N.." Render Above",Config={"ViewModelHighlight",W,"AlwaysOnTop"}});local a=I:AddGroup({Source=P});a:AddSlider({Label=N.." Fill Transparency",Min=-10,Max=10,Step=0.01,Config={"ViewModelHighlight",W,"FillTransparency"}});a:AddColor({Label=N.." Outline",Config={"ViewModelHighlight",W,"OutlineColor"},Animatable=true});a:AddSlider({Label=N.." Outline Transparency",Min=-10,Max=10,Step=0.01,Config={"ViewModelHighlight",W,"OutlineTransparency"}});end;return function(I,W)l(I,"Arms","Arms");l(W,"Item","Gun");end;end
 
 tbl17.iU = function()
 local iu = tbl17.cache.iU
@@ -61925,7 +66162,114 @@ return iy.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I,W,N,P,a,e,c= tbl17 .iS(), tbl17 .iT(), tbl17 .iU(), tbl17 .iV(), tbl17 .iW(), tbl17 .iX(), tbl17 .iY();return function(l)local E,p,T,t,x=l:AddSection({Title="Viewmodel Position",Side="left"}),l:AddSection({Title="Motion & Animation",Side="left"}),l:AddSection({Title="Bullet Tracers",Side="left"}),l:AddMultiSection({Titles={"Arms","Held Item"},Side="right"});local S,J=l:AddSection({Title="Advanced Tracers",Side="right"}),l:AddSection({Title="Suppressions",Side="right"});a(E);P(p);I(T,S);W(t,x);N(t,x);c(t,x);e(J);end;end
+local function fn35()
+tbl17.aE()
+return function(arms,item)
+arms:AddDivider({Label="Removals"})
+arms:AddToggle({Label="Remove Hand",Config={"ViewModelRemoveArm"}})
+arms:AddToggle({Label="Remove Clothes",Config={"ViewModelRemoveClothes"}})
+arms:AddDivider({Label="Glow"})
+local armGlow=arms:AddToggle({Label="Arm Glow",Config={"ViewModelArmGlow","Enabled"}})
+local armGroup=arms:AddGroup({Source=armGlow})
+armGroup:AddColor({Label="Glow Color",Config={"ViewModelArmGlow","Color"},Animatable=true})
+armGroup:AddSlider({Label="Glow Intensity",Min=0,Max=3,Step=0.05,Config={"ViewModelArmGlow","Intensity"}})
+armGroup:AddSlider({Label="Glow Radius",Min=0,Max=56,Config={"ViewModelArmGlow","Size"}})
+item:AddDivider({Label="Material"})
+local material=item:AddToggle({Label="Held Item Material",Config={"ViewModelGunMaterial","Enabled"}})
+local materialGroup=item:AddGroup({Source=material})
+materialGroup:AddColor({Label="Held Item Color",Config={"ViewModelGunMaterial","Color"},Animatable=true})
+materialGroup:AddDropdown({Label="Held Item Material Type",Options={"Neon","ForceField","Chromatic","Fully Black"},Config={"ViewModelGunMaterial","Material"}})
+materialGroup:AddSlider({Label="Reflectance",Min=0,Max=1,Step=0.01,Config={"ViewModelGunMaterial","Reflectance"}})
+materialGroup:AddToggle({Label="Strip Textures",Config={"ViewModelGunMaterial","StripTextures"}})
+item:AddDivider({Label="Size"})
+local size=item:AddToggle({Label="Held Item Size",Config={"ViewModelGunSize","Enabled"}})
+item:AddGroup({Source=size}):AddSlider({Label="Size",Min=0.1,Max=5,Step=0.05,Config={"ViewModelGunSize","Scale"}})
+item:AddDivider({Label="Glow"})
+local gunGlow=item:AddToggle({Label="Held Item Glow",Config={"ViewModelGunGlow","Enabled"}})
+local gunGroup=item:AddGroup({Source=gunGlow})
+gunGroup:AddColor({Label="Glow Color",Config={"ViewModelGunGlow","Color"},Animatable=true})
+gunGroup:AddSlider({Label="Glow Intensity",Min=0,Max=3,Step=0.05,Config={"ViewModelGunGlow","Intensity"}})
+gunGroup:AddSlider({Label="Glow Radius",Min=0,Max=56,Config={"ViewModelGunGlow","Size"}})
+end
+end
+
+tbl17.iViewmodelExtras = function()
+local ive = tbl17.cache.iViewmodelExtras
+
+if not ive then
+ive = { c = fn35() }
+tbl17.cache.iViewmodelExtras = ive
+end
+
+return ive.c
+end
+end
+do
+local function fn35()
+tbl17.aE()
+local I = tbl17.iW()
+local W = tbl17.iT()
+local N = tbl17.iU()
+local P = tbl17.iY()
+local a = tbl17.iViewmodelExtras()
+return function(l)
+local pos = l:AddSection({Title="Viewmodel Position",Side="left"})
+local arms,item = l:AddMultiSection({Titles={"Arms","Held Item"},Side="right"})
+I(pos)
+W(arms,item)
+N(arms,item)
+P(arms,item)
+a(arms,item)
+end
+end
+
+tbl17.iViewmodels = function()
+local ivm = tbl17.cache.iViewmodels
+
+if not ivm then
+ivm = { c = fn35() }
+tbl17.cache.iViewmodels = ivm
+end
+
+return ivm.c
+end
+end
+do
+local function fn35()
+tbl17.aE()
+return function(l)
+l:AddToggle({Label="Hide HealthBar",Config={"GameHealthBar","Hidden"}})
+local color = l:AddToggle({Label="Custom HealthBar Color",Config={"GameHealthBar","CustomColor"}})
+local colorGroup = l:AddGroup({Source=color})
+colorGroup:AddColor({Label="HealthBar Color",Config={"GameHealthBar","Color"},Animatable=true})
+local size = l:AddToggle({Label="Custom HealthBar Size",Config={"GameHealthBar","CustomSize"}})
+local sizeGroup = l:AddGroup({Source=size})
+sizeGroup:AddSlider({Label="Width",Min=25,Max=250,Config={"GameHealthBar","Width"}})
+sizeGroup:AddSlider({Label="Height",Min=25,Max=250,Config={"GameHealthBar","Height"}})
+local text = l:AddToggle({Label="Replace Health Number",Config={"GameHealthBar","CustomText"}})
+local textGroup = l:AddGroup({Source=text})
+textGroup:AddTextBox({Label="HealthBar Text",FocusLostOnly=true,Config={"GameHealthBar","Text"}})
+l:AddToggle({Label="Hide Heart",Config={"GameHealthBar","HideHeart"}})
+local pos = l:AddToggle({Label="Custom Position",Config={"GameHealthBar","CustomPosition"}})
+local posGroup = l:AddGroup({Source=pos})
+posGroup:AddSlider({Label="Horizontal Position",Min=0,Max=100,Step=0.1,Config={"GameHealthBar","X"}})
+posGroup:AddSlider({Label="Vertical Position",Min=0,Max=100,Step=0.1,Config={"GameHealthBar","Y"}})
+end
+end
+
+tbl17.iCustomHealthBar = function()
+local ich = tbl17.cache.iCustomHealthBar
+
+if not ich then
+ich = { c = fn35() }
+tbl17.cache.iCustomHealthBar = ich
+end
+
+return ich.c
+end
+end
+do
+local function fn35() tbl17 .aE();local I,P,e,Q= tbl17 .iS(), tbl17 .iV(), tbl17 .iX(), tbl17 .iCustomHealthBar();return function(l)local p,T,S,J,K=l:AddSection({Title="Motion & Animation",Side="left"}),l:AddSection({Title="Bullet Tracers",Side="left"}),l:AddSection({Title="Advanced Tracers",Side="right"}),l:AddSection({Title="Suppressions",Side="right"}),l:AddSection({Title="Custom HealthBar",Side="left"});P(p);I(T,S);Q(K);e(J);end;end
 
 tbl17.iZ = function()
 local iz = tbl17.cache.iZ
@@ -61939,7 +66283,7 @@ return iz.c
 end
 end
 do
-local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P,a,e= tbl17 .iB(), tbl17 .iL(), tbl17 .iQ(), tbl17 .iR(), tbl17 .iZ(),{Visuals="rbxassetid://127234874352422",PlayerEsp="rbxassetid://85332511060401",Crosshair="rbxassetid://83752373575368",Weapon="rbxassetid://121406454377051",Camera="rbxassetid://114084146151777",Sound="rbxassetid://102139623610548"};return function(l,c)local E=c:AddTab({Label="Visuals",Icon=e.Visuals,Description="Player information, crosshair, weapon, camera, and sound visuals."});N(l,c,(E:AddTab({Label="Player ESP",Icon=e.PlayerEsp,Description="Player overlays, team-specific styling, and a synchronized preview."}):Grid({Columns=2})));W(l,c,(E:AddTab({Label="Crosshair",Icon=e.Crosshair,Description="Crosshair lines, images, text, motion, and target-follow effects."}):Grid({Columns=2})));a((E:AddTab({Label="Weapon Visuals",Icon=e.Weapon,Description="Viewmodel position, materials, motion, and projectile effects."}):Grid({Columns=2})));I((E:AddTab({Label="Camera & Screen",Icon=e.Camera,Description="Third person, camera field of view, overlays, and screen scaling."}):Grid({Columns=2})));P((E:AddTab({Label="Sound ESP",Icon=e.Sound,Description="Visualize footsteps and other sounds by source and loudness."}):Grid({Columns=2})));end;end
+local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P,a,X,e= tbl17 .iB(), tbl17 .iL(), tbl17 .iQ(), tbl17 .iR(), tbl17 .iZ(),tbl17.iViewmodels(),{Visuals="rbxassetid://127234874352422",PlayerEsp="rbxassetid://85332511060401",Crosshair="rbxassetid://83752373575368",Weapon="rbxassetid://121406454377051",Camera="rbxassetid://114084146151777",Sound="rbxassetid://102139623610548"};return function(l,c)local E=c:AddTab({Label="Visuals",Icon=e.Visuals,Description="Player information, crosshair, weapon, camera, and sound visuals."});N(l,c,(E:AddTab({Label="Player ESP",Icon=e.PlayerEsp,Description="Player overlays, team-specific styling, and a synchronized preview."}):Grid({Columns=2})));W(l,c,(E:AddTab({Label="Crosshair",Icon=e.Crosshair,Description="Crosshair lines, images, text, motion, and target-follow effects."}):Grid({Columns=2})));a((E:AddTab({Label="Weapon Visuals",Icon=e.Weapon,Description="Materials, motion, projectile effects, and game health bar."}):Grid({Columns=2})));X((E:AddTab({Label="Viewmodels",Icon=e.Weapon,Description="Viewmodel position, arms, held item, and cosmetics."}):Grid({Columns=2})));I((E:AddTab({Label="Camera & Screen",Icon=e.Camera,Description="Third person, field of view, overlays, and screen scaling."}):Grid({Columns=2})));P((E:AddTab({Label="Sound ESP",Icon=e.Sound,Description="Visualize footsteps and other sounds by source and loudness."}):Grid({Columns=2})));end;end
 
 tbl17.i_ = function()
 local i = tbl17.cache.i_
@@ -61968,7 +66312,18 @@ return i0.c
 end
 end
 do
-local function fn35() tbl17 .aE();local I= tbl17 .i0();return function(l)local W={Master=l:AddSection({Title="Lighting Override",Side="left"}),TimeExposure=l:AddSection({Title="Time & Exposure",Side="left"}),ShadowsQuality=l:AddSection({Title="Shadows & Quality",Side="left"}),AmbientColors=l:AddSection({Title="Ambient Colors",Side="right"}),FogAtmosphere=l:AddSection({Title="Fog & Atmosphere",Side="right"})};W.Master:AddToggle({Label="Enable Lighting Override",Config={"Lighting","Enabled"}});l=W.TimeExposure:AddToggle({Label="Clock Time",Config={"Lighting","ClockTime","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Time",Min=0,Max=24,Step=0.01,Config={"Lighting","ClockTime","Value"}});l=W.TimeExposure:AddToggle({Label="Geographic Latitude",Config={"Lighting","GeographicLatitude","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Latitude",Min=-90,Max=90,Step=0.001,Config={"Lighting","GeographicLatitude","Value"}});l=W.TimeExposure:AddToggle({Label="Brightness",Config={"Lighting","Brightness","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Brightness",Min=0,Max=10,Step=0.01,Config={"Lighting","Brightness","Value"}});l=W.TimeExposure:AddToggle({Label="Exposure Compensation",Config={"Lighting","ExposureCompensation","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Exposure",Min=-5,Max=5,Step=0.01,Config={"Lighting","ExposureCompensation","Value"}});W.ShadowsQuality:AddToggle({Label="Disable Global Shadows",Config={"Lighting","DisableGlobalShadows"}});l=W.ShadowsQuality:AddToggle({Label="Shadow Softness",Config={"Lighting","ShadowSoftness","Enabled"}});W.ShadowsQuality:AddGroup({Source=l}):AddSlider({Label="Softness",Min=0,Max=1,Step=0.01,Config={"Lighting","ShadowSoftness","Value"}});l=W.ShadowsQuality:AddToggle({Label="Lighting Style",Config={"Lighting","LightingStyle","Enabled"}});W.ShadowsQuality:AddGroup({Source=l}):AddDropdown({Label="Style",Options={"Realistic","Soft"},Config={"Lighting","LightingStyle","Value"}});l=W.ShadowsQuality:AddToggle({Label="Shadow Color",Config={"Lighting","ShadowColor","Enabled"}});W.ShadowsQuality:AddColor({Row=l.Row,Config={"Lighting","ShadowColor","Value"},Animatable=true});W.ShadowsQuality:AddToggle({Label="Prioritize Lighting Quality",Config={"Lighting","PrioritizeLightingQuality"}});l=W.AmbientColors:AddToggle({Label="Ambient Colors",Config={"Lighting","Ambient","Enabled"}});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Indoor ambient color.",Config={"Lighting","Ambient","Indoor"},Animatable=true});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Outdoor ambient color.",Config={"Lighting","Ambient","Outdoor"},Animatable=true});l=W.AmbientColors:AddToggle({Label="Color Shift",Config={"Lighting","ColorShift","Enabled"}});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Top color shift.",Config={"Lighting","ColorShift","Top"},Animatable=true});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Bottom color shift.",Config={"Lighting","ColorShift","Bottom"},Animatable=true});l=W.AmbientColors:AddToggle({Label="Environment Diffuse Scale",Config={"Lighting","EnvironmentDiffuseScale","Enabled"}});W.AmbientColors:AddGroup({Source=l}):AddSlider({Label="Diffuse Scale",Min=0,Max=1,Step=0.01,Config={"Lighting","EnvironmentDiffuseScale","Value"}});l=W.AmbientColors:AddToggle({Label="Environment Specular Scale",Config={"Lighting","EnvironmentSpecularScale","Enabled"}});W.AmbientColors:AddGroup({Source=l}):AddSlider({Label="Specular Scale",Min=0,Max=1,Step=0.01,Config={"Lighting","EnvironmentSpecularScale","Value"}});l=W.FogAtmosphere:AddToggle({Label="Fog",Config={"Lighting","Fog","Enabled"}});W.FogAtmosphere:AddColor({Row=l.Row,Config={"Lighting","Fog","Color"},Animatable=true});local N=W.FogAtmosphere:AddGroup({Source=l});N:AddSlider({Label="Fog Start",Min=0,Max=10000,Config={"Lighting","Fog","Start"}});N:AddSlider({Label="Fog End",Min=0,Max=10000,Config={"Lighting","Fog","End"}});I(W.FogAtmosphere);end;end
+local function fn35() tbl17 .aE();return function(l)local W={Master=l:AddSection({Title="Lighting Override",Side="left"}),TimeExposure=l:AddSection({Title="Time & Exposure",Side="left"}),ShadowsQuality=l:AddSection({Title="Shadows & Quality",Side="left"}),AmbientColors=l:AddSection({Title="Ambient Colors",Side="right"}),FogAtmosphere=l:AddSection({Title="Fog & Atmosphere",Side="right"})};W.Master:AddToggle({Label="Enable Lighting Override",Config={"Lighting","Enabled"}});l=W.TimeExposure:AddToggle({Label="Clock Time",Config={"Lighting","ClockTime","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Time",Min=0,Max=24,Step=0.01,Config={"Lighting","ClockTime","Value"}});l=W.TimeExposure:AddToggle({Label="Geographic Latitude",Config={"Lighting","GeographicLatitude","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Latitude",Min=-90,Max=90,Step=0.001,Config={"Lighting","GeographicLatitude","Value"}});l=W.TimeExposure:AddToggle({Label="Brightness",Config={"Lighting","Brightness","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Brightness",Min=0,Max=10,Step=0.01,Config={"Lighting","Brightness","Value"}});l=W.TimeExposure:AddToggle({Label="Exposure Compensation",Config={"Lighting","ExposureCompensation","Enabled"}});W.TimeExposure:AddGroup({Source=l}):AddSlider({Label="Exposure",Min=-5,Max=5,Step=0.01,Config={"Lighting","ExposureCompensation","Value"}});W.ShadowsQuality:AddToggle({Label="Disable Global Shadows",Config={"Lighting","DisableGlobalShadows"}});l=W.ShadowsQuality:AddToggle({Label="Shadow Softness",Config={"Lighting","ShadowSoftness","Enabled"}});W.ShadowsQuality:AddGroup({Source=l}):AddSlider({Label="Softness",Min=0,Max=1,Step=0.01,Config={"Lighting","ShadowSoftness","Value"}});l=W.ShadowsQuality:AddToggle({Label="Lighting Style",Config={"Lighting","LightingStyle","Enabled"}});W.ShadowsQuality:AddGroup({Source=l}):AddDropdown({Label="Style",Options={"Realistic","Soft"},Config={"Lighting","LightingStyle","Value"}});l=W.ShadowsQuality:AddToggle({Label="Shadow Color",Config={"Lighting","ShadowColor","Enabled"}});W.ShadowsQuality:AddColor({Row=l.Row,Config={"Lighting","ShadowColor","Value"},Animatable=true});W.ShadowsQuality:AddToggle({Label="Prioritize Lighting Quality",Config={"Lighting","PrioritizeLightingQuality"}});l=W.AmbientColors:AddToggle({Label="Ambient Colors",Config={"Lighting","Ambient","Enabled"}});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Indoor ambient color.",Config={"Lighting","Ambient","Indoor"},Animatable=true});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Outdoor ambient color.",Config={"Lighting","Ambient","Outdoor"},Animatable=true});l=W.AmbientColors:AddToggle({Label="Color Shift",Config={"Lighting","ColorShift","Enabled"}});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Top color shift.",Config={"Lighting","ColorShift","Top"},Animatable=true});W.AmbientColors:AddColor({Row=l.Row,Tooltip="Bottom color shift.",Config={"Lighting","ColorShift","Bottom"},Animatable=true});l=W.AmbientColors:AddToggle({Label="Environment Diffuse Scale",Config={"Lighting","EnvironmentDiffuseScale","Enabled"}});W.AmbientColors:AddGroup({Source=l}):AddSlider({Label="Diffuse Scale",Min=0,Max=1,Step=0.01,Config={"Lighting","EnvironmentDiffuseScale","Value"}});l=W.AmbientColors:AddToggle({Label="Environment Specular Scale",Config={"Lighting","EnvironmentSpecularScale","Enabled"}});W.AmbientColors:AddGroup({Source=l}):AddSlider({Label="Specular Scale",Min=0,Max=1,Step=0.01,Config={"Lighting","EnvironmentSpecularScale","Value"}});local style = W.FogAtmosphere:AddDropdown({Label="Fog Style",Tooltip="Switch between classic distance fog and volumetric atmosphere.",Options={"Off","Fog","Atmosphere"},Labels={Off="Off",Fog="Fog",Atmosphere="Atmosphere"},Config={"Lighting","FogStyle"}});
+local fogGroup = W.FogAtmosphere:AddGroup({Source=style,Option="Fog"});
+fogGroup:AddColor({Label="Fog Color",Config={"Lighting","Fog","Color"},Animatable=true});
+fogGroup:AddSlider({Label="Fog Start",Min=0,Max=10000,Config={"Lighting","Fog","Start"}});
+fogGroup:AddSlider({Label="Fog End",Min=0,Max=10000,Config={"Lighting","Fog","End"}});
+local atmosphereGroup = W.FogAtmosphere:AddGroup({Source=style,Option="Atmosphere"});
+atmosphereGroup:AddColor({Label="Atmosphere Color",Config={"Atmosphere","Color"},Animatable=true});
+atmosphereGroup:AddColor({Label="Decay Color",Config={"Atmosphere","Decay"},Animatable=true});
+atmosphereGroup:AddSlider({Label="Density",Min=0,Max=1,Step=0.01,Config={"Atmosphere","Density"}});
+atmosphereGroup:AddSlider({Label="Offset",Min=0,Max=1,Step=0.01,Config={"Atmosphere","Offset"}});
+atmosphereGroup:AddSlider({Label="Glare",Min=0,Max=1,Step=0.01,Config={"Atmosphere","Glare"}});
+atmosphereGroup:AddSlider({Label="Haze",Min=0,Max=1,Step=0.01,Config={"Atmosphere","Haze"}});end;end
 
 tbl17.i1 = function()
 local i1 = tbl17.cache.i1
@@ -62131,7 +66486,7 @@ return jb.c
 end
 end
 do
-local function fn35() tbl17 .aE();return function(l)local I=l:AddToggle({Label="Enable Weather",Config={"Weather","Enabled"}});l:AddColor({Row=I.Row,Config={"Weather","Color"},Animatable=true});local W=l:AddGroup({Source=I});W:AddDropdown({Label="Preset",Options={"Snow","Rain","Blizzard"},Config={"Weather","Preset"}});W:AddSlider({Label="Intensity",Min=0,Max=2,Step=0.01,Config={"Weather","Intensity"}});W:AddSlider({Label="Rate",Min=0,Max=3,Step=0.01,Config={"Weather","Rate"}});W:AddSlider({Label="Height",Min=10,Max=100,Config={"Weather","Height"}});W:AddSlider({Label="Speed",Min=0.5,Max=3,Step=0.01,Config={"Weather","Speed"}});W:AddSlider({Label="Glow",Min=0,Max=1,Step=0.01,Config={"Weather","Glow"}});W:AddSlider({Label="Size",Min=0.5,Max=2,Step=0.01,Config={"Weather","Size"}});W:AddSlider({Label="Spread",Min=0,Max=3,Step=0.01,Config={"Weather","Spread"}});W:AddSlider({Label="Wind Strength",Min=0,Max=20,Step=0.1,Config={"Weather","Wind","Strength"}});W:AddSlider({Label="Wind Angle",Min=0,Max=360,Config={"Weather","Wind","Angle"}});end;end
+local function fn35() tbl17 .aE();return function(l)local I=l:AddToggle({Label="Enable Weather",Config={"Weather","Enabled"}});l:AddColor({Row=I.Row,Config={"Weather","Color"},Animatable=true});local W=l:AddGroup({Source=I});W:AddDropdown({Label="Preset",Tooltip="Snow, rain, blizzard, sunlight motes, spring petals, autumn leaves, or rolling fog.",Options={"Snow","Rain","Blizzard","Sunshine","Spring","Autumn","Fog"},Config={"Weather","Preset"}});W:AddSlider({Label="Intensity",Min=0,Max=2,Step=0.01,Config={"Weather","Intensity"}});W:AddSlider({Label="Rate",Min=0,Max=3,Step=0.01,Config={"Weather","Rate"}});W:AddSlider({Label="Height",Min=10,Max=100,Config={"Weather","Height"}});W:AddSlider({Label="Speed",Min=0.5,Max=3,Step=0.01,Config={"Weather","Speed"}});W:AddSlider({Label="Glow",Min=0,Max=1,Step=0.01,Config={"Weather","Glow"}});W:AddSlider({Label="Size",Min=0.5,Max=2,Step=0.01,Config={"Weather","Size"}});W:AddSlider({Label="Spread",Min=0,Max=3,Step=0.01,Config={"Weather","Spread"}});W:AddSlider({Label="Wind Strength",Min=0,Max=20,Step=0.1,Config={"Weather","Wind","Strength"}});W:AddSlider({Label="Wind Angle",Min=0,Max=360,Config={"Weather","Wind","Angle"}});end;end
 
 tbl17.jc = function()
 local jc = tbl17.cache.jc
@@ -62146,7 +66501,7 @@ return jc.c
 end
 end
 do
-local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P= tbl17 .i9(), tbl17 .ja(), tbl17 .jb(), tbl17 .jc();return function(l,a,e)local c,E,p,T=a:AddSection({Title="Skybox",Side="left"}),a:AddSection({Title="Ambient Sound",Side="left"}),a:AddSection({Title="Weather",Side="right"}),a:AddSection({Title="Lightning",Side="right"});N(c,l.Skyboxes,e);I(E);P(p);W(T);end;end
+local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P= tbl17 .i9(), tbl17 .ja(), tbl17 .jb(), tbl17 .jc();return function(l,a,e)local c,E,p,T=a:AddSection({Title="Skybox",Side="left"}),a:AddSection({Title="Ambient Sound",Side="left"}),a:AddSection({Title="Weather",Side="right"}),a:AddSection({Title="Lightning",Side="right"});N(c,l.Skyboxes,e);I(E);P(p);W(T);tbl17.texturePackUI()(a);end;end
 
 tbl17.jd = function()
 local jd = tbl17.cache.jd
@@ -62161,7 +66516,22 @@ return jd.c
 end
 end
 do
-local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P= tbl17 .i1(), tbl17 .i8(), tbl17 .jd(),{World="rbxassetid://125685532120024",Lighting="rbxassetid://139232691165198",PostProcessing="rbxassetid://139684165362622",SkyWeather="rbxassetid://140109651313859"};return function(l,a)local e=a:AddTab({Label="World",Icon=P.World,Description="Lighting, post-processing, sky, and ambient sound."});I((e:AddTab({Label="Lighting",Icon=P.Lighting,Description="Override time, exposure, shadows, ambient light, fog, and atmosphere."}):Grid({Columns=2})));W((e:AddTab({Label="Post Processing",Icon=P.PostProcessing,Description="Tune tone, focus, motion, and light effects."}):Grid({Columns=2})));N(l,e:AddTab({Label="Sky & Weather",Icon=P.SkyWeather,Description="Choose a skybox, ambient sound, weather, and lightning."}):Grid({Columns=2}),a);end;end
+do
+local function fn35() tbl17.aE();return function(l)local W=l:AddSection({Title="Texture Pack",Side="left"});W:AddToggle({Label="Enable Texture Pack",Config={"TexturePack","Enabled"}});W:AddDropdown({Label="Pack",Options={"None","Removals","Shadownaught","Crimvals","Minecraft Classic (night)","DARKMODE V3.5"},Labels={None="None",Removals="Removals (No Textures)"},Config={"TexturePack","Selected"}});end;end
+
+tbl17.texturePackUI = function()
+local texturePackUI = tbl17.cache.texturePackUI
+
+if not texturePackUI then
+texturePackUI = { c = fn35() }
+tbl17.cache.texturePackUI = texturePackUI
+end
+
+return texturePackUI.c
+end
+end
+
+local function fn35() tbl17 .aE(); tbl17 .hN();local I,W,N,P= tbl17 .i1(), tbl17 .i8(), tbl17 .jd(),{World="rbxassetid://125685532120024",Lighting="rbxassetid://139232691165198",PostProcessing="rbxassetid://139684165362622",Game="rbxassetid://10723395457",TexturePack="rbxassetid://10723414677"};return function(l,a)local e=a:AddTab({Label="World",Icon=P.World,Description="Lighting, post-processing, game, and ambient sound."});I((e:AddTab({Label="Lighting",Icon=P.Lighting,Description="Override time, exposure, shadows, ambient light, fog, and atmosphere."}):Grid({Columns=2})));W((e:AddTab({Label="Post Processing",Icon=P.PostProcessing,Description="Tune tone, focus, motion, and light effects."}):Grid({Columns=2})));N(l,e:AddTab({Label="Game",Icon=P.Game,Description="Choose a skybox, ambient sound, weather, and lightning."}):Grid({Columns=2}),a);end;end
 
 tbl17.je = function()
 local je = tbl17.cache.je
@@ -64083,7 +68453,7 @@ else
 n = v118(v120.Position + v119, hitboxHead.Position)
 end
 
-if not arg._shootLock:ShouldFire(arg6, arg2 * ragebot.ShootFrames) then
+if not arg._shootLock:ShouldFire(arg6, arg2 * math.clamp(tonumber(ragebot.ShootFrames) or 1, 1, 50)) then
 local random2 = math.random
 return CFrame.new(math.random(-1000000, 1000000), math.random(5000, 10000), random2(-1000000, 1000000)), nil
 end
@@ -64217,7 +68587,7 @@ arg4:HeavyAttackEncoded(v126, v127, hitboxHead, tbl22)
 end
 end
 
-if not arg._shootLock:ShouldFire(arg5, arg2 * ragebot.ShootFrames) then
+if not arg._shootLock:ShouldFire(arg5, arg2 * math.clamp(tonumber(ragebot.ShootFrames) or 1, 1, 50)) then
 return fn36(), nil, nil
 end
 
@@ -64435,7 +68805,7 @@ end
 local function fn44(arg)
 local projectileBreaker = v115.Data.Ragebot.Evasion.ProjectileBreaker
 local fallbackBaseRadius = projectileBreaker.FallbackBaseRadius
-local n = fallbackBaseRadius + fallbackBaseRadius * projectileBreaker.FallbackRadiusRandomFactor
+local n = fallbackBaseRadius + fallbackBaseRadius * math.clamp(tonumber(projectileBreaker.FallbackRadiusRandomFactor) or 0.5, 0, 500)
 local position = arg.Position
 local v121 = v117(projectileBreaker.FallbackAnchorFromCharacter and position or Vector3.new(v86[186], position.Y, v86[186]), fallbackBaseRadius, n)
 local v122 = v120:NextInteger(v86[63], 3)
@@ -64620,7 +68990,7 @@ local v117 = Random.new()
 return { compute = function(arg)
 local random2 = v115.Data.Ragebot.Evasion.Random
 local baseRadius = random2.BaseRadius
-local n = baseRadius + baseRadius * random2.RadiusRandomFactor
+local n = baseRadius + baseRadius * math.clamp(tonumber(random2.RadiusRandomFactor) or 0.5, 0, 500)
 local position = arg.Position
 local v118 = v116(random2.AnchorFromCharacter and position or Vector3.new(0, position.Y, 0), baseRadius, n)
 local v119 = v117:NextInteger(v86[63], 3)
@@ -64706,7 +69076,7 @@ limitEntryTime = now2
 end
 
 if flag19 then
-if v117.ExpectedDuration - v115.Data.Ragebot.Stability <= now2 - limitEntryTime then
+if v117.ExpectedDuration - math.clamp(tonumber(v115.Data.Ragebot.Stability) or 0, 0, 5) <= now2 - limitEntryTime then
 return false
 end
 end
@@ -65080,14 +69450,13 @@ local cache = { YOffset = 0, LastTeleport = 0 }
 return { compute = function(clientCFrame)
 local now = os.clock()
 local config = v115.Data.Ragebot.Evasion.UEKiller
-local yDist = tonumber(config and config.YDistance) or 100
-local cooldown = tonumber(config and config.Cooldown) or 0.2
+local yDist = math.clamp(tonumber(config and config.YDistance) or 100, 100, 10000000000)
+local cooldown = math.clamp(tonumber(config and config.Cooldown) or 0.2, 0, 1)
 if cache.LastTeleport == 0 then cache.LastTeleport = now cache.YOffset = yDist end
 if now >= cache.LastTeleport + cooldown then
-cache.YOffset += yDist
+cache.YOffset = math.min(cache.YOffset + yDist, 10000000000)
 cache.LastTeleport = now
 end
-if cache.YOffset > 10000000 then cache.YOffset = 10000000 end
 return clientCFrame + Vector3.new(0, cache.YOffset, 0)
 end }
 end
@@ -65220,6 +69589,25 @@ end
 local characterController = innerContext.CharacterController
 local clientCFrame = characterController:GetClientCFrame()
 local mode = v115.Data.Ragebot.Evasion.Mode
+local voidEvasionConfig = v115.Data.Ragebot.VoidEvasion
+
+if mode == "Void" and voidEvasionConfig ~= nil and voidEvasionConfig.AntiTranslocate ~= false then
+local lastSafe = arg._lastSafeCFrame
+
+if arg._voidPhase == "Hide" and lastSafe ~= nil and os.clock() >= (arg._translocateGrace or 0) then
+local distance = (clientCFrame.Position - lastSafe.Position).Magnitude
+
+if distance > 24 then
+clientCFrame = lastSafe
+characterController:SetServerCFrame(lastSafe)
+end
+end
+
+arg._lastSafeCFrame = clientCFrame
+else
+arg._lastSafeCFrame = nil
+end
+
 local v130 = v128.getAction(innerContext)
 
 if mode == "Translocate" and arg._reloadGun == nil and (v130 == nil or v130.Type ~= "Reload") then
@@ -65281,77 +69669,15 @@ end
 end
 end
 
-index2._FindVoidWeapon = function(arg, innerContext, preferred, attackMode, preferProjectile, requireAmmo, exclude)
-local wanted = type(preferred) == "string" and preferred or "Primary"
-wanted = wanted:sub(1, 1):upper() .. wanted:sub(2):lower()
-
-if type(attackMode) == "string" and attackMode:lower() == "melee" then
-wanted = "Melee"
-end
-
-local weapons = v115.Data.Ragebot.Weapons
-local order = { wanted }
-
-if type(weapons) == "table" and type(weapons.Priority) == "table" then
-for _, class in weapons.Priority do
-class = type(class) == "string" and class:sub(1, 1):upper() .. class:sub(2):lower() or class
-
-if class ~= wanted and not table.find(order, class) then
-table.insert(order, class)
-end
-end
-end
-
-for _, class in { "Primary", "Secondary", "Melee" } do
-if not table.find(order, class) then
-table.insert(order, class)
-end
-end
-
-local function classOf(item)
-local index = item.Index
-return index == 1 and "Primary" or index == 2 and "Secondary" or index == 3 and "Melee" or nil
-end
-
-local function usable(item)
-if item == nil or item == exclude then
-return false
-end
-if requireAmmo and item.__type == "Gun" then
-return item:GetAmmo() > 0
-end
-return item.__type == "Gun" or item.__type == "Melee"
-end
-
-for _, class in order do
-local chosen = nil
-local projectile = nil
-
-for _, item in innerContext.ItemBehaviors:GetItems() do
-if classOf(item) == class and usable(item) then
-if item.__type == "Gun" and item.IsRaycast == false then
-projectile = projectile or item
-end
-chosen = chosen or item
-end
-end
-
-if preferProjectile and projectile ~= nil then
-return projectile
-end
-
-if chosen ~= nil then
-return chosen
-end
-end
-
-return nil
-end
-
 index2._BeginVoidPhase = function(arg, phase, endsAt)
 arg._voidPhase = phase
 arg._voidPhaseEndsAt = endsAt
 arg._voidShots = 0
+
+if phase == "Hide" then
+arg._translocateGrace = os.clock() + 0.5
+arg._lastSafeCFrame = nil
+end
 end
 
 index2._PlanVoidEvasion = function(arg, arg2, arg3, arg4, arg5, arg6)
@@ -65417,53 +69743,8 @@ ShouldSkipDefense = true,
 ShouldForceCrouch = false,
 }
 end
-local settings = config.Settings or {}
-local preferProjectile = settings.PreferProjectile ~= false
-local item = arg:_FindVoidWeapon(arg._innerContext, config.PreferredWeapon, config.AttackMode, preferProjectile)
-local action = arg3
-
-local function equipAction(candidate)
-if candidate == nil then
-return nil
-end
-if candidate:IsEquipped() then
-return { Type = "Attack", Item = candidate }
-end
-return { Type = "Swap", Item = candidate }
-end
-
-local function reloadAction(candidate)
-if candidate == nil then
-return nil
-end
-if candidate:IsEquipped() then
-return { Type = "Reload", Item = candidate }
-end
-return { Type = "Swap", Item = candidate }
-end
-
-if item ~= nil then
-if item.__type == "Gun" and item:GetAmmo() <= 0 then
-local fallback = nil
-
-if settings.SwapOnEmpty ~= false then
-fallback = arg:_FindVoidWeapon(arg._innerContext, config.PreferredWeapon, config.AttackMode, preferProjectile, true, item)
-end
-
-if fallback ~= nil then
-action = equipAction(fallback)
-elseif item:GetAmmoReserve() > 0 then
-action = reloadAction(item)
-else
-action = arg3
-end
-else
-action = equipAction(item)
-end
-end
-
-arg._voidAttackActive = action ~= nil and action.Type == "Attack"
-return arg:_Plan(arg2, action, arg4, arg5, arg6, "Off")
+arg._voidAttackActive = arg3 ~= nil and arg3.Type == "Attack"
+return arg:_Plan(arg2, arg3, arg4, arg5, arg6, "Off")
 end
 
 index2._Plan = function(arg, arg2, arg3, arg4, arg5, arg6, arg7)
@@ -65665,6 +69946,8 @@ arg._voidPhase = nil
 arg._voidPhaseEndsAt = nil
 arg._voidShots = 0
 arg._voidAttackActive = false
+arg._lastSafeCFrame = nil
+arg._translocateGrace = nil
 local innerContext = arg._innerContext
 if innerContext == nil then
 return
@@ -68136,6 +72419,2483 @@ end
 end
 do
 local function fn35()
+local v115 = tbl17.bG()
+local index2 = {}
+index2.__index = index2
+
+index2.new = function(arg)
+local trove = tbl17.k().new("anti_aim")
+local tbl18 = {
+_trove = trove,
+_playerContext = arg,
+_innerContext = nil,
+_viewActive = false,
+_nextRandom = 0,
+_lastKey = nil,
+}
+setmetatable(tbl18, index2)
+tbl18:_Initialize()
+return tbl18
+end
+
+index2._Initialize = function(arg)
+arg._trove:Add(arg._playerContext:ObserveContext("anti_aim", function(innerContext)
+arg._innerContext = innerContext
+end))
+
+arg._trove:Connect(arg._playerContext.ContextRemoved, function()
+arg:_Reset()
+arg._innerContext = nil
+end)
+end
+
+index2._ClearViewAngles = function(arg)
+local inner = arg._innerContext
+
+if arg._viewActive then
+if inner ~= nil then
+inner.CharacterController:SendViewAngles(30, nil)
+end
+arg._viewActive = false
+end
+end
+
+index2._Reset = function(arg)
+arg:_ClearViewAngles()
+arg._lastKey = nil
+arg._nextRandom = 0
+end
+
+index2._ResolveAngles = function(arg, config)
+local pitchMode = config.Pitch
+local yawMode = config.Yaw
+local customPitch = tonumber(config.CustomPitch) or 0
+local customYaw = tonumber(config.CustomYaw) or 0
+local currentYaw = 0
+local camera = workspace.CurrentCamera
+
+if camera ~= nil and camera.CFrame ~= nil then
+local look = camera.CFrame.LookVector
+currentYaw = math.deg(math.atan2(-look.X, -look.Z))
+end
+
+local pitch
+local yaw
+
+if pitchMode == "look up" then
+pitch = 89
+elseif pitchMode == "look down" then
+pitch = -89
+elseif pitchMode == "custom" then
+pitch = math.clamp(customPitch, -89, 89)
+elseif pitchMode == "extended custom" then
+pitch = math.clamp(customPitch, -179, 179)
+elseif pitchMode == "extended random" then
+pitch = math.random() * 358 - 179
+else
+pitch = math.random() * 178 - 89
+end
+
+if yawMode == "backwards" then
+yaw = currentYaw + 180
+elseif yawMode == "custom" then
+yaw = currentYaw + math.clamp(customYaw, -180, 180)
+elseif yawMode == "extended custom" then
+yaw = currentYaw + math.clamp(customYaw, -360, 360)
+elseif yawMode == "extended random" then
+yaw = currentYaw + math.random() * 720 - 360
+else
+yaw = currentYaw + math.random() * 360 - 180
+end
+
+return pitch, yaw
+end
+
+index2.Update = function(arg)
+local inner = arg._innerContext
+local config = v115.Data.AntiAim
+
+if inner == nil or config == nil or config.Enabled ~= true then
+arg:_Reset()
+return
+end
+local fighterState = inner.FighterState
+
+if fighterState.EnvironmentId == nil then
+arg:_Reset()
+return
+end
+local character = fighterState.Character
+
+if character == nil then
+arg:_Reset()
+return
+end
+local state = character.State
+
+if not state.Alive then
+arg:_Reset()
+return
+end
+
+local now = os.clock()
+local key = tostring(config.Pitch) .. "|" .. tostring(config.Yaw) .. "|" .. tostring(config.CustomPitch) .. "|" .. tostring(config.CustomYaw)
+local randomMode = config.Pitch == "random" or config.Pitch == "extended random" or config.Yaw == "random" or config.Yaw == "extended random"
+
+if arg._viewActive and not randomMode and arg._lastKey == key then
+return
+end
+if randomMode and now < arg._nextRandom then
+return
+end
+
+arg._nextRandom = now + 0.05
+arg._lastKey = key
+
+local pitch, yaw = arg:_ResolveAngles(config)
+
+inner.CharacterController:SendViewAngles(30, { Kind = "Normalized", Pitch = pitch, Yaw = yaw })
+
+arg._viewActive = true
+end
+
+index2.Destroy = function(arg)
+arg:_Reset()
+arg._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.antiAim = function()
+local antiAim = tbl17.cache.antiAim
+
+if not antiAim then
+antiAim = { c = fn35() }
+tbl17.cache.antiAim = antiAim
+end
+
+return antiAim.c
+end
+end
+
+do
+local function fn35()
+local v115 = tbl17.bG()
+local runService = game:GetService("RunService")
+local localPlayer = cloneref(game:GetService("Players")).LocalPlayer
+local auraAssets = {
+starlight = "rbxassetid://134645216613107",
+heavenly = "rbxassetid://139300897520961",
+ribbon = "rbxassetid://132069507632161",
+sakura = "rbxassetid://81755778619404",
+angel = "rbxassetid://97658130917593",
+wind = "rbxassetid://80694081850877",
+flow = "rbxassetid://119913533725648",
+star = "rbxassetid://73754563740680",
+}
+local auraNames = { "starlight", "heavenly", "ribbon", "sakura", "angel", "wind", "flow", "star" }
+local rigPartNames = {
+Head = { R15 = "Head", R6 = "Head" },
+HumanoidRootPart = { R15 = "HumanoidRootPart", R6 = "HumanoidRootPart" },
+UpperTorso = { R15 = "UpperTorso", R6 = "Torso" },
+LeftUpperArm = { R15 = "LeftUpperArm", R6 = "Left Arm" },
+RightUpperArm = { R15 = "RightUpperArm", R6 = "Right Arm" },
+LeftUpperLeg = { R15 = "LeftUpperLeg", R6 = "Left Leg" },
+RightUpperLeg = { R15 = "RightUpperLeg", R6 = "Right Leg" },
+["Right Leg"] = { R15 = "RightUpperLeg", R6 = "Right Leg" },
+}
+
+local function recolorEffect(effect, color, colorSequence)
+if effect:IsA("ParticleEmitter") or effect:IsA("Beam") or effect:IsA("Trail") then
+effect.Color = colorSequence
+elseif effect:IsA("Light") then
+effect.Color = color
+end
+end
+
+local index2 = {}
+index2.__index = index2
+
+index2.new = function()
+local trove = tbl17.k().new("character_aura")
+local tbl18 = {
+_trove = trove,
+_applied = {},
+_effects = {},
+_head = nil,
+_hidden = false,
+_templates = {},
+_generation = 0,
+_destroyed = false,
+}
+setmetatable(tbl18, index2)
+tbl18:_Initialize()
+return tbl18
+end
+
+index2._Initialize = function(arg)
+local function refresh()
+if not arg._destroyed then
+arg:Refresh()
+end
+end
+
+for _, path in { { "Aura", "Enabled" }, { "Aura", "Selected" }, { "Aura", "ColorOverride", "Enabled" }, { "Aura", "ColorOverride", "Color" } } do
+arg._trove:Connect(v115:GetPropertyChangedSignal(path), refresh)
+end
+
+arg._trove:Connect(runService.PreRender, function()
+if not arg._destroyed and next(arg._effects) then
+arg:UpdateVisibility()
+end
+end)
+
+arg._trove:Connect(localPlayer.CharacterAdded, function()
+arg:Refresh()
+end)
+
+arg._trove:Connect(localPlayer.CharacterRemoving, function(character)
+arg._generation = arg._generation + 1
+arg._head = nil
+arg:ClearApplied()
+arg:ClearCharacter(character)
+end)
+
+local aura = v115.Data.Aura
+if aura ~= nil and aura.Enabled == true then
+arg:Refresh()
+end
+end
+
+index2.TrackVisibility = function(arg, effect)
+if effect:IsA("ParticleEmitter") or effect:IsA("Beam") or effect:IsA("Trail") or effect:IsA("Light") then
+arg._effects[effect] = effect.Enabled
+
+if arg._hidden then
+effect.Enabled = false
+
+if effect:IsA("ParticleEmitter") or effect:IsA("Trail") then
+effect:Clear()
+end
+end
+end
+end
+
+index2.UpdateVisibility = function(arg)
+local camera = workspace.CurrentCamera
+local head = arg._head
+local hidden = camera ~= nil and head ~= nil and head.Parent ~= nil and (camera.CFrame.Position - head.Position).Magnitude < 1.5
+if hidden == arg._hidden then
+return
+end
+arg._hidden = hidden
+
+for effect, wasEnabled in arg._effects do
+if effect.Parent then
+wasEnabled = not hidden and wasEnabled
+effect.Enabled = wasEnabled
+
+if hidden and (effect:IsA("ParticleEmitter") or effect:IsA("Trail")) then
+effect:Clear()
+end
+end
+end
+end
+
+index2.ClearApplied = function(arg)
+for _, instance in arg._applied do
+instance:Destroy()
+end
+
+table.clear(arg._applied)
+table.clear(arg._effects)
+end
+
+index2.ClearCharacter = function(arg, character)
+if not character then
+return
+end
+
+for _, instance in character:GetDescendants() do
+if instance:GetAttribute("KiciaCharacterAura") == true then
+instance:Destroy()
+end
+end
+end
+
+index2.ApplyColor = function(arg, root, color, colorSequence)
+recolorEffect(root, color, colorSequence)
+
+for _, descendant in root:GetDescendants() do
+recolorEffect(descendant, color, colorSequence)
+end
+end
+
+index2.GetTemplate = function(arg, auraName)
+local cached = arg._templates[auraName]
+if cached then
+return cached
+end
+local assetId = auraAssets[auraName]
+if not assetId then
+return nil
+end
+local ok, result = pcall(game.GetObjects, game, assetId)
+
+if not ok or type(result) ~= "table" then
+warn(("Failed to load character aura %s: %s"):format(auraName, tostring(result)))
+return nil
+end
+
+local model = result[1]
+
+for i = 2, #result do
+local extra = result[i]
+
+if typeof(extra) == "Instance" then
+extra:Destroy()
+end
+end
+
+if typeof(model) ~= "Instance" then
+warn(("%s%s returned no usable model"):format("Character aura ", auraName))
+return nil
+end
+
+model.Archivable = true
+
+for _, script_ in model:QueryDescendants("BaseScript, ModuleScript") do
+script_:Destroy()
+end
+
+for _, descendant in model:GetDescendants() do
+descendant.Archivable = true
+end
+
+if arg._destroyed then
+model:Destroy()
+return nil
+end
+local existing = arg._templates[auraName]
+if existing then
+model:Destroy()
+return existing
+end
+arg._templates[auraName] = model
+return model
+end
+
+index2.GetTargetPart = function(arg, character, humanoid, partName)
+local rigNames = rigPartNames[partName]
+
+if rigNames then
+partName = humanoid.RigType == Enum.HumanoidRigType.R6 and rigNames.R6 or rigNames.R15
+end
+
+local part = character:FindFirstChild(partName) or character:WaitForChild(partName, 5)
+return part and part:IsA("BasePart") and part or nil
+end
+
+index2.Apply = function(arg, template, character, humanoid, generation)
+local ok, result = pcall(function()
+return template:Clone()
+end)
+
+if not ok or not result then
+warn("Failed to clone the selected character aura")
+return
+end
+local attached = {}
+local colorOverride = v115.Data.Aura.ColorOverride
+local colorSequence = colorOverride ~= nil and colorOverride.Enabled and ColorSequence.new(colorOverride.Color) or nil
+
+for _, child in result:GetChildren() do
+if not child:IsA("BasePart") then
+continue
+end
+local targetPart = arg:GetTargetPart(character, humanoid, child.Name)
+
+if arg._destroyed or arg._generation ~= generation or character ~= localPlayer.Character then
+for _, instance in attached do
+instance:Destroy()
+end
+
+result:Destroy()
+return
+end
+
+if targetPart then
+arg:UpdateVisibility()
+
+for _, effect in child:GetChildren() do
+effect:SetAttribute("KiciaCharacterAura", true)
+effect.Archivable = false
+arg:TrackVisibility(effect)
+
+for _, descendant in effect:GetDescendants() do
+arg:TrackVisibility(descendant)
+end
+
+effect.Parent = targetPart
+
+if colorSequence then
+arg:ApplyColor(effect, colorOverride.Color, colorSequence)
+end
+
+table.insert(attached, effect)
+end
+end
+end
+
+result:Destroy()
+
+if arg._destroyed or arg._generation ~= generation or character ~= localPlayer.Character then
+for _, instance in attached do
+instance:Destroy()
+end
+
+return
+end
+
+for _, instance in attached do
+table.insert(arg._applied, instance)
+end
+end
+
+index2.Refresh = function(arg)
+arg._generation = arg._generation + 1
+local generation = arg._generation
+local aura = v115.Data.Aura
+local character = localPlayer.Character
+arg._head = character and character:FindFirstChild("Head")
+arg:UpdateVisibility()
+local selectedSet = {}
+local selected = aura and aura.Selected
+
+if type(selected) == "string" then
+selectedSet[selected] = true
+elseif type(selected) == "table" then
+for k, value in selected do
+local isIndex = type(k) == "number"
+local isListEntry
+
+if isIndex then
+isListEntry = type(value) == "string"
+else
+isListEntry = isIndex
+end
+
+if isListEntry then
+selectedSet[value] = true
+elseif type(k) == "string" and value == true then
+selectedSet[k] = true
+end
+end
+end
+
+local anySelected = false
+
+for _, auraName in auraNames do
+if selectedSet[auraName] then
+anySelected = true
+break
+end
+end
+
+arg:ClearApplied()
+arg:ClearCharacter(character)
+if arg._destroyed or aura == nil or not aura.Enabled or not character or not anySelected then
+return
+end
+
+task.spawn(function()
+local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 10)
+if not humanoid or arg._destroyed or arg._generation ~= generation or character ~= localPlayer.Character then
+return
+end
+arg._head = character:FindFirstChild("Head") or character:WaitForChild("Head", 10)
+arg:UpdateVisibility()
+
+for _, auraName in auraNames do
+if not selectedSet[auraName] then
+continue
+end
+local template = arg:GetTemplate(auraName)
+if arg._destroyed or arg._generation ~= generation or character ~= localPlayer.Character then
+return
+end
+
+if template then
+arg:Apply(template, character, humanoid, generation)
+end
+end
+end)
+end
+
+index2.Destroy = function(arg)
+arg._destroyed = true
+arg._generation = arg._generation + 1
+arg:ClearApplied()
+arg:ClearCharacter(localPlayer.Character)
+
+for k, template in arg._templates do
+template:Destroy()
+arg._templates[k] = nil
+end
+
+arg._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.characterAura = function()
+local characterAura = tbl17.cache.characterAura
+
+if not characterAura then
+characterAura = { c = fn35() }
+tbl17.cache.characterAura = characterAura
+end
+
+return characterAura.c
+end
+end
+
+do
+local function fn35()
+local v115 = tbl17.bG()
+local workspace_ = game:GetService("Workspace")
+local index2 = {}
+index2.__index = index2
+
+index2.new = function()
+local trove = tbl17.k().new("texture_pack")
+local tbl18 = {
+_trove = trove,
+_enabled = false,
+_original = {},
+_connection = nil,
+_generation = 0,
+_destroyed = false,
+}
+setmetatable(tbl18, index2)
+tbl18:_Initialize()
+return tbl18
+end
+
+index2._Initialize = function(arg)
+local function refresh()
+if not arg._destroyed then
+arg:_Refresh()
+end
+end
+
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "TexturePack", "Enabled" }), refresh)
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "TexturePack", "Selected" }), refresh)
+arg:_Refresh()
+end
+
+index2.Apply = function(arg, instance)
+if arg._original[instance] then
+return
+end
+
+if instance:IsA("BasePart") then
+local original = { Kind = "BasePart", Material = instance.Material, MaterialVariant = instance.MaterialVariant }
+
+if instance:IsA("MeshPart") then
+original.TextureID = instance.TextureID
+end
+
+arg._original[instance] = original
+instance.Material = Enum.Material.SmoothPlastic
+instance.MaterialVariant = ""
+
+if instance:IsA("MeshPart") then
+instance.TextureID = ""
+end
+elseif instance:IsA("Decal") or instance:IsA("Texture") then
+arg._original[instance] = { Kind = "Texture", Transparency = instance.Transparency }
+instance.Transparency = 1
+elseif instance:IsA("SpecialMesh") then
+arg._original[instance] = { Kind = "SpecialMesh", TextureId = instance.TextureId }
+instance.TextureId = ""
+elseif instance:IsA("SurfaceAppearance") then
+arg._original[instance] = { Kind = "SurfaceAppearance", Parent = instance.Parent }
+instance.Parent = nil
+end
+end
+
+index2.Restore = function(arg)
+arg._enabled = false
+arg._generation = arg._generation + 1
+
+if arg._connection then
+arg._connection:Disconnect()
+arg._connection = nil
+end
+
+for instance, original in arg._original do
+if original.Kind == "SurfaceAppearance" then
+if original.Parent and original.Parent.Parent then
+instance.Parent = original.Parent
+end
+elseif instance.Parent then
+if original.Kind == "BasePart" then
+instance.Material = original.Material
+instance.MaterialVariant = original.MaterialVariant
+
+if original.TextureID ~= nil and instance:IsA("MeshPart") then
+instance.TextureID = original.TextureID
+end
+elseif original.Kind == "Texture" then
+instance.Transparency = original.Transparency
+elseif original.Kind == "SpecialMesh" then
+instance.TextureId = original.TextureId
+end
+end
+end
+
+table.clear(arg._original)
+end
+
+index2.SetEnabled = function(arg, enabled)
+if arg._enabled == enabled then
+return
+end
+
+arg._enabled = enabled
+
+if not enabled then
+arg:Restore()
+return
+end
+
+local generation = arg._generation
+
+arg._connection = workspace_.DescendantAdded:Connect(function(descendant)
+task.defer(function()
+if arg._enabled and arg._generation == generation and descendant:IsDescendantOf(workspace_) then
+arg:Apply(descendant)
+end
+end)
+end)
+
+for _, descendant in workspace_:GetDescendants() do
+arg:Apply(descendant)
+end
+end
+
+index2._Refresh = function(arg)
+local config = v115.Data.TexturePack
+local active = config ~= nil and config.Enabled == true and config.Selected == "Removals"
+arg:SetEnabled(active == true)
+end
+
+index2.Destroy = function(arg)
+arg._destroyed = true
+arg:Restore()
+arg._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.texturePack = function()
+local texturePack = tbl17.cache.texturePack
+
+if not texturePack then
+texturePack = { c = fn35() }
+tbl17.cache.texturePack = texturePack
+end
+
+return texturePack.c
+end
+end
+
+do
+local function fn35()
+local v115 = tbl17.bG()
+local ASSET_ROOT = "kiciarebuild/assets/texturepacks"
+local packRules = {
+				["DARKMODE V3.5"] = game:GetService("HttpService"):JSONDecode("{\"replacement_rules\":[{\"name\":\"Sata Andagi Kill\",\"replace_ids\":[16530229616,16530229541,16530229695],\"mode\":\"id\",\"enabled\":true,\"with_id\":8941612531},{\"name\":\"Rust Headshot\",\"replace_ids\":[16537337310,16537449730],\"mode\":\"id\",\"enabled\":true,\"with_id\":5043539486},{\"name\":\"Hurt Overlay\",\"replace_ids\":[14824981435],\"mode\":\"id\",\"enabled\":true,\"with_id\":105196404606598},{\"name\":\"~ Misc Toggles ~\",\"replace_ids\":[101],\"mode\":\"id\",\"enabled\":false},{\"name\":\"No Arms\",\"replace_ids\":[12307734932,12307583853],\"mode\":\"id\",\"enabled\":false},{\"name\":\"No Ar\",\"replace_ids\":[12613284249,12613283569,12613284036,14652718299,12613283355,12613284529,12613284768],\"mode\":\"id\",\"enabled\":false},{\"name\":\"No Handgun\",\"replace_ids\":[12613247736,12613247490,12613248534,12613247082,12613246882,12613247957,13189734130,12613248221,12613248825],\"mode\":\"id\",\"enabled\":false},{\"name\":\"No ADS Blur\",\"replace_ids\":[14824249410],\"mode\":\"id\",\"enabled\":false},{\"name\":\"no arms\",\"replace_ids\":[12307734932,12307583853],\"mode\":\"id\",\"enabled\":true,\"MeshHide\":true},{\"name\":\"crystal duel timer 10\",\"replace_ids\":[17826470563],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://66mods-assets.pages.dev/repos/66buncer/magic-redux-66mods/sounds/timer10_crystal.ogg\"},{\"name\":\"DARK ARENA MODE\",\"replace_ids\":[7658055825],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://66mods-assets.pages.dev/repos/66buncer/magic-redux-66mods/visuals/backgrounds/arena_worldcup_transparent.png\"},{\"name\":\"trap the skybox\",\"replace_ids\":[2108482005,14147881792,135908632589654,84214501374682,10196550937,12261809766,2108545280,10196550667,14147882149,103020541883227,89972436184102,12261813110,14147883091,135908632589654,84214501374682,2108482395,12261809766,10196550128,14147882405,135908632589654,84214501374682,2108482542,12261809766,10196549902,14147881297,72960281658487,92138082970751,2108482676,10196567794,12261813678,14147882761,12261809766,135908632589654,84214501374682,10196550367,2108482231],\"mode\":\"id\",\"enabled\":true,\"with_id\":7658055825},{\"name\":\"Sudden death among us sound\",\"replace_ids\":[17467242617],\"mode\":\"id\",\"enabled\":true,\"with_id\":7361207035},{\"name\":\"replace the nosniy logo g with an emoticon :)\",\"replace_ids\":[13854780213],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/prism658/Resources-fleasion/main/logo.png\"},{\"name\":\"Pop click sounds\",\"replace_ids\":[177266782],\"mode\":\"id\",\"enabled\":true,\"with_id\":140323850218372},{\"name\":\"ARENA STYLED MAP\",\"replace_ids\":[108088064658436],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/TexPackSearcher/verbose-meme/main/ChatGPT%20Image%20Aug%2026,%202026,%2008_18_28%20PM.png\"},{\"name\":\"change music\",\"replace_ids\":[17697682466,17733314783],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/prism658/undertale-txtpack/main/Hotel.mp3\"},{\"name\":\"change win to undertale\",\"replace_ids\":[16810041280],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/prism658/undertale-txtpack/main/mus_sfx_abreak.wav\"},{\"name\":\"Font\",\"replace_ids\":[12187323909,12187323909,12187320363,12187354260,12187342816,12187280273,12187303601,12187262242,12187288714,12187341500,12187271237,12187341020],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/TexPackSearcher/automatic-system/main/Impostograph-Regular.ttf?utm_source=chatgpt.com\"},{\"name\":\"Troll face  thingy\",\"replace_ids\":[16802957270],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/TexPackSearcher/my-imageAH/main/bb557018-88c8-4829-a279-7e757570e6ff.png\"},{\"name\":\"Load in sound\",\"replace_ids\":[6384899588],\"mode\":\"id\",\"enabled\":true,\"with_id\":7460825623},{\"name\":\"replace lobby music with tetrio\",\"replace_ids\":[17697682466,17733314783],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/prism658/Resources-fleasion/main/kuchu-toshi.mp3\"},{\"name\":\"Base Sniper Scope Tweak\",\"replace_ids\":[113013756611661,112167651394598],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Better Scopes\",\"replace_ids\":[128819262942122,13466088854,13466076605],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Pop click sounds\",\"replace_ids\":[177266782],\"mode\":\"id\",\"enabled\":true,\"with_id\":140323850218372}],\"AllowPartial\":true}"),
+				Shadownaught = game:GetService("HttpService"):JSONDecode("{\"replacement_rules\":[{\"name\":\"Ui click sounds\",\"replace_ids\":[177266782],\"mode\":\"id\",\"enabled\":true,\"with_id\":107344784680901},{\"name\":\"Font\",\"replace_ids\":[12187323909,12187323909,12187320363,12187354260,12187342816,12187280273,12187303601,12187262242,12187288714,12187341500,12187271237,12187341020],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/ShadowNaught/glowing-chainsaw/raw/refs/heads/main/Simple-Regular.ttf\"},{\"name\":\"SkyBk\",\"replace_ids\":[2108482005,14147881792,135908632589654,84214501374682,10196550937,12261809766],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/YuriAlwaysOnRL/LegoPack/main/skybk.png\"},{\"name\":\"SkyDn\",\"replace_ids\":[2108545280,10196550667,14147882149,103020541883227,89972436184102,12261813110],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/YuriAlwaysOnRL/LegoPack/main/skydn.png\"},{\"name\":\"SkyFt\",\"replace_ids\":[14147882761,12261809766,135908632589654,84214501374682,10196550367,2108482231],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/YuriAlwaysOnRL/LegoPack/main/skyft.png\"},{\"name\":\"SkyLf\",\"replace_ids\":[14147883091,135908632589654,84214501374682,2108482395,12261809766,10196550128],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/YuriAlwaysOnRL/LegoPack/main/skylf.png\"},{\"name\":\"SkyRt\",\"replace_ids\":[14147882405,135908632589654,84214501374682,2108482542,12261809766,10196549902],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/YuriAlwaysOnRL/LegoPack/main/skyrt.png\"},{\"name\":\"SkyUp\",\"replace_ids\":[14147881297,72960281658487,92138082970751,2108482676,10196567794,12261813678],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/YuriAlwaysOnRL/LegoPack/main/skyup.png\"},{\"name\":\"remove load into rivals sound\",\"replace_ids\":[6384899588],\"mode\":\"id\",\"enabled\":true},{\"name\":\"arena2.0\",\"replace_ids\":[7658055825],\"mode\":\"id\",\"enabled\":true,\"with_id\":6372755229}]}"),
+				["Minecraft Classic (night)"] = game:GetService("HttpService"):JSONDecode("{\"replacement_rules\":[{\"name\":\"heal sfx -> levelup\",\"replace_ids\":[17138490999],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/levelup.ogg\"},{\"name\":\"map select -> click\",\"replace_ids\":[103035811146294],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/click.ogg\"},{\"name\":\"win -> villager yes\",\"replace_ids\":[16810041280],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/villager/yes1.ogg\"},{\"name\":\"lose -> villager no\",\"replace_ids\":[16810321565],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/villager/no1.ogg\"},{\"name\":\"d jump -> dragon wings\",\"replace_ids\":[16770456156,16492958314],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/enderdragon/wings1.ogg\"},{\"name\":\"all heads -> orb pickup\",\"replace_ids\":[16537337310,16537449730],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/orb.ogg\"},{\"name\":\"countdown -> note pling\",\"replace_ids\":[17826470563],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/note/pling.ogg\"},{\"name\":\"headshot -> silverfish kill sfx\",\"replace_ids\":[15109829804],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/headshot_silverfish_kill.ogg\"},{\"name\":\"item background 1 -> mc slot grey\",\"replace_ids\":[13220167337],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/item_slot_1_grey.png\"},{\"name\":\"item background 2 -> mc slot red\",\"replace_ids\":[13188242420],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/item_slot_2_red.png\"},{\"name\":\"item background 3 -> mc slot blue\",\"replace_ids\":[13220167472],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/item_slot_3_blue.png\"},{\"name\":\"item background 4 -> mc slot green\",\"replace_ids\":[13188153054],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/item_slot_4_green.png\"},{\"name\":\"item background 5 -> mc slot gold\",\"replace_ids\":[13188242287],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/item_slot_5_gold.png\"},{\"name\":\"arena -> buld\",\"replace_ids\":[7658055825],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/item_slot_3_blue_hollow.png\"},{\"name\":\"win theme -> chirp\",\"replace_ids\":[18221725850,18239670056,18221725850,18221726246],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/records/chirp.ogg\"},{\"name\":\"lose -> zombie say\",\"replace_ids\":[18239670367],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/zombie/say1.ogg\"},{\"name\":\"logo -> welcome\",\"replace_ids\":[17803962335],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/welcome.png\"},{\"name\":\"lvl icon -> lvl_eye\",\"replace_ids\":[81461991645938],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/lvl_eye_new.png\"},{\"name\":\"gamemode end -> ender eye\",\"replace_ids\":[99135525400251],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/ender_eye.png\"},{\"name\":\"matchpoint -> anvil land\",\"replace_ids\":[17026600996],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/anvil_land.ogg\"},{\"name\":\"kill1 -> zombie hurt\",\"replace_ids\":[16530229616],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/kill1_zombie_hurt.ogg\"},{\"name\":\"kill2 -> skeleton death\",\"replace_ids\":[16530229541],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/kill2_ghast_death.ogg\"},{\"name\":\"kill3 -> explode\",\"replace_ids\":[16530229695],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/kill3_wither_death.ogg\"},{\"name\":\"chickn -> chicken texture\",\"replace_ids\":[133917828562858],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/egg.png\"},{\"name\":\"SBK -> mc night sky moon/stars\",\"replace_ids\":[2108482005,14147881792,135908632589654,84214501374682,10196550937,12261809766],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sky_side_stars.png\",\"Property\":\"SkyboxBk\"},{\"name\":\"SDN -> mc night sky moon/stars\",\"replace_ids\":[2108545280,10196550667,14147882149,103020541883227,89972436184102,12261813110],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sky_down_dark.png\",\"Property\":\"SkyboxDn\"},{\"name\":\"SLF -> mc night sky moon/stars\",\"replace_ids\":[14147883091,135908632589654,84214501374682,2108482395,12261809766,10196550128],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sky_side_stars.png\",\"Property\":\"SkyboxLf\"},{\"name\":\"SRT -> mc night sky moon/stars\",\"replace_ids\":[14147882405,135908632589654,84214501374682,2108482542,12261809766,10196549902],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sky_side_stars.png\",\"Property\":\"SkyboxRt\"},{\"name\":\"SUP -> mc night sky moon/stars\",\"replace_ids\":[14147881297,72960281658487,92138082970751,2108482676,10196567794,12261813678],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sky_up_moon.png\",\"Property\":\"SkyboxUp\"},{\"name\":\"SFT -> mc night sky moon/stars\",\"replace_ids\":[14147882761,12261809766,135908632589654,84214501374682,10196550367,2108482231],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sky_side_stars.png\",\"Property\":\"SkyboxFt\"},{\"name\":\"remove ambience on maps\",\"replace_ids\":[17813065011,17813065464,12099785239],\"mode\":\"id\",\"enabled\":true},{\"name\":\"arch (top) -> archnemesis\",\"replace_ids\":[133793956251748],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/arch.png\"},{\"name\":\"nem (top standard) -> nemesis\",\"replace_ids\":[116941545385923],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/nem.png\"},{\"name\":\"bronze -> wood sword\",\"replace_ids\":[106623367501544,131795064007344,73543520622815],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/bronze3.png\"},{\"name\":\"silver 1 -> stone sword\",\"replace_ids\":[80716950169934],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/silver1.png\"},{\"name\":\"silver 2 -> stone sword\",\"replace_ids\":[136100661820261],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/silver2.png\"},{\"name\":\"silver 3 -> stone sword\",\"replace_ids\":[107898816876115],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/silver3.png\"},{\"name\":\"gold 1 -> iron sword\",\"replace_ids\":[134520747948636],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/gold1.png\"},{\"name\":\"gold 2 -> iron sword\",\"replace_ids\":[114166096331502],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/gold2.png\"},{\"name\":\"gold 3 -> iron sword\",\"replace_ids\":[90039594400813],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/gold3.png\"},{\"name\":\"plat 1 -> platinum1\",\"replace_ids\":[133903971285645],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/platinum1.png\"},{\"name\":\"plat 2 -> platinum2\",\"replace_ids\":[82834564754747],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/platinum2.png\"},{\"name\":\"plat 3 -> platinum3\",\"replace_ids\":[73345783863790],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/platinum3.png\"},{\"name\":\"diam 1 -> diamond\",\"replace_ids\":[113997689031026],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/diamond.png\"},{\"name\":\"diam 2 -> diamond2\",\"replace_ids\":[88059506918419],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/diamond2.png\"},{\"name\":\"diam 3 -> diamond3\",\"replace_ids\":[112183171942172],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/diamond3.png\"},{\"name\":\"o1 -> emerald\",\"replace_ids\":[104871954739030],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/onyx1.png\"},{\"name\":\"o2 -> ender eye\",\"replace_ids\":[109012386782238],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/onyx2.png\"},{\"name\":\"o3 -> nether star\",\"replace_ids\":[127982903682334],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/onyx3.png\"},{\"name\":\"streak icon -> blaze powder\",\"replace_ids\":[17175092502,17094014569],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/blaze_powder.png\"},{\"name\":\"self snitching -> note pling\",\"replace_ids\":[99115398611290],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/note/pling.ogg\"},{\"name\":\"ding -> chicken say\",\"replace_ids\":[8483887957],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/chicken/say1.ogg\"},{\"name\":\"intro theme -> menu music\",\"replace_ids\":[6384899588],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/music/menu/menu1.ogg\"},{\"name\":\"incubatron -> egg texture\",\"replace_ids\":[121503061771505],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/egg.png\"},{\"name\":\"rank change -> anvil land\",\"replace_ids\":[70643163489676],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/anvil_land.ogg\"},{\"name\":\"demote -> anvil break\",\"replace_ids\":[91547731028928],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/demote_anvil_break.ogg\"},{\"name\":\"promote -> levelup\",\"replace_ids\":[138975587469438],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/levelup.ogg\"},{\"name\":\"remove the n\",\"replace_ids\":[13854780042],\"mode\":\"id\",\"enabled\":true},{\"name\":\"logo g -> logorivals\",\"replace_ids\":[13854780213],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/logorivals.png\"},{\"name\":\"lobby music -> menu music\",\"replace_ids\":[17697682466,17733314783],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/music/menu/menu2.ogg\"},{\"name\":\"remove map pattern\",\"replace_ids\":[136887158756561],\"mode\":\"id\",\"enabled\":true},{\"name\":\"click -> wood click\",\"replace_ids\":[177266782],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/wood_click.ogg\"},{\"name\":\"matchmaking -> note bd\",\"replace_ids\":[18525513345],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/note/bd.ogg\"},{\"name\":\"elim icon -> diamond sword\",\"replace_ids\":[16802957270],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/bone.png\"},{\"name\":\"hitmarker -> successful hit\",\"replace_ids\":[13110130082],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/successful_hit.ogg\"},{\"name\":\"sudden death -> enderdragon growl\",\"replace_ids\":[17467242617],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/enderdragon/growl1.ogg\"},{\"name\":\"elim -> zombie death\",\"replace_ids\":[17016581922],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/zombie/death.ogg\"},{\"name\":\"molotov idle -> fire loop\",\"replace_ids\":[14812965418],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/molotov_idle_fire.ogg\"},{\"name\":\"molotov impact -> fire ignite\",\"replace_ids\":[14812827622],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/molotov_ignite.ogg\"},{\"name\":\"rpg explosion -> tnt explode\",\"replace_ids\":[13455969017],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/rpg_explosion.ogg\"},{\"name\":\"molotov extinguish -> fizz\",\"replace_ids\":[16812389263],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/molotov_extinguish_fizz.ogg\"},{\"name\":\"portal ambience -> portal loop\",\"replace_ids\":[114274252176516],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/portal_ambience.ogg\"},{\"name\":\"portal exit -> portal travel\",\"replace_ids\":[81610952487049],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/portal_exit.ogg\"},{\"name\":\"queue countdown -> note pling\",\"replace_ids\":[17259538274],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/note/pling.ogg\"},{\"name\":\"reward notification -> pop\",\"replace_ids\":[17769583566],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/pop.ogg\"},{\"name\":\"gameresult reveal -> wither spawn\",\"replace_ids\":[18221897857],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/wither/spawn.ogg\"},{\"name\":\"equipment whoosh -> bow draw\",\"replace_ids\":[106551800007995],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/random/bow.ogg\"},{\"name\":\"oob warning -> enderman idle\",\"replace_ids\":[114467311328776],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.8/assets/minecraft/sounds/mob/endermen/idle1.ogg\"},{\"name\":\"fists attack -> player swing strong\",\"replace_ids\":[13160401062],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.16.5/assets/minecraft/sounds/entity/player/attack/strong1.ogg\"},{\"name\":\"hp icon -> minecraft heart\",\"replace_ids\":[8276600102],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/heart_hp.png\"},{\"name\":\"killfeed headshot -> skull\",\"replace_ids\":[126928245743331],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/killfeed_headshot_skull.png\"},{\"name\":\"damage indicator -> red arrow\",\"replace_ids\":[13853836511],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/damage_indicator_arrow.png\"},{\"name\":\"smoke1 -> mc smoke particle\",\"replace_ids\":[16919463811],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/smoke_particle.png\"},{\"name\":\"sparkle -> mc sparkle particle\",\"replace_ids\":[13482969632],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/sparkle_particle.png\"},{\"name\":\"tex fire06 -> mc fire particle\",\"replace_ids\":[14200300110],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/fire_particle.png\"},{\"name\":\"map preview Arena -> minecraft cave arena\",\"replace_ids\":[108088064658436],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/arenamine.png\"},{\"name\":\"x icon -> red x\",\"replace_ids\":[17838290166],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_x.png\"},{\"name\":\"close icon -> red x\",\"replace_ids\":[17619444538],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_x.png\"},{\"name\":\"x icon2 -> red x\",\"replace_ids\":[108220438104376],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_x.png\"},{\"name\":\"plus icon -> green plus\",\"replace_ids\":[17838317115],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_plus.png\"},{\"name\":\"back icon -> arrow left\",\"replace_ids\":[17562685319],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_back_arrow.png\"},{\"name\":\"next icon -> arrow right\",\"replace_ids\":[113844621753627],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_next_arrow.png\"},{\"name\":\"lock icon -> padlock\",\"replace_ids\":[17229230506],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_lock.png\"},{\"name\":\"key icon -> gold key\",\"replace_ids\":[18175187129],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_key.png\"},{\"name\":\"key icon2 -> gold key\",\"replace_ids\":[17495953455],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_key.png\"},{\"name\":\"exit icon -> iron door\",\"replace_ids\":[17498605048],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_exit_door.png\"},{\"name\":\"setting icon -> gear\",\"replace_ids\":[14641612286],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_gear_settings.png\"},{\"name\":\"cog icon -> gear\",\"replace_ids\":[17619445191],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_gear_settings.png\"},{\"name\":\"save icon -> chest\",\"replace_ids\":[13733474711],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_chest_save.png\"},{\"name\":\"region icon -> map\",\"replace_ids\":[135846354277966],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_region_map.png\"},{\"name\":\"servers icon -> beacon\",\"replace_ids\":[12343093905],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_servers_beacon.png\"},{\"name\":\"trophy icon -> gold trophy\",\"replace_ids\":[17175095665],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_trophy.png\"},{\"name\":\"leaderboard eliminations -> diamond sword\",\"replace_ids\":[17736782213],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_leaderboard_sword.png\"},{\"name\":\"rarity icon -> gold star\",\"replace_ids\":[132073690319347],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_star_rarity.png\"},{\"name\":\"favorited icon -> emerald\",\"replace_ids\":[102193196101741],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_favorited_emerald.png\"},{\"name\":\"task completed -> checkmark\",\"replace_ids\":[17772690718],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_checkmark.png\"},{\"name\":\"book icon -> minecraft book\",\"replace_ids\":[18457336026],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_book.png\"},{\"name\":\"scroll icon -> writable book\",\"replace_ids\":[17619445009],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_scroll.png\"},{\"name\":\"duels icon -> crossed swords\",\"replace_ids\":[18525954682],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_duels_swords.png\"},{\"name\":\"spectate icon -> pixel eye\",\"replace_ids\":[77908042044589],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_spectate_eye.png\"},{\"name\":\"teammate icon -> two figures\",\"replace_ids\":[17704137194],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_teammate.png\"},{\"name\":\"basket icon -> wicker basket\",\"replace_ids\":[17619445340],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/icon_basket.png\"},{\"name\":\"jumppad placement -> slime block place\",\"replace_ids\":[85163949920258],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/jumppad_place_slime.ogg\"},{\"name\":\"jumppad bounce -> slime block jump\",\"replace_ids\":[17835965985],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/jumppad_bounce_slime.ogg\"},{\"name\":\"font Rubik-Light -> Minecraft\",\"replace_ids\":[12187342816],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-Regular -> Minecraft\",\"replace_ids\":[12187288714],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-Medium -> Minecraft\",\"replace_ids\":[12187271237],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-SemiBold -> Minecraft Bold\",\"replace_ids\":[12187320363],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-Bold -> Minecraft Bold\",\"replace_ids\":[12187303601],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-ExtraBold -> Minecraft Bold\",\"replace_ids\":[12187262242],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-Black -> Minecraft Bold\",\"replace_ids\":[12187280273],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-MediumItalic -> Minecraft Bold\",\"replace_ids\":[12187354260],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-BoldItalic -> Minecraft Bold\",\"replace_ids\":[12187341500],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-BlackItalic -> Minecraft Bold\",\"replace_ids\":[12187320081],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true},{\"name\":\"font Rubik-ExtraBoldItalic -> Minecraft Bold\",\"replace_ids\":[12187323909],\"cdn_url\":\"https://raw.githubusercontent.com/66buncer/Rivals-Pack-Assets/main/Minecraft-Bold.otf\",\"mode\":\"cdn\",\"enabled\":true}]}"),
+				Crimvals = game:GetService("HttpService"):JSONDecode("{\"replacement_rules\":[{\"name\":\"round win\",\"replace_ids\":[16810041280],\"remove\":false,\"enabled\":true,\"mode\":\"cdn\",\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/criminality%20roblox%20level%20up%20sound.mp3\"},{\"name\":\"round lose\",\"replace_ids\":[16810321565],\"remove\":false,\"enabled\":true,\"mode\":\"cdn\",\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/you%20lost.ogg\"},{\"name\":\"double jump\",\"replace_ids\":[16770456156,16492958314],\"remove\":false,\"enabled\":true,\"with_id\":2428506580},{\"name\":\"headshot sound\",\"replace_ids\":[16537337310,16537449730],\"mode\":\"id\",\"enabled\":true,\"with_id\":124006266472786},{\"name\":\"map sound selection\",\"replace_ids\":[103035811146294],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/matchmaking.ogg\"},{\"name\":\"countdownround\",\"replace_ids\":[17826470563],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/%5BCriminality%20OST%5D-Infection%20Game%20over%20sound.mp3\"},{\"name\":\"win theme\",\"replace_ids\":[18221725850,18239670056,18221725850,18221726246],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/win%20song.ogg\"},{\"name\":\"match point\",\"replace_ids\":[17026600996],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/match%20point.ogg\"},{\"name\":\"killsound\",\"replace_ids\":[16530229616],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/kill%20sound%20real.ogg\"},{\"name\":\"menu sfx\",\"replace_ids\":[8483887957],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/matchmaking.ogg\"},{\"name\":\"menu music\",\"replace_ids\":[6384899588],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/menu%20music.ogg\"},{\"name\":\"click sound\",\"replace_ids\":[177266782],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/criminality%20click.ogg\"},{\"name\":\"matchmaking sfx\",\"replace_ids\":[18525513345],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/matchmaking.ogg\"},{\"name\":\"hitmaker\",\"replace_ids\":[13110130082],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/hitmaker.ogg\"},{\"name\":\"rpg sound\",\"replace_ids\":[13455968895],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/rpg%20sound.ogg\"},{\"name\":\"menu song\",\"replace_ids\":[17697682466,17733314783,100081814360953,86062306109271,82135261819112,96771526359691,91718252417630,91718252417630,119694504935889],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/ingame%20lobby%20music.ogg\"},{\"name\":\"sudden death\",\"replace_ids\":[17467242617],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/f9a6a8b61afc4e38a560ce9ea57b6e96ef1d5328/sudden%20death%20sfx.ogg\"},{\"name\":\"crim fonts lol\",\"replace_ids\":[12187323909,12187320363,12187354260,12187342816,12187280273,12187303601,12187262242,12187288714,12187341500,12187271237,12187341020],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/HACKED.ttf\"},{\"name\":\"headshot spark removal\",\"replace_ids\":[15109829804],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/testblood1234567.png\"},{\"name\":\"remove item background\",\"replace_ids\":[13220167337,13188242420,13220167472,13188153054,13188242287],\"mode\":\"id\",\"enabled\":true},{\"name\":\"remove the n\",\"replace_ids\":[13854780042],\"mode\":\"id\",\"enabled\":true},{\"name\":\"More noticable scope glare\",\"replace_ids\":[12994687832],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/demianostro-sys/test/refs/heads/main/SniperGlare.png\"},{\"name\":\"No scope fade\",\"replace_ids\":[18171031143,18171045114,129335242148588,81498448678518,97622703342015,85501091107884,128819262942122,102865472475647,13466088854,18171031143],\"mode\":\"id\",\"enabled\":true},{\"name\":\"No aiming viginette\",\"replace_ids\":[14824249410],\"mode\":\"id\",\"enabled\":true},{\"name\":\"No ambience on maps\",\"replace_ids\":[17813065011,17813065464,12099785239],\"mode\":\"id\",\"enabled\":true},{\"name\":\"onyx removal\",\"replace_ids\":[127338559130032,16294586406,75156669118637,93477262732302],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/prism658/Resources-fleasion/main/SyneMono-Regular.ttf\"},{\"name\":\"arch to x+\",\"replace_ids\":[133793956251748],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(18).png\"},{\"name\":\"nem to x standard\",\"replace_ids\":[116941545385923],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(17).png\"},{\"name\":\"silver 2 to d\",\"replace_ids\":[136100661820261],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(3).png\"},{\"name\":\"silver 1 to d-\",\"replace_ids\":[80716950169934],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(2).png\"},{\"name\":\"gold 1 to c-\",\"replace_ids\":[134520747948636],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/preview_5_1.png\"},{\"name\":\"silver 3 to d+\",\"replace_ids\":[107898816876115],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(4).png\"},{\"name\":\"o3 to u\",\"replace_ids\":[127982903682334],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(16).png\"},{\"name\":\"o2 to ss\",\"replace_ids\":[109012386782238],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(14).png\"},{\"name\":\"o1 to s\",\"replace_ids\":[104871954739030],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(15).png\"},{\"name\":\"diam 3 to a+\",\"replace_ids\":[112183171942172],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(12).png\"},{\"name\":\"diam2 to A rank\",\"replace_ids\":[88059506918419],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/preview_13_1.png\"},{\"name\":\"diam 1 to a-\",\"replace_ids\":[113997689031026],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(11).png\"},{\"name\":\"plat 3 to b+\",\"replace_ids\":[73345783863790],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(10).png\"},{\"name\":\"plat 2 to b\",\"replace_ids\":[82834564754747],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/preview_9_1.png\"},{\"name\":\"plat 1 to b-\",\"replace_ids\":[133903971285645],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(8).png\"},{\"name\":\"gold 3 to c+\",\"replace_ids\":[90039594400813],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(7).png\"},{\"name\":\"gold 2 to c\",\"replace_ids\":[114166096331502],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/preview%20(6).png\"},{\"name\":\"bronze to f rank\",\"replace_ids\":[106623367501544,131795064007344,73543520622815],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/preview_1_1.png\"},{\"name\":\"elim icon\",\"replace_ids\":[16802957270],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/01c165e973cdb3761cc5ecdcdb093fba0b3f2de7/pfp%20for%20ppl%20dying%20ig.webp\"},{\"name\":\"crimvals\",\"replace_ids\":[13854780213],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimvals67_1.png\"},{\"name\":\"streak icon replacement\",\"replace_ids\":[17175092502,17094014569],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/cope%20coin1.png\"},{\"name\":\"roman trotman\",\"replace_ids\":[17803962335],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/Screenshot%202026-06-16%20162327.png\"},{\"name\":\"trotman hitmaker\",\"replace_ids\":[13077309624,13077309526,13061283842],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/roman%20fatty1.png\"},{\"name\":\"lvl icon\",\"replace_ids\":[81461991645938],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/sword.webp\"},{\"name\":\"rvvz\",\"replace_ids\":[133917828562858],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/rvvzreal.webp\"},{\"name\":\"rvvz hitmaker\",\"replace_ids\":[13077299416,13077309724],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/rvvzreal.webp\"},{\"name\":\"shorty\",\"replace_ids\":[17160800091],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/New_db123123.png\"},{\"name\":\"medkit\",\"replace_ids\":[17160800734],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/MedkitIcon_167.png\"},{\"name\":\"flame\",\"replace_ids\":[89455038280473],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/M2flamethrower123123.png\"},{\"name\":\"grenade launcher\",\"replace_ids\":[17250453814],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/Sblmk2.png\"},{\"name\":\"smoke\",\"replace_ids\":[17160799767],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/SmokeGrenade.png\"},{\"name\":\"flash\",\"replace_ids\":[17160801529],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/Stun_grenade.png\"},{\"name\":\"molotov\",\"replace_ids\":[109264750627289],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/New_molly.png\"},{\"name\":\"akm body\",\"replace_ids\":[12613284249],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/akm%201.obj\"},{\"name\":\"remove\",\"replace_ids\":[14652718299,12613284036,12613283569,12613284768,12613283355],\"mode\":\"id\",\"enabled\":true},{\"name\":\"akm mag\",\"replace_ids\":[12613284529],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/akm%202.obj\"},{\"name\":\"reload\",\"replace_ids\":[13010900962],\"mode\":\"id\",\"enabled\":true,\"with_id\":137086406367920},{\"name\":\"idle\",\"replace_ids\":[13010885336],\"mode\":\"id\",\"enabled\":true,\"with_id\":102761331433561},{\"name\":\"view\",\"replace_ids\":[13010893629],\"mode\":\"id\",\"enabled\":true,\"with_id\":136686405315688},{\"name\":\"shootSFX\",\"replace_ids\":[13087362838],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Aksshootv2_-_Made_with_Clipchamp.mp3.mpeg\"},{\"name\":\"equip\",\"replace_ids\":[13010870236],\"mode\":\"id\",\"enabled\":true,\"with_id\":113547428826965},{\"name\":\"shoot\",\"replace_ids\":[13010911854],\"mode\":\"id\",\"enabled\":true,\"with_id\":114667858672789},{\"name\":\"Profile 12\",\"replace_ids\":[13455395017],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/bolt%20backp.ogg\"},{\"name\":\"Profile 13\",\"replace_ids\":[13236549962],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/mag%20out.ogg\"},{\"name\":\"Profile 14\",\"replace_ids\":[13236549929],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/mag%20in.ogg\"},{\"name\":\"ar\",\"replace_ids\":[17160682738],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/888888888888888888888888888888.png\"},{\"name\":\"remove\",\"replace_ids\":[12613247736,12613247490,12613248534,12613246882,13189734130,12613248825],\"mode\":\"id\",\"enabled\":true},{\"name\":\"body\",\"replace_ids\":[12613247082],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Body%20with%20sight%20usp.obj\"},{\"name\":\"mag\",\"replace_ids\":[12613247957],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/uspmag.obj\"},{\"name\":\"slides\",\"replace_ids\":[12613248221],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/usp%20slide.obj\"},{\"name\":\"replace image\",\"replace_ids\":[17160801282],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/3445645645645645654234324.png\"},{\"name\":\"Equip sfx\",\"replace_ids\":[13158610792],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Fnpev2.mp3.mpeg\"},{\"name\":\"shoot sfx\",\"replace_ids\":[13110197220],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Fnpsv2.mp3%20(1).mpeg\"},{\"name\":\"reload sfx\",\"replace_ids\":[13158330555],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/reload.ogg\"},{\"name\":\"relaod sfx\",\"replace_ids\":[13158330383],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/reload%20sfx%203.ogg\"},{\"name\":\"reload sfx\",\"replace_ids\":[13158330666],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/reload%202.ogg\"},{\"name\":\"pistol\",\"replace_ids\":[17160801282],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/G17hd_2.png\"},{\"name\":\"Body\",\"replace_ids\":[13188892761],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/mare%20reskin.obj\"},{\"name\":\"Mag\",\"replace_ids\":[13188892532],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/scout%20mag.obj\"},{\"name\":\"remove\",\"replace_ids\":[13188892651,14002915797,13188892855,13188893310,14778413014,13188893115,13188893017,14774727092],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Shoot\",\"replace_ids\":[13270206222],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/mare.ogg\"},{\"name\":\"snipa\",\"replace_ids\":[17160799574],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/349853450934583409543850435.png\"},{\"name\":\"Mag (replace with the uzi magazine)\",\"replace_ids\":[14653989514],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/uzi%20magazine.obj\"},{\"name\":\"removal stuff\",\"replace_ids\":[14653989374,14653989728],\"mode\":\"id\",\"enabled\":true},{\"name\":\"main body (replace with uzi)\",\"replace_ids\":[14653989624],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/uzi'.obj\"},{\"name\":\"asset replace\",\"replace_ids\":[14020829706,17160798908],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/uzi24535345.png\"},{\"name\":\"shoot sound mp7 pf\",\"replace_ids\":[16397424081,16526184730,16397424423,16470289878,13479562219,16526184479,16526184265,16526185100],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Uzisv2.wav\"},{\"name\":\"sword handle\",\"replace_ids\":[12482022430],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/sword%20handle.obj\"},{\"name\":\"sword handle 2\",\"replace_ids\":[12482022363],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Untitled.obj\"},{\"name\":\"sword handle 3\",\"replace_ids\":[12482022259],\"mode\":\"id\",\"enabled\":true},{\"name\":\"equip anim\",\"replace_ids\":[12613363718],\"mode\":\"id\",\"enabled\":true,\"with_id\":18742841521},{\"name\":\"idle anim\",\"replace_ids\":[12613190591],\"mode\":\"id\",\"enabled\":true,\"with_id\":18742849437},{\"name\":\"image\",\"replace_ids\":[17160800983],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/er2334232323.png\"},{\"name\":\"Profile 7473\",\"replace_ids\":[13160400909],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Doom%20Eternal%20Beefier%20Weapons%20SFX%20Extras%20(Crucible,%20Hammer,%20Marauder).ogg\"},{\"name\":\"Profile 7474\",\"replace_ids\":[13455968853,13455968789],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Doom%20Eternal%20Beefier%20Weapons%20SFX%20Extras%20(Crucible,%20Hammer,%20Marauder)2.ogg\"},{\"name\":\"Profile 7474\",\"replace_ids\":[13160326139],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Profile 7473\",\"replace_ids\":[14427935597],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Doom%20Eternal%20Beefier%20We234234234234apons%20SFX%20Extras%20(Crucible,%20Hammer,%20Marauder).ogg\"},{\"name\":\"heavy attack\",\"replace_ids\":[12613354440],\"mode\":\"id\",\"enabled\":true,\"with_id\":139698735737001},{\"name\":\"heavy attack hit\",\"replace_ids\":[123415605337684],\"mode\":\"id\",\"enabled\":true,\"with_id\":139698735737001},{\"name\":\"handle\",\"replace_ids\":[13760790008],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/scythe%20katana%201.obj\"},{\"name\":\"blade\",\"replace_ids\":[13903792316],\"mode\":\"id\",\"enabled\":true},{\"name\":\"remove\",\"replace_ids\":[13760790106,14000093824],\"mode\":\"id\",\"enabled\":true},{\"name\":\"equip\",\"replace_ids\":[13992707294],\"mode\":\"id\",\"enabled\":true,\"with_id\":77096550681050},{\"name\":\"idle\",\"replace_ids\":[13992711211],\"mode\":\"id\",\"enabled\":true,\"with_id\":111194880127618},{\"name\":\"deflect idle\",\"replace_ids\":[14761220206],\"mode\":\"id\",\"enabled\":true,\"with_id\":75381142568185},{\"name\":\"attack1\",\"replace_ids\":[13992724397],\"mode\":\"id\",\"enabled\":true,\"with_id\":135568679262740},{\"name\":\"attack2\",\"replace_ids\":[13992729204],\"mode\":\"id\",\"enabled\":true,\"with_id\":108599900012367},{\"name\":\"inspect\",\"replace_ids\":[13992715669],\"mode\":\"id\",\"enabled\":true,\"with_id\":140473852199966},{\"name\":\"inspect rare\",\"replace_ids\":[14411504784],\"mode\":\"id\",\"enabled\":true,\"with_id\":130798346363525},{\"name\":\"sprint\",\"replace_ids\":[13992717984,14069980959],\"mode\":\"id\",\"enabled\":true,\"with_id\":91275072435820},{\"name\":\"attack1 sfx\",\"replace_ids\":[14000023581],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/Neru3D/fleasionmodels/raw/refs/heads/main/attack1.mp3\"},{\"name\":\"attack2 sfx\",\"replace_ids\":[14000023392],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/Neru3D/fleasionmodels/raw/refs/heads/main/attack2.mp3\"},{\"name\":\"deflect sfx\",\"replace_ids\":[14798337918],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Scytheequip.mp3.mpeg\"},{\"name\":\"ricochet\",\"replace_ids\":[14776437962],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/Neru3D/fleasionmodels/raw/refs/heads/main/ricochet.mp3\"},{\"name\":\"icon\",\"replace_ids\":[17160801158],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/scythe111111111111111111111111111111.png\"},{\"name\":\"deflect1\",\"replace_ids\":[14761234917],\"mode\":\"id\",\"enabled\":true,\"with_id\":137002111895907},{\"name\":\"deflect2\",\"replace_ids\":[14761221711],\"mode\":\"id\",\"enabled\":true,\"with_id\":122933360020674},{\"name\":\"deflect3\",\"replace_ids\":[14761223422],\"mode\":\"id\",\"enabled\":true,\"with_id\":84363873883173},{\"name\":\"deflect4\",\"replace_ids\":[14761225204],\"mode\":\"id\",\"enabled\":true,\"with_id\":132079943418107},{\"name\":\"deflect5\",\"replace_ids\":[14761232380],\"mode\":\"id\",\"enabled\":true,\"with_id\":127119144354477},{\"name\":\"Profile 3\",\"replace_ids\":[11774577129],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/rvvz%20final.obj\"},{\"name\":\"Magnum body\",\"replace_ids\":[14002831630],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/magnum%201.obj\"},{\"name\":\"remove\",\"replace_ids\":[14242054178,14241792580,14241791573,14241791734],\"mode\":\"id\",\"enabled\":true},{\"name\":\"keyrev inspect\",\"replace_ids\":[14240489357],\"mode\":\"id\",\"enabled\":true,\"with_id\":135350552290102},{\"name\":\"keyrev empty reload\",\"replace_ids\":[16044334617],\"mode\":\"id\",\"enabled\":true,\"with_id\":125324249312147},{\"name\":\"keyrev shoot sound\",\"replace_ids\":[14417089307,14417089152,14417088974,14417089046],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Magsv2.mp3.mpeg\"},{\"name\":\"keyrev normal reload\",\"replace_ids\":[14240528877],\"mode\":\"id\",\"enabled\":true,\"with_id\":76088917064213},{\"name\":\"keyrev quickshot\",\"replace_ids\":[17279511949],\"mode\":\"id\",\"enabled\":true,\"with_id\":77315821032705},{\"name\":\"keyrev equip\",\"replace_ids\":[14240512707],\"mode\":\"id\",\"enabled\":true,\"with_id\":84138589142138},{\"name\":\"keyrev idle\",\"replace_ids\":[14240522872],\"mode\":\"id\",\"enabled\":true,\"with_id\":91577443060643},{\"name\":\"rev\",\"replace_ids\":[17160800299,17160800299],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/Magnumhd_2.png\"},{\"name\":\"asset replace\",\"replace_ids\":[17160800299],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/revrev.png\"},{\"name\":\"remove\",\"replace_ids\":[105903087716845,129037728019210],\"mode\":\"id\",\"enabled\":true},{\"name\":\"handle\",\"replace_ids\":[76837433845994],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/battle%20axe%20ds.obj\"},{\"name\":\"Profile 7462\",\"replace_ids\":[77594993345414],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Slayer2swing.mp3.mpeg\"},{\"name\":\"Profile 7463\",\"replace_ids\":[124261472912756],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Slayerfinishv2.mp3.mpeg\"},{\"name\":\"body\",\"replace_ids\":[13158844590],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/shotgun.obj\"},{\"name\":\"bye bye\",\"replace_ids\":[13158845253,13988956869,14781979814,14781979687,14781990942],\"mode\":\"id\",\"enabled\":true},{\"name\":\"shotgun\",\"replace_ids\":[17160800007],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/Ithacahd.png\"},{\"name\":\"Icon\",\"replace_ids\":[17160801873],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/wawawa.png\"},{\"name\":\"Profile 7466\",\"replace_ids\":[13479562219],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Ithsv2.mp3.mpeg\"},{\"name\":\"Profile 7467\",\"replace_ids\":[13515046872],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Ithrv2.mp3.mpeg\"},{\"name\":\"body\",\"replace_ids\":[13532093356],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/chainsaw.obj\"},{\"name\":\"Profile 2\",\"replace_ids\":[13532093742,13532093568,13532094406,13642660758,18199162011,13532094210],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Icon\",\"replace_ids\":[17160801873],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/sdfsdfsdfsdfsdf324234234234.png\"},{\"name\":\"body\",\"replace_ids\":[14246425872],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/rvvz%20grenade.obj\"},{\"name\":\"removes\",\"replace_ids\":[14246425725,14246425599,17631605892,14246426125,14246425489,14246425399],\"mode\":\"id\",\"enabled\":true},{\"name\":\"throw start\",\"replace_ids\":[14510034776,14510062019],\"mode\":\"id\",\"enabled\":true,\"with_id\":14510034776},{\"name\":\"Profile 4\",\"replace_ids\":[14580355189,14580344400],\"mode\":\"id\",\"enabled\":true,\"with_id\":14580355189},{\"name\":\"lol\",\"replace_ids\":[14522129645,14522129645],\"mode\":\"id\",\"enabled\":true},{\"name\":\"grenade\",\"replace_ids\":[17160801411],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/3424234234234234234.png\"},{\"name\":\"necromancer hand right\",\"replace_ids\":[12307583853],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/hands%20right.obj\"},{\"name\":\"necromancer hand left\",\"replace_ids\":[12307734932],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/hands%20left.obj\"},{\"name\":\"test\",\"replace_ids\":[144076357],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/torturesimulator.png\"},{\"name\":\"Profile 7469\",\"replace_ids\":[13160401062],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/floraphonic-metal-whoosh-hit-10-202176.mp3\"},{\"name\":\"Profile 7471\",\"replace_ids\":[16560051320,17160801745],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/5435345345345.png\"},{\"name\":\"model\",\"replace_ids\":[121806564166408],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/sledge.obj\"},{\"name\":\"rem\",\"replace_ids\":[89939522788793,79631712600906],\"mode\":\"id\",\"enabled\":true},{\"name\":\"whoosh\",\"replace_ids\":[136633555539199],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Sledges.mp3.mpeg\"},{\"name\":\"maul\",\"replace_ids\":[81478141693597],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/Sledge.png\"},{\"name\":\"arch crossbow equip\",\"replace_ids\":[112687956509295],\"mode\":\"id\",\"enabled\":true,\"with_id\":75912270381788},{\"name\":\"arch crossbow idle animation\",\"replace_ids\":[104427457349511],\"mode\":\"id\",\"enabled\":true,\"with_id\":139012099919554},{\"name\":\"arch crossbow sprint animation\",\"replace_ids\":[77438855428730],\"mode\":\"id\",\"enabled\":true,\"with_id\":75736189275330},{\"name\":\"arch crossbow inspect animation\",\"replace_ids\":[133850935692254],\"mode\":\"id\",\"enabled\":true,\"with_id\":76999540737871},{\"name\":\"arch crossbow shoot animation\",\"replace_ids\":[70595132902958],\"mode\":\"id\",\"enabled\":true,\"with_id\":133769779992853},{\"name\":\"arch crossbow reload animation\",\"replace_ids\":[110216216870037],\"mode\":\"id\",\"enabled\":true,\"with_id\":107693118046922},{\"name\":\"ShootSound\",\"replace_ids\":[82715240396507],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/234234324234234.ogg\"},{\"name\":\"ReloadSound\",\"replace_ids\":[112269321366473],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/324234324234324.ogg\"},{\"name\":\"no body\",\"replace_ids\":[131412183341416,116870937608189,81291045320105,103428289294174],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Arrow\",\"replace_ids\":[96479817443897],\"mode\":\"id\",\"enabled\":true},{\"name\":\"no crossbow tip\",\"replace_ids\":[103918211053795],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Body\",\"replace_ids\":[91182997679206],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/savage.obj\"},{\"name\":\"crossbow\",\"replace_ids\":[140211832612284],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/23424324234324234324.png\"},{\"name\":\"Body Replace\",\"replace_ids\":[70494501482896],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/rage%20dose.obj\"},{\"name\":\"Rings Replace\",\"replace_ids\":[70528849669897],\"mode\":\"id\",\"enabled\":true},{\"name\":\"Sound Replace\",\"replace_ids\":[73325703605178,94406584083681],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Ragedoseuse.ogg\"},{\"name\":\"Icon Replace\",\"replace_ids\":[104600246515190],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/rage%20doeselol12.png\"},{\"name\":\"No speed lines\",\"replace_ids\":[16469373111,16469372946],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/warnhorntest3.png\"},{\"name\":\"Wall\",\"replace_ids\":[7658055825],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/234234234234324324.png\"},{\"name\":\"up\",\"replace_ids\":[14147881297,72960281658487,92138082970751,2108482676,10196567794,12261813678],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimtop.png\"},{\"name\":\"rt\",\"replace_ids\":[14147882405,135908632589654,84214501374682,2108482542,12261809766,10196549902],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimleft.png\"},{\"name\":\"lf\",\"replace_ids\":[14147883091,135908632589654,84214501374682,2108482395,12261809766,10196550128],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimright.png\"},{\"name\":\"ft\",\"replace_ids\":[14147882761,12261809766,135908632589654,84214501374682,10196550367,2108482231],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimfront.png\"},{\"name\":\"dn\",\"replace_ids\":[2108545280,10196550667,14147882149,103020541883227,89972436184102,12261813110],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimdown.png\"},{\"name\":\"bk\",\"replace_ids\":[2108482005,14147881792,135908632589654,84214501374682,10196550937,12261809766],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://raw.githubusercontent.com/crimvals/CrimVals/refs/heads/main/crimback.png\"},{\"name\":\"lobby\",\"replace_ids\":[17697682466,17733314783,100081814360953,86062306109271,82135261819112,96771526359691,120824068504773,114306049661290,91718252417630,91718252417630,119694504935889],\"mode\":\"cdn\",\"enabled\":true,\"cdn_url\":\"https://github.com/crimvals/CrimVals/raw/refs/heads/main/Criminality%20Intro%20-%20Cold%20Blooded.mp3\"}]}"),
+}
+			local function createTexturePack(packName)
+				local pack = packRules[packName]
+
+				local texturePack = {
+					Enabled = false,
+					Generated = {},
+					ChunkRecords = {},
+					Records = {},
+					Connections = {},
+					Rules = {},
+					Loading = false,
+					Ready = false,
+					MeshRules = {},
+					HideMeshes = {},
+					MeshQueue = {},
+					MeshCache = {},
+				}
+
+				local HttpService = game:GetService("HttpService")
+
+				local function assetIdOf(value)
+					if type(value) ~= "string" then
+						local ok, text = pcall(tostring, value)
+
+						if ok then
+							value = text
+						end
+					end
+
+					return type(value) == "string" and (value:match("rbxassetid://(%d+)") or value:match("[?&]id=(%d+)") or value:match("^%s*(%d+)%s*$")) or nil
+				end
+
+				local skyProperties = {
+					bk = "SkyboxBk",
+					dn = "SkyboxDn",
+					ft = "SkyboxFt",
+					lf = "SkyboxLf",
+					rt = "SkyboxRt",
+					up = "SkyboxUp",
+				}
+
+				local function skyPropertyOf(name)
+					if type(name) ~= "string" then
+						return nil
+					end
+
+					local lower = name:lower()
+					local face = lower:match("^sky(%a%a)$") or lower:match("^s(%a%a)%s*[%-%>]") or lower:match("^s(%a%a)$") or lower:match("^(%a%a)$")
+
+					return face and skyProperties[face] or nil
+				end
+
+				local function assignProperty(instance, property, value)
+					local ok = pcall(function()
+						instance[property] = value
+					end)
+
+					if ok then
+						return true
+					end
+
+					if type(value) == "string" then
+						ok = pcall(function()
+							instance[property] = if value == "" then Content.none else Content.fromUri(value)
+						end)
+					end
+
+					return ok
+				end
+
+				texturePack.BuildMesh = function(self, rule)
+					if rule.Asset then
+						local meshOptions = { CollisionFidelity = Enum.CollisionFidelity.Box }
+						local meshPart = game:GetService("AssetService"):CreateMeshPartAsync(Content.fromUri(rule.Asset), meshOptions)
+
+						if not self.Enabled or self.Unloaded then
+							meshPart:Destroy()
+							error("mesh load cancelled", 0)
+						end
+
+						return { Template = meshPart }
+					end
+
+					local path = ASSET_ROOT .. "/" .. packName .. "/mesh_" .. rule.Index .. ".obj"
+					local objText = isfile(path) and readfile(path)
+
+					if not objText then
+						objText = game:HttpGet(rule.Url)
+						assert(objText:find("\nv ") and objText:find("\nf "), "invalid OBJ download")
+						writefile(path, objText)
+					end
+
+					local positions = {}
+					local uvs = {}
+					local normals = {}
+					local triangles = {}
+
+					local function resolveIndex(text, count)
+						local parsed = tonumber(text)
+						if not parsed then
+							return nil
+						end
+
+						if parsed < 0 then
+							parsed = count + parsed + 1
+						end
+
+						assert(parsed >= 1 and parsed <= count and parsed % 1 == 0, "invalid OBJ index")
+						return parsed
+					end
+
+					local lineNumber = 0
+
+					for line in objText:gmatch("[^\r\n]+") do
+						lineNumber += 1
+
+						if lineNumber % 512 == 0 then
+							task.wait()
+							assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+						end
+
+						local kind, rest = line:match("^%s*(%S+)%s+(.+)$")
+
+						if kind == "v" or kind == "vn" or kind == "vt" then
+							local xText, yText, zText = rest:match("^(%S+)%s+(%S+)%s*(%S*)")
+							local x = tonumber(xText)
+							local y = tonumber(yText)
+							local z = tonumber(zText)
+							assert(x and y and (kind == "vt" or z), "invalid OBJ coordinate")
+
+							if kind == "v" then
+								positions[#positions + 1] = Vector3.new(x, y, z)
+							elseif kind == "vn" then
+								normals[#normals + 1] = Vector3.new(x, y, z)
+							else
+								uvs[#uvs + 1] = Vector2.new(x, 1 - y)
+							end
+						elseif kind == "f" then
+							local corners = {}
+
+							for token in rest:gmatch("%S+") do
+								if token:sub(1, 1) ~= "#" then
+									local positionIndex, uvIndex, normalIndex = token:match("^(%-?%d+)/?(%-?%d*)/?(%-?%d*)$")
+									assert(positionIndex, "invalid OBJ face")
+									local slot = #corners + 1
+									local corner = {}
+									local positionRef = resolveIndex(positionIndex, #positions)
+									local uvRef = resolveIndex(uvIndex, #uvs)
+									local normalRef = resolveIndex(normalIndex, #normals)
+									corner[1] = positionRef
+									corner[2] = uvRef
+									corner[3] = normalRef
+									corners[slot] = corner
+									continue
+								end
+
+								break
+							end
+
+							assert(#corners == 3 or #corners == 4, "OBJ faces must be triangles or quads")
+							triangles[#triangles + 1] = { corners[1], corners[2], corners[3] }
+
+							if #corners == 4 then
+								triangles[#triangles + 1] = { corners[1], corners[3], corners[4] }
+							end
+						end
+					end
+
+					assert(#positions > 0 and #triangles > 0, "empty OBJ")
+
+					if #positions > 60000 or #triangles > 20000 then
+						local minimum = positions[1]
+						local maximum = positions[1]
+
+						for _, position in positions do
+							minimum = minimum:Min(position)
+							maximum = maximum:Max(position)
+						end
+
+						local chunked = { Chunks = {}, Size = maximum - minimum, Center = (minimum + maximum) * 0.5 }
+
+						local ok, result = pcall(function()
+							for i = 1, #triangles, 20000 do
+								assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+								local editable = game:GetService("AssetService"):CreateEditableMesh()
+								assert(editable, "editable mesh memory budget unavailable")
+								local chunk = { Editable = editable }
+								chunked.Chunks[#chunked.Chunks + 1] = chunk
+								local vertexIds = {}
+								local uvIds = {}
+								local normalIds = {}
+								local chunkMin = nil
+								local chunkMax = nil
+
+								for triangleIndex = i, math.min(i + 19999, #triangles) do
+									for _, corner in triangles[triangleIndex] do
+										local positionIndex = corner[1]
+
+										if not vertexIds[positionIndex] then
+											local position = positions[positionIndex]
+											vertexIds[positionIndex] = true
+											chunkMin = chunkMin and chunkMin:Min(position) or position
+											chunkMax = chunkMax and chunkMax:Max(position) or position
+										end
+									end
+								end
+
+								chunk.Center = (chunkMin + chunkMax) * 0.5
+								chunk.Size = chunkMax - chunkMin
+
+								for k in vertexIds do
+									vertexIds[k] = editable:AddVertex(positions[k] - chunk.Center)
+								end
+
+								for triangleIndex = i, math.min(i + 19999, #triangles) do
+									local triangle = triangles[triangleIndex]
+									local faceUVs = {}
+									local faceNormals = {}
+
+									for k, corner in triangle do
+										if corner[2] then
+											if not uvIds[corner[2]] then
+												uvIds[corner[2]] = editable:AddUV(uvs[corner[2]])
+											end
+
+											faceUVs[k] = uvIds[corner[2]]
+										end
+
+										if corner[3] then
+											if not normalIds[corner[3]] then
+												normalIds[corner[3]] = editable:AddNormal(normals[corner[3]])
+											end
+
+											faceNormals[k] = normalIds[corner[3]]
+										end
+									end
+
+									local face = editable:AddTriangle(vertexIds[triangle[1][1]], vertexIds[triangle[2][1]], vertexIds[triangle[3][1]])
+
+									if faceUVs[1] and faceUVs[2] and faceUVs[3] then
+										editable:SetFaceUVs(face, faceUVs)
+									end
+
+									if faceNormals[1] and faceNormals[2] and faceNormals[3] then
+										editable:SetFaceNormals(face, faceNormals)
+									end
+
+									if triangleIndex % 512 == 0 then
+										task.wait()
+										assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+									end
+								end
+
+								local meshOptions = { CollisionFidelity = Enum.CollisionFidelity.Box }
+								chunk.Template = game:GetService("AssetService"):CreateMeshPartAsync(Content.fromObject(editable), meshOptions)
+								assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+							end
+						end)
+
+						if not ok then
+							for _, chunk in chunked.Chunks do
+								if chunk.Template then
+									chunk.Template:Destroy()
+								end
+
+								chunk.Editable:Destroy()
+							end
+
+							error(result, 0)
+						end
+
+						return chunked
+					end
+
+					local editable = game:GetService("AssetService"):CreateEditableMesh()
+					assert(editable, "editable mesh memory budget unavailable")
+					local meshPart = nil
+
+					local ok, result = pcall(function()
+						local vertexIds = {}
+						local uvIds = {}
+						local normalIds = {}
+
+						for k, position in positions do
+							vertexIds[k] = editable:AddVertex(position)
+
+							if k % 512 == 0 then
+								task.wait()
+								assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+							end
+						end
+
+						for k, uv in uvs do
+							uvIds[k] = editable:AddUV(uv)
+						end
+
+						for k, normal in normals do
+							normalIds[k] = editable:AddNormal(normal)
+						end
+
+						for k, triangle in triangles do
+							local cornerA = triangle[1]
+							local cornerB = triangle[2]
+							local cornerC = triangle[3]
+							local face = editable:AddTriangle(vertexIds[cornerA[1]], vertexIds[cornerB[1]], vertexIds[cornerC[1]])
+
+							if cornerA[2] and cornerB[2] and cornerC[2] then
+								editable:SetFaceUVs(face, { uvIds[cornerA[2]], uvIds[cornerB[2]], uvIds[cornerC[2]] })
+							end
+
+							if cornerA[3] and cornerB[3] and cornerC[3] then
+								editable:SetFaceNormals(face, { normalIds[cornerA[3]], normalIds[cornerB[3]], normalIds[cornerC[3]] })
+							end
+
+							if k % 512 == 0 then
+								task.wait()
+								assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+							end
+						end
+
+						local meshOptions = { CollisionFidelity = Enum.CollisionFidelity.Box }
+						meshPart = game:GetService("AssetService"):CreateMeshPartAsync(Content.fromObject(editable), meshOptions)
+						assert(self.Enabled and not self.Unloaded, "mesh load cancelled")
+					end)
+
+					if not ok then
+						if meshPart then
+							meshPart:Destroy()
+						end
+
+						editable:Destroy()
+						error(result, 0)
+					end
+
+					return { Template = meshPart, Editable = editable }
+				end
+
+				texturePack.UpdateChunks = function(self)
+					for k, record in self.ChunkRecords do
+						if not k.Parent then
+							self:Remove(k)
+						else
+							local chunked = record.ChunkMesh
+							local size = chunked.Size
+							local z = k.Size.Z
+							local scale = Vector3.new(k.Size.X / math.max(size.X, 0.001), k.Size.Y / math.max(size.Y, 0.001), z / math.max(size.Z, 0.001))
+
+							for chunkIndex, part in record.Chunks do
+								local chunk = chunked.Chunks[chunkIndex]
+								part.Size = (chunk.Size * scale):Max(Vector3.new(0.001, 0.001, 0.001))
+								part.CFrame = k.CFrame * CFrame.new((chunk.Center - chunked.Center) * scale)
+								local material = k.Material
+								local materialVariant = k.MaterialVariant
+								part.Color = k.Color
+								part.Material = material
+								part.MaterialVariant = materialVariant
+								local transparency = k.Transparency
+								part.Reflectance = k.Reflectance
+								part.Transparency = transparency
+								local textureID = k.TextureID
+								part.CastShadow = k.CastShadow
+								part.TextureID = textureID
+								part.LocalTransparencyModifier = record.Properties.LocalTransparencyModifier.Original
+							end
+						end
+					end
+				end
+
+				texturePack.QueueMesh = function(self, meshPart, record)
+					local rule = assetIdOf(meshPart.MeshId)
+					rule = rule and self.MeshRules[rule]
+					if not rule then
+						return
+					end
+					self.MeshQueue[#self.MeshQueue + 1] = { Object = meshPart, Record = record, Rule = rule, Id = meshPart.MeshId }
+					if self.MeshLoading then
+						return
+					end
+					self.MeshLoading = true
+
+					task.defer(function()
+						while self.Enabled and not self.Unloaded and #self.MeshQueue > 0 do
+							local job = table.remove(self.MeshQueue, 1)
+							local object = job.Object
+							local record = job.Record
+							local rule = job.Rule
+
+							if not (self.Records[object] ~= record or object.MeshId ~= job.Id) then
+								local mesh = self.MeshCache[rule]
+
+								if mesh == nil then
+									local ok, result = pcall(self.BuildMesh, self, rule)
+
+									if ok then
+										mesh = result
+										self.MeshCache[rule] = mesh
+									elseif self.Enabled and not self.Unloaded then
+										self.MeshCache[rule] = false
+										warn("Kicia texture pack: " .. rule.Name .. ": " .. tostring(result))
+									end
+								end
+
+								if mesh and self.Enabled and not self.Unloaded and self.Records[object] == record and object.MeshId == job.Id then
+									local ok, result = pcall(function()
+										if mesh.Chunks then
+											local recordRef = record
+											local meshRef = mesh
+											record.Chunks = {}
+											recordRef.ChunkMesh = meshRef
+											self.ChunkRecords[object] = record
+
+											for _, chunk in mesh.Chunks do
+												local clone = chunk.Template:Clone()
+												record.Chunks[#record.Chunks + 1] = clone
+												self.Generated[clone] = true
+												clone.Name = "KiciaTextureMesh"
+												clone.Anchored = true
+												clone.CanCollide = false
+												clone.CanTouch = false
+												clone.CanQuery = false
+												clone.Parent = object
+											end
+
+											local localTransparencyModifier = { Original = object.LocalTransparencyModifier }
+											record.Properties.LocalTransparencyModifier = localTransparencyModifier
+
+											record.Connections[#record.Connections + 1] = object:GetPropertyChangedSignal("LocalTransparencyModifier"):Connect(function()
+												self:Apply(object, "LocalTransparencyModifier", localTransparencyModifier)
+											end)
+
+											self:Apply(object, "LocalTransparencyModifier", localTransparencyModifier)
+											self:UpdateChunks()
+
+											if not self.ChunkConnection then
+												self.ChunkConnection = game:GetService("RunService").PreRender:Connect(function()
+													self:UpdateChunks()
+												end)
+											end
+
+											return
+										end
+
+										local archivable = object.Archivable
+										object.Archivable = true
+										local ok, meshOriginal = pcall(object.Clone, object)
+										object.Archivable = archivable
+										assert(ok and meshOriginal, "unable to preserve original mesh")
+										meshOriginal:ClearAllChildren()
+										record.MeshOriginal = meshOriginal
+										local textureID = object.TextureID
+										record.MeshWriting = true
+										object:ApplyMesh(mesh.Template)
+										record.MeshApplied = object.MeshContent
+										object.TextureID = textureID
+										record.MeshWriting = false
+									end)
+
+									record.MeshWriting = false
+
+									if not ok then
+										self:Remove(object)
+										warn("Kicia texture pack: " .. rule.Name .. ": " .. tostring(result))
+									end
+								end
+							end
+						end
+
+						table.clear(self.MeshQueue)
+						self.MeshLoading = false
+					end)
+				end
+
+				texturePack.Prepare = function(self, packData)
+					local toAsset = getcustomasset or getsynasset
+					local needsFiles = false
+					local scanCdn = nil
+
+					scanCdn = function(rules)
+						for _, rule in rules do
+							if rule.children then
+								scanCdn(rule.children)
+							elseif rule.enabled and rule.mode == "cdn" then
+								needsFiles = true
+							end
+						end
+					end
+
+					scanCdn(packData.replacement_rules)
+
+					if needsFiles then
+						local check = assert
+						check(type(toAsset) == "function" and type(writefile) == "function" and type(readfile) == "function" and type(isfile) == "function" and type(makefolder) == "function", "custom assets and workspace file functions are required")
+
+						for _, folder in { "kiciarebuild", "kiciarebuild/assets", ASSET_ROOT, ASSET_ROOT .. "/" .. packName } do
+							if type(isfolder) ~= "function" or not isfolder(folder) then
+								makefolder(folder)
+							end
+						end
+					end
+
+					local downloads = {}
+					local downloadByUrl = {}
+					local collectRules = nil
+
+					collectRules = function(rules)
+						for _, rule in rules do
+							if rule.type == "group" then
+								collectRules(rule.children)
+							elseif rule.enabled then
+								if rule.MeshHide then
+									for _, id in rule.replace_ids do
+										self.HideMeshes[tostring(id)] = true
+									end
+								elseif rule.MeshAsset then
+									local meshRule = { Name = rule.name, Asset = "rbxassetid://" .. tostring(rule.with_id) }
+
+									for _, id in rule.replace_ids do
+										self.MeshRules[tostring(id)] = meshRule
+									end
+								else
+									local replacement = rule.with_id and "rbxassetid://" .. tostring(rule.with_id) or ""
+									local extension = rule.cdn_url and rule.cdn_url:match("^[^?#]+"):match("%.(%w+)$")
+
+									if extension == "obj" then
+										local meshRule = { Name = rule.name, Url = rule.cdn_url, Index = tostring(rule.replace_ids[1]) }
+
+										for _, id in rule.replace_ids do
+											self.MeshRules[tostring(id)] = meshRule
+										end
+									else
+										local download = nil
+
+										if rule.mode == "cdn" then
+											download = downloadByUrl[rule.cdn_url]
+
+											if not download then
+												local ruleNumber = #self.Rules + 1
+
+												download = {
+													Targets = {},
+													Run = function()
+														local isFont = extension == "ttf" or extension == "otf"
+														local path = ASSET_ROOT .. "/" .. packName .. "/" .. tostring(ruleNumber) .. "_" .. rule.name:gsub("[^%w_-]", "_") .. "." .. extension
+
+														local function isValidFile(data)
+															if type(data) ~= "string" then
+																return false
+															end
+
+															if isFont then
+																return data:sub(1, 4) == "\0\1\0\0" or data:sub(1, 4) == "OTTO"
+															end
+
+															if extension == "png" then
+																return data:sub(1, 8) == "\137PNG\r\n\26\n"
+															end
+
+															if extension == "ogg" then
+																return data:sub(1, 4) == "OggS"
+															end
+
+															if extension == "wav" then
+																return data:sub(1, 4) == "RIFF" and data:sub(9, 12) == "WAVE"
+															end
+
+															if extension == "webp" then
+																return data:sub(1, 4) == "RIFF" and data:sub(9, 12) == "WEBP"
+															end
+
+															if extension == "mp3" or extension == "mpeg" then
+																local isMp3 = data:sub(1, 3) == "ID3"
+
+																if not isMp3 then
+																	isMp3 = data:byte(1) == 255
+
+																	if isMp3 then
+																		isMp3 = (data:byte(2) or 0) >= 224
+																	end
+																end
+
+																return isMp3
+															end
+
+															return false
+														end
+
+														if not isValidFile(isfile(path) and readfile(path)) then
+															local data = game:HttpGet(rule.cdn_url)
+															assert(isValidFile(data), "invalid asset download: " .. rule.name)
+															writefile(path, data)
+														end
+
+														local asset = toAsset(path)
+
+														if isFont then
+															local facePath = path .. ".json"
+
+															writefile(facePath, HttpService:JSONEncode({
+																name = "Kicia Texture Pack",
+																faces = { { name = "Regular", weight = 400, style = "Normal", assetId = asset } },
+															}))
+
+															local regular = Enum.FontWeight.Regular
+															local normal = Enum.FontStyle.Normal
+															asset = Font.new(toAsset(facePath), regular, normal)
+														end
+
+														return asset
+													end,
+												}
+
+												downloadByUrl[rule.cdn_url] = download
+												downloads[#downloads + 1] = download
+											end
+										end
+
+										local ids = {}
+
+										for _, id in rule.replace_ids do
+											ids[tostring(id)] = true
+										end
+
+										local skyProperty = skyPropertyOf(rule.name) or rule.Property
+										local allSky = skyProperty == nil and type(rule.name) == "string" and rule.name:lower():find("skybox", 1, true) ~= nil
+
+										self.Rules[#self.Rules + 1] = {
+											Name = (extension == "ttf" or extension == "otf") and "Font" or rule.name,
+											Ids = ids,
+											Value = replacement,
+											Property = skyProperty,
+											AllSky = allSky,
+										}
+
+										if download then
+											download.Targets[#download.Targets + 1] = self.Rules[#self.Rules]
+										end
+									end
+								end
+							end
+						end
+					end
+
+					collectRules(packData.replacement_rules)
+
+					for _, rule in self.Rules do
+						local property = rule.Property
+
+						if rule.AllSky or (property ~= nil and property:sub(1, 6) == "Skybox") then
+							self.HasSkyRules = true
+							break
+						end
+					end
+
+					local nextDownload = 1
+					local activeWorkers = math.min(4, #downloads)
+					local failure = nil
+
+					for i = 1, activeWorkers do
+						task.spawn(function()
+							local ok, result = pcall(function()
+								while nextDownload <= #downloads and not failure and self.Enabled and not self.Unloaded do
+									local download = downloads[nextDownload]
+									nextDownload += 1
+									local ok, value = pcall(download.Run)
+									local failed = not ok
+
+									if failed and not packData.AllowPartial then
+										error(value, 0)
+									end
+
+									for _, target in download.Targets do
+										target.Disabled = not ok
+
+										if ok then
+											target.Value = value
+										end
+									end
+
+									if failed then
+										warn("Kicia texture pack asset skipped: " .. tostring(value))
+									end
+								end
+							end)
+
+							if not ok then
+								failure = result
+							end
+
+							activeWorkers -= 1
+						end)
+					end
+
+					while activeWorkers > 0 do
+						task.wait()
+					end
+
+					if failure then
+						error(failure, 0)
+					end
+
+					assert(self.Enabled and not self.Unloaded, "texture loading cancelled")
+				end
+
+				texturePack.Apply = function(self, instance, property, state)
+					if not self.Enabled or not self.Records[instance] or self.Records[instance].MeshWriting then
+						return
+					end
+					local current = instance[property]
+
+					if state.Applied ~= nil then
+						local same = current == state.Applied
+
+						if not same then
+							local okCurrent, currentText = pcall(tostring, current)
+							local okApplied, appliedText = pcall(tostring, state.Applied)
+							same = okCurrent and okApplied and currentText == appliedText
+						end
+
+						if same then
+							return
+						end
+					end
+
+					state.Original = current
+					state.Applied = nil
+
+					if property == "LocalTransparencyModifier" then
+						state.Applied = 1
+						instance[property] = 1
+						return
+					end
+
+					local assetId = assetIdOf(property == "FontFace" and current.Family or current)
+					local isSkyInstance = instance:IsA("Sky")
+
+					if isSkyInstance and tbl17.skyboxPresetActive == true then
+						return
+					end
+
+					if not assetId and not isSkyInstance then
+						return
+					end
+
+					for _, rule in self.Rules do
+						local applies = rule.Name == "Font" and property == "FontFace" or rule.Name:sub(1, 3) == "Sky" and property == "Skybox" .. rule.Name:sub(4) or rule.Name ~= "Font" and rule.Name:sub(1, 3) ~= "Sky" and property ~= "FontFace"
+						local isSkyRule = rule.AllSky or (rule.Property ~= nil and rule.Property:sub(1, 6) == "Skybox")
+						local matches
+
+						if isSkyRule then
+							matches = isSkyInstance
+						else
+							matches = assetId ~= nil and rule.Ids[assetId] ~= nil
+						end
+
+						if not rule.Disabled and applies and (not rule.Property or rule.Property == property) and matches then
+							state.Applied = rule.Value
+
+							if assignProperty(instance, property, rule.Value) then
+								local applied = instance[property]
+
+								if applied ~= nil then
+									state.Applied = applied
+								end
+
+								return
+							end
+
+							state.Applied = nil
+						end
+					end
+				end
+
+				texturePack.Remove = function(self, instance)
+					local record = self.Records[instance]
+					if not record then
+						return
+					end
+					self.Records[instance] = nil
+
+					if record.Chunks then
+						self.ChunkRecords[instance] = nil
+
+						if not next(self.ChunkRecords) and self.ChunkConnection then
+							self.ChunkConnection:Disconnect()
+							self.ChunkConnection = nil
+						end
+
+						for _, chunkPart in record.Chunks do
+							self.Generated[chunkPart] = nil
+							chunkPart:Destroy()
+						end
+					end
+
+					for _, connection in record.Connections do
+						connection:Disconnect()
+					end
+
+					if record.MeshOriginal then
+						pcall(function()
+							if not record.MeshApplied or instance.MeshContent == record.MeshApplied then
+								local textureID = instance.TextureID
+								instance:ApplyMesh(record.MeshOriginal)
+								instance.TextureID = textureID
+							end
+						end)
+
+						record.MeshOriginal:Destroy()
+					end
+
+					for k, state in record.Properties do
+						if state.Applied ~= nil then
+							pcall(function()
+								local current = instance[k]
+								local matches = current == state.Applied
+
+								if not matches then
+									local okCurrent, currentText = pcall(tostring, current)
+									local okApplied, appliedText = pcall(tostring, state.Applied)
+									matches = okCurrent and okApplied and currentText == appliedText
+								end
+
+								if matches then
+									assignProperty(instance, k, state.Original)
+								end
+							end)
+						end
+					end
+				end
+
+				texturePack.Track = function(self, instance)
+					if not self.Enabled or self.Records[instance] or self.Generated[instance] then
+						return
+					end
+					local properties
+
+					if instance:IsA("Sky") then
+						properties = { "SkyboxBk", "SkyboxDn", "SkyboxFt", "SkyboxLf", "SkyboxRt", "SkyboxUp" }
+					elseif instance:IsA("Sound") then
+						properties = { "SoundId" }
+					elseif instance:IsA("Animation") then
+						properties = { "AnimationId" }
+					elseif instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox") then
+						properties = { "FontFace" }
+					elseif instance:IsA("ImageLabel") or instance:IsA("ImageButton") then
+						properties = { "Image" }
+					elseif instance:IsA("Decal") or instance:IsA("Texture") or instance:IsA("ParticleEmitter") or instance:IsA("Beam") or instance:IsA("Trail") then
+						properties = { "Texture" }
+					elseif instance:IsA("MeshPart") then
+						properties = { "TextureID" }
+					elseif instance:IsA("SpecialMesh") then
+						properties = { "TextureId" }
+
+						if self.HideMeshes[assetIdOf(instance.MeshId)] and instance.Parent then
+							self:Track(instance.Parent)
+						end
+					else
+						if not instance:IsA("BasePart") then
+							return
+						end
+						local specialMesh = instance:FindFirstChildWhichIsA("SpecialMesh")
+						if not (specialMesh and self.HideMeshes[assetIdOf(specialMesh.MeshId)]) then
+							return
+						end
+						properties = { "LocalTransparencyModifier" }
+					end
+
+					if instance:IsA("MeshPart") and self.HideMeshes[assetIdOf(instance.MeshId)] then
+						properties[#properties + 1] = "LocalTransparencyModifier"
+					end
+
+					local record = { Properties = {}, Connections = {} }
+					self.Records[instance] = record
+
+					for _, property in properties do
+						local state = {}
+						record.Properties[property] = state
+
+						record.Connections[#record.Connections + 1] = instance:GetPropertyChangedSignal(property):Connect(function()
+							self:Apply(instance, property, state)
+						end)
+
+						self:Apply(instance, property, state)
+					end
+
+					if instance:IsA("MeshPart") then
+						self:QueueMesh(instance, record)
+					end
+				end
+
+				texturePack.Stop = function(self)
+					if self.ChunkConnection then
+						self.ChunkConnection:Disconnect()
+						self.ChunkConnection = nil
+					end
+
+					for _, connection in self.Connections do
+						connection:Disconnect()
+					end
+
+					table.clear(self.Connections)
+
+					for k in self.Records do
+						self:Remove(k)
+					end
+
+					local createdSky = self.CreatedSky
+
+					if createdSky ~= nil then
+						self.CreatedSky = nil
+
+						if createdSky.Parent ~= nil then
+							createdSky:Destroy()
+						end
+					end
+
+					table.clear(self.MeshQueue)
+
+					for _, mesh in self.MeshCache do
+						if mesh then
+							if mesh.Chunks then
+								for _, chunk in mesh.Chunks do
+									chunk.Template:Destroy()
+									chunk.Editable:Destroy()
+								end
+							else
+								mesh.Template:Destroy()
+
+								if mesh.Editable then
+									mesh.Editable:Destroy()
+								end
+							end
+						end
+					end
+
+					table.clear(self.MeshCache)
+				end
+
+				texturePack.SyncSky = function(self)
+					if not self.Enabled or self.Unloaded or not self.HasSkyRules then
+						return
+					end
+
+					if tbl17.skyboxPresetActive == true then
+						return
+					end
+					local lighting = game:GetService("Lighting")
+					local sky = lighting:FindFirstChildWhichIsA("Sky")
+
+					if sky == nil then
+						sky = Instance.new("Sky")
+						sky.Name = "Sky"
+						self.CreatedSky = sky
+						sky.Parent = lighting
+					end
+
+					if not self.Records[sky] then
+						self:Track(sky)
+					end
+					local record = self.Records[sky]
+
+					if record ~= nil then
+						for property, state in record.Properties do
+							self:Apply(sky, property, state)
+						end
+					end
+				end
+
+				texturePack.Start = function(self)
+					if not self.Enabled or self.Unloaded then
+						return
+					end
+					self:Stop()
+					local skyboxEnabled = tbl17.skyboxPresetActive == true
+
+					if self.HasSkyRules and not skyboxEnabled then
+						local lighting = game:GetService("Lighting")
+						local sky = lighting:FindFirstChildWhichIsA("Sky")
+
+						if sky == nil then
+							sky = Instance.new("Sky")
+							sky.Name = "Sky"
+							self.CreatedSky = sky
+							sky.Parent = lighting
+						end
+
+						self:Track(sky)
+					end
+
+					self.Connections[1] = game.DescendantAdded:Connect(function(descendant)
+						self:Track(descendant)
+					end)
+
+					self.Connections[2] = game.DescendantRemoving:Connect(function(descendant)
+						self:Remove(descendant)
+					end)
+
+					for k, descendant in game:GetDescendants() do
+						if k % 250 == 0 then
+							task.wait()
+						end
+
+						if not self.Enabled or self.Unloaded then
+							return
+						end
+
+						if descendant:IsDescendantOf(game) then
+							self:Track(descendant)
+						end
+					end
+				end
+
+				texturePack.SetEnabled = function(self, enabled)
+					if self.Unloaded then
+						return
+					end
+
+					if not enabled then
+						self.Enabled = false
+						self:Stop()
+						return
+					end
+
+					if self.Enabled == enabled then
+						return
+					end
+
+					self.Enabled = enabled
+
+					if self.Loading then
+						return
+					end
+					self.Loading = true
+
+					task.spawn(function()
+						local ok, result = pcall(function()
+							if not self.Ready then
+								table.clear(self.Rules)
+								self:Prepare(pack)
+								self.Ready = true
+							end
+
+							self:Start()
+						end)
+
+						self.Loading = false
+
+						if not ok then
+							self.Enabled = false
+							self:Stop()
+
+							if string.find(tostring(result), "texture loading cancelled", 1, true) == nil then
+								warn("Kicia texture pack: " .. tostring(result))
+							end
+						end
+					end)
+				end
+
+				texturePack.Unload = function(self)
+					self.Unloaded = true
+					self.Enabled = false
+					self:Stop()
+				end
+
+				return texturePack
+			end
+
+local index2 = {}
+index2.__index = index2
+
+index2.new = function()
+local trove = tbl17.k().new("texture_pack_packs")
+local tbl18 = {
+_trove = trove,
+_destroyed = false,
+_packs = {},
+_activePack = nil,
+_activeName = nil,
+}
+setmetatable(tbl18, index2)
+tbl18:_Initialize()
+return tbl18
+end
+
+index2._Initialize = function(arg)
+local function refresh()
+arg:_Refresh()
+end
+
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "TexturePack", "Enabled" }), refresh)
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "TexturePack", "Selected" }), refresh)
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "Skybox", "Enabled" }), function()
+task.defer(function()
+local pack = arg._activePack
+
+if pack ~= nil and pack.Enabled then
+pack:SyncSky()
+end
+end)
+end)
+arg:_Refresh()
+end
+
+index2._GetPack = function(arg, name)
+local pack = arg._packs[name]
+
+if pack == nil then
+pack = createTexturePack(name)
+arg._packs[name] = pack
+end
+
+return pack
+end
+
+index2._DisableActive = function(arg)
+local pack = arg._activePack
+
+if pack then
+arg._activePack = nil
+arg._activeName = nil
+pack:SetEnabled(false)
+end
+end
+
+index2._RestartActive = function(arg)
+if arg._destroyed then
+return
+end
+
+local pack = arg._activePack
+
+if pack == nil or not pack.Enabled then
+return
+end
+
+pack:SetEnabled(false)
+pack:SetEnabled(true)
+end
+
+index2._Refresh = function(arg)
+if arg._destroyed then
+return
+end
+local config = v115.Data.TexturePack
+local selected = config and config.Selected
+local active = config ~= nil and config.Enabled == true and selected ~= nil and packRules[selected] ~= nil
+
+if not active then
+arg:_DisableActive()
+return
+end
+
+if arg._activeName == selected and arg._activePack and arg._activePack.Enabled then
+return
+end
+
+arg:_DisableActive()
+local pack = arg:_GetPack(selected)
+arg._activePack = pack
+arg._activeName = selected
+pack:SetEnabled(true)
+end
+
+index2.Destroy = function(arg)
+arg._destroyed = true
+
+for _, pack in arg._packs do
+pack:Unload()
+end
+
+table.clear(arg._packs)
+arg._activePack = nil
+arg._activeName = nil
+arg._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.texturePackPacks = function()
+local texturePackPacks = tbl17.cache.texturePackPacks
+
+if not texturePackPacks then
+texturePackPacks = { c = fn35() }
+tbl17.cache.texturePackPacks = texturePackPacks
+end
+
+return texturePackPacks.c
+end
+end
+
+do
+local function fn35()
+local v115 = tbl17.bG()
+local v116 = tbl17.az()
+local runService = game:GetService("RunService")
+local localPlayer = cloneref(game:GetService("Players")).LocalPlayer
+local trackedProperties = { "Text", "TextColor3", "FontFace", "Visible", "Position", "TextScaled", "TextSize", "TextTransparency" }
+local index2 = {}
+index2.__index = index2
+
+index2.new = function()
+local trove = tbl17.k().new("eliminated_spoofer")
+local tbl18 = {
+_trove = trove,
+_states = {},
+_frames = {},
+_active = true,
+_destroyed = false,
+_playerGui = nil,
+_gradientState = nil,
+}
+setmetatable(tbl18, index2)
+tbl18:_Initialize()
+return tbl18
+end
+
+index2._Initialize = function(arg)
+local function refresh()
+if not arg._destroyed then
+arg:Refresh()
+end
+end
+
+for _, key in { "Show", "Color", "Text", "Font", "NamePosition", "NameColorEnabled", "NameColor", "CustomPosition", "X", "Y", "CustomSize", "TextSize", "Gradient", "GradientStartColor", "GradientColor", "GradientRotation", "GradientAnimation", "GradientSpeed", "Animation", "AnimationDuration" } do
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "EliminatedSpoofer", key }), refresh)
+end
+
+arg._trove:Connect(v115:GetPropertyChangedSignal({ "EliminatedSpoofer", "Enabled" }), function()
+arg:SetEnabled(v115.Data.EliminatedSpoofer.Enabled ~= false)
+end)
+
+arg._trove:Connect(runService.PreRender, function()
+local options = v115.Data.EliminatedSpoofer
+if options == nil or not options.Show then
+return
+end
+local now = os.clock()
+local animatedGradient = options.Gradient and options.GradientAnimation ~= "static"
+
+for label, state in arg._states do
+if state.Parts and label.Parent and state.Original.Visible and (animatedGradient or state.Animating) then
+arg:Animate(label, state, options, now)
+end
+end
+end)
+
+arg._trove:Connect(localPlayer.CharacterAdded, function()
+task.defer(function()
+if not arg._destroyed then
+arg:Refresh()
+arg:_BindPlayerGui()
+end
+end)
+end)
+
+arg:SetEnabled(v115.Data.EliminatedSpoofer.Enabled ~= false)
+arg:_BindPlayerGui()
+end
+
+index2.SetEnabled = function(arg, enabled)
+if arg._destroyed then
+return
+end
+local wasActive = arg._active
+arg._active = enabled ~= false
+
+if not arg._active then
+for label in arg._states do
+arg:Remove(label, true)
+end
+return
+end
+
+if wasActive then
+return
+end
+local playerGui = arg._playerGui
+
+if playerGui ~= nil and playerGui.Parent ~= nil then
+for _, descendant in playerGui:GetDescendants() do
+if descendant:IsA("TextLabel") then
+arg:Track(descendant)
+end
+end
+end
+end
+
+index2._BindPlayerGui = function(arg)
+if arg._destroyed then
+return
+end
+local playerGui = arg._playerGui
+if playerGui ~= nil and playerGui.Parent ~= nil then
+return
+end
+arg._playerGui = nil
+
+task.spawn(function()
+local pg = localPlayer:FindFirstChildOfClass("PlayerGui") or localPlayer:WaitForChild("PlayerGui", 10)
+if arg._destroyed or pg == nil or arg._playerGui ~= nil then
+return
+end
+arg._playerGui = pg
+
+for _, descendant in pg:GetDescendants() do
+arg:Track(descendant)
+end
+
+arg._trove:Connect(pg.DescendantAdded, function(descendant)
+if descendant:IsA("TextLabel") and descendant.Name == "TextLabel" then
+task.defer(function()
+if not arg._destroyed then
+arg:Track(descendant)
+end
+end)
+end
+end)
+end)
+end
+
+index2.GetGradient = function(arg, options, clock)
+local gradientStartColor = options.GradientStartColor or options.Color
+local gradientColor = options.GradientColor
+local isFlow = options.GradientAnimation == "flow"
+local phaseClock = isFlow and clock or 0
+local gradientSpeed = options.GradientSpeed or 0.5
+local gradientState = arg._gradientState
+if gradientState and gradientState.First == gradientStartColor and gradientState.Second == gradientColor and gradientState.Clock == phaseClock and gradientState.Speed == gradientSpeed and gradientState.Flow == isFlow then
+return gradientState.Color
+end
+local sequence
+
+if isFlow then
+local phase = -(clock * gradientSpeed * 3)
+local colorSequence = ColorSequence.new
+local keypoints = {}
+local key0 = ColorSequenceKeypoint.new(0, gradientStartColor:Lerp(gradientColor, (math.sin(phase) + 1) * 0.5))
+local key1 = ColorSequenceKeypoint.new(0.33, gradientStartColor:Lerp(gradientColor, (math.sin(phase + 0.52) + 1) * 0.5))
+local key2 = ColorSequenceKeypoint.new(0.66, gradientStartColor:Lerp(gradientColor, (math.sin(phase + 1.04) + 1) * 0.5))
+keypoints[1] = key0
+keypoints[2] = key1
+keypoints[3] = key2
+
+do
+local values = table.pack(ColorSequenceKeypoint.new(1, gradientStartColor:Lerp(gradientColor, (math.sin(phase + 1.57) + 1) * 0.5)))
+table.move(values, 1, values.n, 4, keypoints)
+end
+
+sequence = colorSequence(keypoints)
+else
+local colorSequence = ColorSequence.new
+local keypoints = {}
+local key0 = ColorSequenceKeypoint.new(0, gradientStartColor)
+local key1 = ColorSequenceKeypoint.new(0.25, gradientStartColor:Lerp(gradientColor, 0.25))
+local key2 = ColorSequenceKeypoint.new(0.5, gradientStartColor:Lerp(gradientColor, 0.5))
+local newKeypoint = ColorSequenceKeypoint.new
+local key3 = ColorSequenceKeypoint.new(0.75, gradientStartColor:Lerp(gradientColor, 0.75))
+keypoints[1] = key0
+keypoints[2] = key1
+keypoints[3] = key2
+keypoints[4] = key3
+
+do
+local values = table.pack(newKeypoint(1, gradientColor))
+table.move(values, 1, values.n, 5, keypoints)
+end
+
+sequence = colorSequence(keypoints)
+end
+
+arg._gradientState = { First = gradientStartColor, Second = gradientColor, Clock = phaseClock, Speed = gradientSpeed, Flow = isFlow, Color = sequence }
+return sequence
+end
+
+index2.Parse = function(arg, text)
+local segments = {}
+
+for match in text:gmatch("<stroke[^>]*>.-</stroke>") do
+segments[#segments + 1] = match
+end
+
+local count = #segments
+if count < 2 then
+return nil
+end
+
+if segments[count - 1]:gsub("<[^>]+>", ""):match("^%s*(.-)%s*$"):lower() ~= "eliminated" then
+return nil
+end
+
+return {
+Prefix = count > 2 and table.concat(segments, "  ", 1, count - 2) .. "  " or "",
+Name = segments[count],
+PlainName = segments[count]:gsub("<[^>]+>", ""),
+}
+end
+
+index2.Format = function(arg, parts, options)
+local text = tostring(options.Text or ""):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
+local name = parts.Name
+
+if options.NameColorEnabled then
+name = "<stroke color=\"rgb(0,0,0)\" joins=\"round\" thickness=\"3\" transparency=\"0\"><font color=\"#" .. options.NameColor:ToHex() .. "\"><font weight=\"800\">" .. parts.PlainName .. "</font></font></stroke>"
+end
+
+local function styleText(content)
+return "<stroke color=\"rgb(0,0,0)\" joins=\"round\" thickness=\"1\" transparency=\"0.75\"><font weight=\"500\">" .. content .. "</font></stroke>"
+end
+
+local namePosition = options.NamePosition or "after text"
+local body
+
+if namePosition == "template" then
+local pos = text:find("{name}", 1, true)
+
+if pos then
+body = styleText(text:sub(1, pos - 1)) .. name .. styleText(text:sub(pos + 6))
+else
+body = styleText(text) .. "  " .. name
+end
+elseif namePosition == "before text" then
+body = name .. "  " .. styleText(text)
+elseif namePosition == "above text" then
+body = name .. "\n" .. styleText(text)
+elseif namePosition == "below text" then
+body = styleText(text) .. "\n" .. name
+else
+body = styleText(text) .. "  " .. name
+end
+
+local combined = parts.Prefix .. body
+local result
+
+if options.Gradient then
+result = combined:gsub("<font color=\"[^\"]*\">", "<font color=\"#FFFFFF\">")
+else
+result = combined
+end
+
+return result
+end
+
+index2.Write = function(arg, label, state, property, value)
+state.Last[property] = value
+
+if label[property] ~= value then
+label[property] = value
+end
+end
+
+index2.ApplyFrame = function(arg, frame, frameState)
+local options = v115.Data.EliminatedSpoofer
+if options == nil then
+return
+end
+local position = options.CustomPosition and UDim2.fromScale(options.X / 100, options.Y / 100) or frameState.Position
+frameState.Last = position
+frame.Position = position
+end
+
+index2.TrackFrame = function(arg, frame)
+local existing = arg._frames[frame]
+if existing then
+existing.Count = existing.Count + 1
+return
+end
+local frameState = { Count = 1, Position = frame.Position }
+arg._frames[frame] = frameState
+
+frameState.Changed = frame:GetPropertyChangedSignal("Position"):Connect(function()
+if frame.Position == frameState.Last then
+return
+end
+frameState.Position = frame.Position
+if frameState.Pending then
+return
+end
+frameState.Pending = true
+
+task.defer(function()
+frameState.Pending = false
+
+if arg._active and arg._frames[frame] == frameState and frame.Parent then
+arg:ApplyFrame(frame, frameState)
+end
+end)
+end)
+
+arg:ApplyFrame(frame, frameState)
+end
+
+index2.RestoreLabel = function(arg, label, state)
+for _, property in trackedProperties do
+if label[property] == state.Last[property] then
+arg:Write(label, state, property, state.Original[property])
+end
+end
+
+if state.Gradient then
+state.Gradient:Destroy()
+state.Gradient = nil
+end
+
+if state.NativeGradient and state.NativeGradient.Parent then
+state.NativeGradient.Enabled = state.GradientEnabled
+end
+
+if state.Scale then
+if state.OwnScale then
+state.Scale:Destroy()
+else
+state.Scale.Scale = state.ScaleValue
+end
+
+state.Scale = nil
+end
+end
+
+index2.Remove = function(arg, label, restore)
+local state = arg._states[label]
+if not state then
+return
+end
+arg._states[label] = nil
+
+for _, connection in state.Connections do
+connection:Disconnect()
+end
+
+if restore and label.Parent then
+arg:RestoreLabel(label, state)
+end
+
+local frame = state.Frame
+local frameState = arg._frames[frame]
+
+if frameState then
+frameState.Count = frameState.Count - 1
+
+if frameState.Count <= 0 then
+frameState.Changed:Disconnect()
+arg._frames[frame] = nil
+
+if frame.Parent and frame.Position == frameState.Last then
+frame.Position = frameState.Position
+end
+end
+end
+end
+
+index2.Animate = function(arg, label, state, options, now)
+local animation = options.Animation or "none"
+local clamp = math.clamp
+local elapsed = now - state.Started
+local max = math.max
+local animationDuration = options.AnimationDuration or 0.3
+local progress = clamp(elapsed / max(animationDuration, 0.05), 0, 1)
+state.Animating = animation ~= "none" and progress < 1
+local ease = (1 - progress) ^ 3
+local originalPosition = state.Original.Position
+local position
+
+if animation == "slide" then
+position = UDim2.new(originalPosition.X.Scale, originalPosition.X.Offset, originalPosition.Y.Scale, originalPosition.Y.Offset + 18 * ease)
+else
+position = originalPosition
+end
+
+arg:Write(label, state, "Position", position)
+local textTransparency = state.Original.TextTransparency
+
+if animation == "fade" or animation == "slide" then
+textTransparency = textTransparency + (1 - textTransparency) * ease
+end
+
+arg:Write(label, state, "TextTransparency", textTransparency)
+
+if state.Scale then
+state.Scale.Scale = state.ScaleValue * (animation == "pop" and 1 - 0.16 * ease or 1)
+end
+
+if state.Gradient then
+local gradientSpeed = options.GradientSpeed or 0.5
+local gradientAnimation = options.GradientAnimation or "static"
+
+if gradientAnimation == "flow" then
+state.Gradient.Color = arg:GetGradient(options, now)
+end
+
+state.Gradient.Rotation = (options.GradientRotation or 0) + (gradientAnimation == "rotate" and now * gradientSpeed * 60 % 360 or 0)
+local gradient = state.Gradient
+local offset = gradientAnimation == "sweep"
+
+if offset then
+offset = Vector2.new(math.sin(now * gradientSpeed * 3.1415926535897931) * 0.6, 0)
+end
+
+gradient.Offset = offset or Vector2.zero
+end
+end
+
+index2.Apply = function(arg, label, givenState)
+local state = givenState or arg._states[label]
+if not state or not label.Parent or not state.Parts then
+return
+end
+local options = v115.Data.EliminatedSpoofer
+if options == nil then
+return
+end
+local fontFace = options.Font ~= "Default"
+
+if fontFace then
+fontFace = v116:Get(options.Font)
+end
+
+fontFace = fontFace or state.Original.FontFace
+arg:Write(label, state, "Text", arg:Format(state.Parts, options))
+arg:Write(label, state, "TextColor3", options.Gradient and Color3.new(1, 1, 1) or options.Color)
+arg:Write(label, state, "FontFace", fontFace or state.Original.FontFace)
+arg:Write(label, state, "Visible", options.Show and state.Original.Visible or false)
+arg:Write(label, state, "TextScaled", not options.CustomSize and state.Original.TextScaled)
+arg:Write(label, state, "TextSize", options.CustomSize and options.TextSize or state.Original.TextSize)
+
+if options.Gradient then
+if not state.Gradient then
+state.NativeGradient = label:FindFirstChildOfClass("UIGradient")
+
+if state.NativeGradient then
+state.GradientEnabled = state.NativeGradient.Enabled
+state.NativeGradient.Enabled = false
+end
+
+state.Gradient = Instance.new("UIGradient")
+state.Gradient.Name = "KiciaEliminationGradient"
+state.Gradient.Parent = label
+end
+
+state.Gradient.Color = arg:GetGradient(options, os.clock())
+elseif state.Gradient then
+state.Gradient:Destroy()
+state.Gradient = nil
+
+if state.NativeGradient and state.NativeGradient.Parent then
+state.NativeGradient.Enabled = state.GradientEnabled
+end
+end
+
+if state.Animation ~= options.Animation then
+state.Animation = options.Animation
+state.Started = os.clock()
+end
+
+if options.Animation == "pop" and not state.Scale then
+state.Scale = label:FindFirstChildOfClass("UIScale")
+state.OwnScale = state.Scale == nil
+state.ScaleValue = state.Scale and state.Scale.Scale or 1
+
+if not state.Scale then
+state.Scale = Instance.new("UIScale")
+state.Scale.Name = "KiciaEliminationScale"
+state.Scale.Parent = label
+end
+elseif options.Animation ~= "pop" and state.Scale then
+if state.OwnScale then
+state.Scale:Destroy()
+else
+state.Scale.Scale = state.ScaleValue
+end
+
+state.Scale = nil
+end
+
+arg:Animate(label, state, options, os.clock())
+end
+
+index2.Track = function(arg, label)
+if not arg._active or arg._states[label] or not label:IsA("TextLabel") or label.Name ~= "TextLabel" then
+return
+end
+local parent = label.Parent
+parent = parent and parent.Parent
+if not parent or parent.Name ~= "EliminationSlots" then
+return
+end
+local state = { Original = {}, Last = {}, Connections = {}, Frame = parent, Started = os.clock() }
+
+for _, property in trackedProperties do
+state.Original[property] = label[property]
+end
+
+state.Parts = arg:Parse(state.Original.Text)
+arg._states[label] = state
+arg:TrackFrame(parent)
+
+for _, property in trackedProperties do
+state.Connections[#state.Connections + 1] = label:GetPropertyChangedSignal(property):Connect(function()
+if label[property] == state.Last[property] then
+return
+end
+state.Original[property] = label[property]
+
+if property == "Text" then
+state.Parts = arg:Parse(label.Text)
+state.Started = os.clock()
+end
+
+if state.Pending then
+return
+end
+state.Pending = true
+
+task.defer(function()
+state.Pending = false
+if not arg._active or arg._states[label] ~= state or not label.Parent then
+return
+end
+
+if state.Parts then
+arg:Apply(label, state)
+else
+arg:RestoreLabel(label, state)
+end
+end)
+end)
+end
+
+state.Connections[#state.Connections + 1] = label.Destroying:Connect(function()
+arg:Remove(label, false)
+end)
+
+arg:Apply(label, state)
+end
+
+index2.Refresh = function(arg)
+for label, state in arg._states do
+arg:Apply(label, state)
+end
+
+for frame, frameState in arg._frames do
+arg:ApplyFrame(frame, frameState)
+end
+end
+
+index2.Destroy = function(arg)
+arg._active = false
+arg._destroyed = true
+
+for label in arg._states do
+arg:Remove(label, true)
+end
+
+arg._trove:Destroy()
+end
+
+return index2
+end
+
+tbl17.eliminatedSpoofer = function()
+local eliminatedSpoofer = tbl17.cache.eliminatedSpoofer
+
+if not eliminatedSpoofer then
+eliminatedSpoofer = { c = fn35() }
+tbl17.cache.eliminatedSpoofer = eliminatedSpoofer
+end
+
+return eliminatedSpoofer.c
+end
+end
+
+do
+local function fn35()
 local v115 = tbl17.dh()
 task.wait()
 local v116 = tbl17.di()
@@ -68206,6 +74966,8 @@ tbl17.g1()
 local v177 = tbl17.g2()
 local v178 = tbl17.eZ()
 local v179 = tbl17.hb()
+local vViewmodelExtras = tbl17.viewmodelExtras()
+local vGameHealthBar = tbl17.gameHealthBar()
 local v180 = tbl17.hc()
 local v181 = tbl17.hd()
 local v182 = tbl17.hf()
@@ -68296,12 +75058,15 @@ local v216 = v147:Add(v155.new(v199, v197))
 local v217 = v147:Add(v154.new(v199, v216))
 v147:Add(v125.new(v217))
 v147:Add(v179.new(v199))
+v147:Add(vViewmodelExtras.new(v199))
+v147:Add(vGameHealthBar.new())
 
 v147:Add(v180.new(function()
 return v216:IsLocalViewModelThirdPerson()
 end))
 
 v147:Add(v181.new())
+v147:Add(tbl17.freecam().new())
 v147:Add(v152.new())
 v147:Add(tbl17.ju().new(v199))
 local v218 = v139.new(v201, v199)
@@ -68315,6 +75080,11 @@ local v224 = v147:Add(v131.new(v221, v212, { v220, v219 }))
 local v225 = v147:Add(tbl17.jw().new(v190, v199, v218))
 local _v226 = v147:Add(v160.new())
 local v227 = v147:Add(tbl17.jO().new(v190, playerTags, v199, v222, v210))
+local v240 = v147:Add(tbl17.antiAim().new(v199))
+local v241 = v147:Add(tbl17.characterAura().new())
+local v242 = v147:Add(tbl17.texturePack().new())
+local v244 = v147:Add(tbl17.texturePackPacks().new())
+local v243 = v147:Add(tbl17.eliminatedSpoofer().new())
 local v228 = v147:Add(v177.new(v199, v190, v201))
 local v229 = v147:Add(v116.new(v199, v190))
 local v230 = v147:Add(v141.new(v190, playerIdentities, v212))
@@ -68386,6 +75156,7 @@ v219:Update(arg2)
 v232:Update()
 v233:Update()
 v198:Update(arg2)
+v240:Update()
 v199:FlushViewAngles()
 end)
 
@@ -68459,6 +75230,8 @@ tbl17.hN = function() return nil end
 tbl17.hM = function() return nil end
 tbl17.jx = function() return nil end
 
+local KICIA_LEAF_B64 = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALySURBVHhe7ZshbxtBEIUDCwMLCwsLCwMDCwsDC/MTwgoDCwsDDYusEkspsBTJJKyGgYVlb6qp5qTqyb7z7b5Z37n+pBArun37+W53dvd8cXHmzJnWmNkbM7va8feW//ckMLNLAJ8APADYWg8AXgAsANy6KL7WrABw7Z3mTo4BwDcAH/nak8ZvZQ/OnakBwCOA99zW5DCzOwC/uQMqAHw2s1fc7tHxUAC+cuAM4u665AxHIzovveWHAPA0GQk+anPAQ9lueyeFXnxcOPrjENNVMev1mj8ahT92nKkZUbxUUSvA8RqDszUhnsMqRAJ81nnN+VIxsw8cpASFAMenR86YiuLbd4QCXpoNiF7icoBSVAKcZmOBsuARC/jOWVMYWtGNQSzAB8PcxyDW8jKUAoIrzizFnzNusYYEAXecWYo3wC3WoBaQXhnGclRGgoAHzixFOQM4CQJyZ4LaLS4mQcAjZ5bihrnRGhIEbDmzlJq1/y4SBDxxZikA7rnRGhIELDizlNoNECZBwD1nlqJaBnckCLjlzFLM7B03WoNagH9BnFlK7ADL9v0TBOQfpym3wJUCADxz1hSUA6FYQO4A2OFnf9x4KWIB15w1DdWmiEpAk82Qf1EVREIBuQUQ4/vwHKIElQCfnjljOop1gUJAev2/D0VRpBCQXvz0UXtAUivAD0Q4U1NqD0kEAtochvRRMxbUCEjf/TkUnxFK1wc1Ao4y8u+jtDwuFdCs7B1DyYBYIqDpSfAY/JYc+yiUCEg//qrBzG44bR8FAnKPvhQA+MKp9zFGgO9DcFuTJHaN/BW2QQ4VEKvPabwXeAi+NQXgF3eEOUSAjyuzeE+YiUGxV8KQgOh8u40ONUMS+gTMvvMd8buBndPjgIB5/U6gj30SNpsNf9Rxw9eYPSFh7+PghKTT63xHjAk7N1RDznSrPBWxevy7buhelw8pp/mrsV1EsbTwQTCKpvkUOUpWq9XPSa7sWrFcLn/wZ/8VZwFnAcu2R1rEH+ZRSP7WYEIOAAAAAElFTkSuQmCC"
+local KICIA_PETAL_B64 = "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKISURBVHhe7ZotUBxBEIWRSGRkJBIZGRmJRCIjkci4SCQyEhmJREZGRkYiI3GvU6+qp4p6xWXJbfdMz7FfFQLqbrt7memfN3N0tLGxMRIzO9W/vQnM7ATANzMzAPdm9k4/c7AA+ADgF4NvAHgE8Ek/e3AAuHoeuALgRr9zMLQlv4RviWP9/rQwGA/q1QD4yTyhz5oOT3YM5r8B8NvM3uszp2FN8I1pX0JE8I3pXsI+e36JaXJCRvCNKV4C67g6HgmA72qzDGZ2rg5nwGZKbQ+HSQrAH3U2AwBPbKfVh2H4vv+hjmbilaFGPgDwVR3sAYA79aU7ZnbGJanO9WL4BAngQZ3qiY/VYwanXll/iSFVwRPfozozAt+CfRWlJWGjN12FlEr//UbXVQDgQh0owrX6mkLUmBuNr8rcisAWVA1XgqtTfQ7ltcLmKNiXqM+heA9eFk+GOduAba8aLMq5+h5Ctdq/i7SegGqMGqsIq5T6HsLIqW8PYrUCJha1UJzYY3dKXmqhOB81hlXwgWqhOJcawyoK9/+7iJ0LAHxWC8X5ojGsgktKLRQn/AW87RzAsqIWKhOuFlNtUSOVSTk56nX0FURsJ0iqawGNNE1gol4gtgdouBo8w0CUd52m+kicNgo3JlCFctSg5/BYWq1WgHcU1NcU2BMUzQVn6msa7LXV+khYotXHdKokRL+ekyOF/wsvi0OPyfycos+h6Ev47bAhJ8Xemvfb97vwpNj7lhivxsQKn2vw7dClPPq9pPhhJwJKZ1lTo5feWKUnA78qfxPZKwC4HZrs9sET5O2+SZIryUfw8YluLezRGczSqvB7wHc+evev7T1weY0i67V3lPzh73lj7MbGi/wFlA9w53DexW0AAAAASUVORK5CYII="
 local LITHIUM_LOGO_B64 = "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"
 
 local GlobalTrove = tbl17.n()
@@ -68494,6 +75267,22 @@ do
         local path = "kiciarebuild/lithium_logo.png"
         local _ok = pcall(wrf, path, decode(LITHIUM_LOGO_B64))
         local _ok2, _id = pcall(gca, path)
+        local function writeTexture(name, source)
+            local texturePath = "kiciarebuild/" .. name .. ".png"
+            local wrote = pcall(wrf, texturePath, decode(source))
+            if not wrote then
+                return nil
+            end
+            local ok, id = pcall(gca, texturePath)
+            if ok then
+                return id
+            end
+            return nil
+        end
+        local weatherTextures = getgenv().KiciaWeatherTextures or {}
+        weatherTextures.Leaf = writeTexture("weather_leaf", KICIA_LEAF_B64) or weatherTextures.Leaf
+        weatherTextures.Petal = writeTexture("weather_petal", KICIA_PETAL_B64) or weatherTextures.Petal
+        getgenv().KiciaWeatherTextures = weatherTextures
     end
 end
 
@@ -68619,4 +75408,4 @@ task.spawn(function()
             dls()
         end)
     end
-end)
+end)        
